@@ -279,7 +279,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
   function sumAt(h,key){var s=0,any=false;for(var p in (h[key]||{})){if(h[key][p]!=null){s+=h[key][p];any=true;}}return any?s:null;}
   function past(hist,hours){var cut=Date.now()-hours*3600e3,best=null;for(var i=0;i<hist.length;i++){if(new Date(hist[i].at).getTime()<=cut)best=hist[i];}return best;}
   function dataView(){
-    var d=S.stats,age=(Date.now()/1000)-S.statsT,st=age>90*60?'bad':age>45*60?'warn':'';
+    var d=S.stats,age=(Date.now()/1000)-S.statsT,st=age>60*60?'bad':age>25*60?'warn':'';
     var hist=d.hist||[],h24=past(hist,24);
     var views=0,fans=0;PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
     var dv=h24?views-(sumAt(h24,'v')||0):null,df=h24?fans-(sumAt(h24,'f')||0):null;
