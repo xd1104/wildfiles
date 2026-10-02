@@ -257,7 +257,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
   function reviewList(){var v=(S.work&&S.work.videos)||{},p=pending();return Object.keys(v).filter(function(e){return v[e].status==='review'&&!p.some(function(a){return a.type==='review'&&a.ep===e;});});}
   function todo(){
     var np=needPick(),nr=reviewList().length,w=S.work&&S.work.week,txt,go='',v='',hot=false;
-    if(np){txt='本週題目等你挑 3 個'+(w.deadline?'（'+slot(w.deadline)+' 前，沒選就代挑）':'');go='去挑 ›';v='topics';hot=true;}
+    if(np){txt='本週題目等你挑 '+(w.pickCount||3)+' 個'+(w.deadline?'（'+slot(w.deadline)+' 前，沒選就代挑）':'');go='去挑 ›';v='topics';hot=true;}
     else if(nr){txt='有 '+nr+' 支片等你看，說「好」才會排程';go='去看 ›';v='review';hot=true;}
     else if(pending().length)txt='你送出的 '+pending().length+' 個動作，電腦最慢 10 分鐘內收';
     else txt='目前沒有要你處理的事';
@@ -295,7 +295,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       if(x.note)h+='<span class="err" style="color:var(--warn)">'+esc(x.note)+'</span>';
       h+='</div>';});
     h+='<h2>最近 3 天總觀看</h2>'+chart(hist)+'<h2>每支片</h2>'+videos(d,h24);
-    h+='<p class="note">版本 10-02e・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
+    h+='<p class="note">版本 10-02f・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
     h+='<p class="note">YouTube 公開觀看數比後台慢幾個小時，有「後台」字樣的是每天早上從 YouTube 後台讀的。FB 的觀看是 Reels 播放次數。</p>';
     return h;
   }
@@ -338,9 +338,9 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
     if(open&&!S.picks[w.id])S.picks[w.id]=lsGet(LS_PICK+w.id,{});
     var sel=open?S.picks[w.id]:{};
     if(!open){(p?p.picks:(w.picks||[])).forEach(function(x){sel[x.id]=x.hook;});}
-    var st=p?'已送出，等電腦收':open?'挑 3 個，每個選一句開場':w.pickedBy==='producer'?'你沒選，製作人代挑了':'已選好，製作中';
+    var need=w.pickCount||3,st=p?'已送出，等電腦收':open?'挑 '+need+' 個，每個選一句開場':w.pickedBy==='producer'?'你沒選，製作人代挑了':'已選好，製作中';
     var h='<div class="wk"><b>'+esc(w.label||w.id)+'</b><span class="pill '+(open?'warn':'ok')+'">'+st+'</span></div>'+
-      '<p class="pnote">'+(open?(w.deadline?esc(slot(w.deadline))+' 前沒選，製作人會挑排名前 3 的、用第一句開場。':''):'這週的 3 支會在 '+esc(w.slotsText||'週四、週六、下週二')+' 11:30 發。')+'</p>';
+      '<p class="pnote">'+(open?(w.deadline?esc(slot(w.deadline))+' 前沒選，製作人會挑'+(need===1?'排名第 1 的':'排名前 '+need+' 的')+'、用第一句開場。':''):'這'+(need===1?'支':'週的 '+need+' 支')+'會在 '+esc(w.slotsText||'週四、週六、下週二')+' 11:30 發。')+'</p>';
     h+=w.topics.map(function(tp,i){var on=tp.id in sel,hooks=tp.hooks||[];
       var hh='';if(hooks.length&&(on||!open)){hh='<div class="hooks"><span class="lab">'+(open?'選一句開場：':'開場：')+'</span>'+hooks.map(function(s,j){
         if(!open)return on&&sel[tp.id]===j?'<div class="hk static" aria-pressed="true">'+esc(s)+'</div>':'';
@@ -353,13 +353,13 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
   }
   function bindTopics(){var w=S.work.week;
     document.querySelectorAll('.topic .hd').forEach(function(b){b.addEventListener('click',function(){var sel=S.picks[w.id],id=b.dataset.t;
-      if(id in sel)delete sel[id];else{if(Object.keys(sel).length>=3){toast('最多 3 個，先取消一個');return;}sel[id]=0;}
+      if(id in sel)delete sel[id];else{var need=w.pickCount||3;if(need===1){for(var k in sel)delete sel[k];}else if(Object.keys(sel).length>=need){toast('最多 '+need+' 個，先取消一個');return;}sel[id]=0;}
       lsSet(LS_PICK+w.id,sel);render();});});
     document.querySelectorAll('.hk[data-t]').forEach(function(b){b.addEventListener('click',function(){S.picks[w.id][b.dataset.t]=+b.dataset.h;lsSet(LS_PICK+w.id,S.picks[w.id]);render();});});
   }
   function pickBar(){var w=S.work&&S.work.week,show=S.tab==='topics'&&needPick();$('pickBar').hidden=!show;if(!show)return;
-    var n=Object.keys(S.picks[w.id]||{}).length;$('pickCount').textContent='已選 '+n+' / 3';$('pickSubmit').disabled=n!==3||S.busy;}
-  $('pickSubmit').addEventListener('click',function(){var w=S.work.week,sel=S.picks[w.id]||{},ids=Object.keys(sel);if(ids.length!==3)return;
+    var n=Object.keys(S.picks[w.id]||{}).length,need=w.pickCount||3;$('pickCount').textContent='已選 '+n+' / '+need;$('pickSubmit').disabled=n!==need||S.busy;}
+  $('pickSubmit').addEventListener('click',function(){var w=S.work.week,sel=S.picks[w.id]||{},ids=Object.keys(sel);if(ids.length!==(w.pickCount||3))return;
     var order=w.topics.map(function(t){return t.id;}).filter(function(id){return id in sel;});
     $('pickSubmit').disabled=true;$('pickSubmit').textContent='送出中…';
     send({type:'pick',week:w.id,picks:order.map(function(id){return {id:id,hook:sel[id]};})})
