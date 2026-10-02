@@ -147,10 +147,11 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       if(x.ok)h+='<span class="c"><span class="n">'+fmt(x.totalViews)+'</span><small>觀看 '+(b!=null?plus(x.totalViews-b):'')+'</small></span><span class="c"><span class="n">'+fmt(x.followers)+'</span><small>粉絲 '+(bf!=null?plus(x.followers-bf):'')+'</small></span>';
       else if(x.pending)h+='<span class="off">還沒接上 API</span>';
       else h+='<span class="off" style="color:var(--bad)">這次沒抓到</span><span class="err">'+esc(x.err||'')+'</span>';
+      if(x.note)h+='<span class="err" style="color:var(--warn)">'+esc(x.note)+'</span>';
       h+='</div>';});
     h+='<h2>最近 3 天總觀看</h2>'+chart(hist);
     h+='<h2>每支片</h2>'+videos(d,h24);
-    h+='<p class="note">YouTube 公開觀看數比後台的數據分析慢一些，詳細的留存率看荒野檔案控制台。</p>';
+    h+='<p class="note">YouTube 公開觀看數比後台的數據分析慢一些；FB 的觀看是 Reels 播放次數。平均觀看秒數目前只有 IG、FB 有。</p>';
     app.innerHTML=h;
     document.getElementById('re').addEventListener('click',refresh);
   }
@@ -172,13 +173,13 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
   function videos(d,h24){
     var rows={};PF.forEach(function(p){var x=d.platforms[p.k];if(!x||!x.ok)return;(x.videos||[]).forEach(function(v){
       var key=v.ep||(p.k+':'+v.id),r=rows[key]||(rows[key]={ep:v.ep,title:(v.ep&&d.episodes[v.ep]&&d.episodes[v.ep].title)||v.title,per:{},likes:0,comments:0});
-      r.per[p.k]=v.views;r.likes+=v.likes||0;r.comments+=v.comments||0;});});
+      r.per[p.k]=v.views;if(v.avgWatchSec!=null)(r.watch||(r.watch={}))[p.k]=v.avgWatchSec;r.likes+=v.likes||0;r.comments+=v.comments||0;});});
     var list=Object.keys(rows).map(function(k){var r=rows[k];r.tot=0;for(var p in r.per)r.tot+=r.per[p];
       if(h24&&r.ep&&h24.e&&h24.e[r.ep]){var s=0;for(var q in h24.e[r.ep])s+=h24.e[r.ep][q];r.d24=r.tot-s;}return r;}).sort(function(a,b){return b.tot-a.tot;});
     if(!list.length)return '<div class="empty">還沒有片的數據。</div>';
     return list.map(function(r){var no=r.ep&&d.episodes[r.ep]?d.episodes[r.ep].no:null;
       return '<div class="vid"><div class="h"><span>'+(no?'<span class="no">#'+String(no).padStart(2,'0')+'</span>':'')+esc(r.title)+'</span><span class="tot n">'+fmt(r.tot)+'</span></div>'+
-        '<div class="m">'+PF.filter(function(p){return r.per[p.k]!=null;}).map(function(p){return '<span>'+p.n+' '+fmt(r.per[p.k])+'</span>';}).join('')+
+        '<div class="m">'+PF.filter(function(p){return r.per[p.k]!=null;}).map(function(p){return '<span>'+p.n+' '+fmt(r.per[p.k])+(r.watch&&r.watch[p.k]!=null?'（平均看 '+r.watch[p.k]+' 秒）':'')+'</span>';}).join('')+
         '<span>讚 '+fmt(r.likes)+'</span><span>留言 '+fmt(r.comments)+'</span>'+(r.d24!=null?'<span>24 小時 '+plus(r.d24)+'</span>':'')+'</div></div>';}).join('');
   }
 
