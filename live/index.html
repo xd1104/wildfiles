@@ -6,7 +6,8 @@
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#0E1216">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<!-- ⛔ 不要用 black-translucent：iPhone 主畫面 App 會讓底部約一個狀態列高的區域畫不上去（分頁列浮起、文字被切），10-02 踩過三輪 -->
 <meta name="apple-mobile-web-app-title" content="荒野數據">
 <link rel="apple-touch-icon" href="../avatar.jpg">
 <title>荒野檔案 即時數據</title>
@@ -150,8 +151,6 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
 (function(){function fit(){var h=window.innerHeight;
-    /* iPhone 從主畫面打開時連 innerHeight 都少一個狀態列 ⇒ 改用整個螢幕的尺寸（主畫面 App 本來就是全螢幕） */
-    if(window.navigator.standalone){var land=Math.abs(window.orientation||0)===90;var sh=land?Math.min(screen.width,screen.height):Math.max(screen.width,screen.height);h=Math.max(h,sh);}
     document.documentElement.style.setProperty('--app-h',h+'px');window.__appH=h;}
   fit();window.addEventListener('resize',fit);window.addEventListener('orientationchange',function(){setTimeout(fit,300);});
   if(window.visualViewport)window.visualViewport.addEventListener('resize',fit);document.addEventListener('visibilitychange',fit);})();
@@ -296,7 +295,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       if(x.note)h+='<span class="err" style="color:var(--warn)">'+esc(x.note)+'</span>';
       h+='</div>';});
     h+='<h2>最近 3 天總觀看</h2>'+chart(hist)+'<h2>每支片</h2>'+videos(d,h24);
-    h+='<p class="note">版本 10-02c・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
+    h+='<p class="note">版本 10-02d・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
     h+='<p class="note">YouTube 公開觀看數比後台慢幾個小時，有「後台」字樣的是每天早上從 YouTube 後台讀的。FB 的觀看是 Reels 播放次數。</p>';
     return h;
   }
