@@ -159,7 +159,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
   /* 荒野數據（2026-10-02 起把原本 claude.ai 控制台的選題、審片併進來）
      讀：stats 分支的 stats.json（四平台數據）、work.json（製作進度）；media 分支的 epNN.bin（預覽片，AES-GCM）
      寫：Benson 按的挑題／審片 ⇒ 加密成封包 ⇒ 用 live/wtoken.json 裡（加密過）的寫入金鑰放進 inbox 分支
-         ⇒ 電腦每 30 分鐘的 live_stats.py 收進來（animal-shorts/live/work.py）
+         ⇒ 電腦每 10 分鐘的 live_stats.py 收進來（animal-shorts/live/work.py）
      解密跟 animal-shorts/live/wfcrypto.py（＝交易手機監控同一套）：PBKDF2 ⇒ k_enc‖k_mac；HMAC 金鑰流；影片鑰匙 = HMAC(k_enc,"wfvideo1") */
   var REPO = 'xd1104/wildfiles';
   var API = function (p, ref) { return 'https://api.github.com/repos/' + REPO + '/contents/' + p + '?ref=' + ref; };
@@ -259,7 +259,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
     var np=needPick(),nr=reviewList().length,w=S.work&&S.work.week,txt,go='',v='',hot=false;
     if(np){txt='本週題目等你挑 3 個'+(w.deadline?'（'+slot(w.deadline)+' 前，沒選就代挑）':'');go='去挑 ›';v='topics';hot=true;}
     else if(nr){txt='有 '+nr+' 支片等你看，說「好」才會排程';go='去看 ›';v='review';hot=true;}
-    else if(pending().length)txt='你送出的 '+pending().length+' 個動作，電腦最慢 30 分鐘內收';
+    else if(pending().length)txt='你送出的 '+pending().length+' 個動作，電腦最慢 10 分鐘內收';
     else txt='目前沒有要你處理的事';
     $('bTopics').hidden=!np;$('bTopics').textContent=np?'!':'';$('bReview').hidden=!nr;$('bReview').textContent=nr||'';
     return '<button class="todo'+(hot?' hot':'')+'" id="todo" type="button" data-v="'+v+'"><i></i><span>'+esc(txt)+'</span><span class="go">'+go+'</span></button>';
@@ -283,7 +283,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
     var hist=d.hist||[],h24=past(hist,24);
     var views=0,fans=0;PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
     var dv=h24?views-(sumAt(h24,'v')||0):null,df=h24?fans-(sumAt(h24,'f')||0):null;
-    var h='<div class="status '+st+'"><i></i>'+(st==='bad'?'超過 '+ago(age).replace('前','')+'沒更新，電腦可能關機或斷線':'數據更新於 '+ago(age)+'（每 30 分鐘自動更新）')+'</div>'+
+    var h='<div class="status '+st+'"><i></i>'+(st==='bad'?'超過 '+ago(age).replace('前','')+'沒更新，電腦可能關機或斷線':'數據更新於 '+ago(age)+'（每 10 分鐘自動更新）')+'</div>'+
       '<div class="hero"><div class="stat"><div class="k">總觀看</div><div class="v n">'+fmt(views)+'</div><div class="d">'+(h24?'過去 24 小時 '+plus(dv):'累積一天後顯示 24 小時增加')+'</div></div>'+
       '<div class="stat"><div class="k">總粉絲</div><div class="v n">'+fmt(fans)+'</div><div class="d">'+(h24?'過去 24 小時 '+plus(df):'　')+'</div></div></div>';
     h+='<h2>各平台</h2>';
@@ -295,7 +295,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       if(x.note)h+='<span class="err" style="color:var(--warn)">'+esc(x.note)+'</span>';
       h+='</div>';});
     h+='<h2>最近 3 天總觀看</h2>'+chart(hist)+'<h2>每支片</h2>'+videos(d,h24);
-    h+='<p class="note">版本 10-02d・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
+    h+='<p class="note">版本 10-02e・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
     h+='<p class="note">YouTube 公開觀看數比後台慢幾個小時，有「後台」字樣的是每天早上從 YouTube 後台讀的。FB 的觀看是 Reels 播放次數。</p>';
     return h;
   }
@@ -363,7 +363,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
     var order=w.topics.map(function(t){return t.id;}).filter(function(id){return id in sel;});
     $('pickSubmit').disabled=true;$('pickSubmit').textContent='送出中…';
     send({type:'pick',week:w.id,picks:order.map(function(id){return {id:id,hook:sel[id]};})})
-      .then(function(){toast('送出了，電腦最慢 30 分鐘內收');$('pickSubmit').textContent='送出';render();})
+      .then(function(){toast('送出了，電腦最慢 10 分鐘內收');$('pickSubmit').textContent='送出';render();})
       .catch(function(e){toast(sendErr(e));$('pickSubmit').textContent='送出';pickBar();});});
 
   /* ── 審片 ── */
