@@ -21,8 +21,9 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden;background:var(--ground);color:var(--text);font-family:"Noto Sans TC",system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
-body{position:fixed;top:0;right:0;bottom:0;left:0;height:auto;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
-/* ↑ iPhone 從主畫面打開時 height:100% 會比螢幕短一截（分頁列浮在半空、底下一段空白）⇒ 釘滿整個螢幕（2026-10-02） */
+body{position:fixed;top:0;left:0;right:0;height:var(--app-h,100%);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+/* ↑ iPhone 從主畫面打開（black-translucent）時，100%／bottom:0 都會少掉一個狀態列的高度，分頁列浮在半空、底下一段空白
+     ⇒ 用 JS 讀 window.innerHeight（這時是對的）寫進 --app-h（2026-10-02） */
 button,input,textarea{font:inherit;color:inherit}
 button:focus-visible,textarea:focus-visible,.topic:focus-visible,.hk:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:0 16px 28px}
@@ -148,6 +149,9 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
 </div></nav>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
+(function(){function fit(){document.documentElement.style.setProperty('--app-h',window.innerHeight+'px');}
+  fit();window.addEventListener('resize',fit);window.addEventListener('orientationchange',function(){setTimeout(fit,300);});
+  if(window.visualViewport)window.visualViewport.addEventListener('resize',fit);document.addEventListener('visibilitychange',fit);})();
 (function () {
   'use strict';
   /* 荒野數據（2026-10-02 起把原本 claude.ai 控制台的選題、審片併進來）
