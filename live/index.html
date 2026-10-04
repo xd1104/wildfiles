@@ -106,7 +106,15 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
 .btn.primary{background:var(--accent);color:var(--ink);border-color:var(--accent)}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .btn.wide{flex:1}
-.rv textarea{width:100%;min-height:90px;margin-top:10px;background:var(--ground);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:15px;resize:vertical}
+/* 修改意見：整頁蓋上來的輸入頁，高度跟著「鍵盤以外看得到的範圍」（visualViewport），字不會被鍵盤擋住；字級 ≥16px，iPhone 才不會自動放大畫面（10-04 Benson：輸入時很醜、看不到自己打的字） */
+.sheet{position:fixed;left:0;right:0;top:var(--vv-top,0px);height:var(--vv-h,100%);z-index:50;background:var(--ground);display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 12px}
+.sheet[hidden]{display:none}
+.sh-top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.sh-top b{flex:1;min-width:0;text-align:center;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sh-top .btn{padding:9px 14px}
+.sh-hint{font-size:13px;color:var(--muted);margin:0 2px 8px}
+#shText{flex:1;min-height:96px;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:17px;line-height:1.6;resize:none;color:var(--text)}
+#shText::placeholder{color:var(--faint)}
 .row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--line);font-size:14px}
 .row small{display:block;color:var(--muted);font-size:12px}
 .links{display:flex;gap:10px;font-size:12px;margin-top:2px}
@@ -148,12 +156,18 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
   <button class="tab" role="tab" data-v="topics" type="button"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg><span class="badge" id="bTopics" hidden></span></span>選題</button>
   <button class="tab" role="tab" data-v="review" type="button"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M17 10l4-2.5v9L17 14"/></svg><span class="badge" id="bReview" hidden></span></span>審片</button>
 </div></nav>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="shTitle" hidden>
+  <div class="sh-top"><button class="btn" id="shCancel" type="button">取消</button><b id="shTitle"></b><button class="btn primary" id="shSend" type="button">送出</button></div>
+  <p class="sh-hint">寫下要改哪裡，送出後會照你的意見重做。</p>
+  <textarea id="shText" placeholder="例如：開頭那句太慢、第 20 秒的畫面不是這種動物…"></textarea>
+</div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
-(function(){function fit(){var h=window.innerHeight;
-    document.documentElement.style.setProperty('--app-h',h+'px');window.__appH=h;}
+(function(){function fit(){var h=window.innerHeight,r=document.documentElement.style,vv=window.visualViewport;
+    r.setProperty('--app-h',h+'px');window.__appH=h;
+    r.setProperty('--vv-h',(vv?vv.height:h)+'px');r.setProperty('--vv-top',(vv?vv.offsetTop:0)+'px');}
   fit();window.addEventListener('resize',fit);window.addEventListener('orientationchange',function(){setTimeout(fit,300);});
-  if(window.visualViewport)window.visualViewport.addEventListener('resize',fit);document.addEventListener('visibilitychange',fit);})();
+  if(window.visualViewport){window.visualViewport.addEventListener('resize',fit);window.visualViewport.addEventListener('scroll',fit);}document.addEventListener('visibilitychange',fit);})();
 (function () {
   'use strict';
   /* 荒野數據（2026-10-02 起把原本 claude.ai 控制台的選題、審片併進來）
@@ -168,7 +182,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
   var MAGIC = new TextEncoder().encode('tlmon1');
   var PF = [{k:'yt',n:'YouTube',c:'var(--yt)'},{k:'tt',n:'TikTok',c:'var(--tt)'},{k:'ig',n:'Instagram',c:'var(--ig)'},{k:'fb',n:'Facebook',c:'var(--fb)'}];
   var $ = function (id) { return document.getElementById(id); };
-  var S = { keys:null, stats:null, statsT:0, work:null, token:null, tokenState:'?', tab:'data', picks:{}, editing:{}, videoUrl:{}, busy:false };
+  var S = { keys:null, stats:null, statsT:0, work:null, token:null, tokenState:'?', tab:'data', picks:{}, videoUrl:{}, busy:false };
   var etags = {};
 
   /* ── bytes / crypto ── */
@@ -269,7 +283,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
     var h=header();
     if(S.tab==='topics')h+=topicsView();else if(S.tab==='review')h+=reviewView();else h+=dataView();
     $('app').innerHTML=h;
-    $('re').addEventListener('click',refresh);
+    $('re').addEventListener('click',function(){refresh(true);});
     var td=$('todo');td.addEventListener('click',function(){if(td.dataset.v)setTab(td.dataset.v);});
     if(S.tab==='topics')bindTopics();if(S.tab==='review')bindReview();
     pickBar();
@@ -295,7 +309,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       if(x.note)h+='<span class="err" style="color:var(--warn)">'+esc(x.note)+'</span>';
       h+='</div>';});
     h+='<h2>最近 3 天總觀看</h2>'+chart(hist)+'<h2>每支片</h2>'+videos(d,h24);
-    h+='<p class="note">版本 10-02f・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
+    h+='<p class="note">版本 10-04a・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
     h+='<p class="note">YouTube 公開觀看數比後台慢幾個小時，有「後台」字樣的是每天早上從 YouTube 後台讀的。FB 的觀看是 Reels 播放次數。</p>';
     return h;
   }
@@ -382,39 +396,49 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
     if(done.length)h+='<h2>已排程／已發布</h2>'+done.map(function(e){return row(e,v[e],'<span class="pill '+(v[e].status==='published'?'ok':'')+'">'+(v[e].status==='published'?'已發布':'已排程')+'</span>','',v[e].links);}).join('');
     return h;
   }
-  function card(e,v){var ed=S.editing[e];
+  function card(e,v){
     var pl=S.videoUrl[e]?'<video src="'+S.videoUrl[e]+'" controls playsinline autoplay></video>':
       v.preview?'<button class="btn" data-play="'+e+'" type="button">▶ 播放預覽（'+(v.preview.size/1048576).toFixed(1)+' MB）</button>':'<span class="pnote">預覽片還在上傳</span>';
     return '<div class="rv"><div class="player" id="pl-'+e+'">'+pl+'</div>'+
       '<div class="head"><b><span class="no">'+no2(v.no)+'</span>'+esc(v.title)+'</b><span class="slot">'+esc(slot(v.slot))+' 發</span></div>'+
       (v.qa?'<div class="qa">品管：'+esc(v.qa)+'</div>':'')+
       (v.caption?'<details><summary>上架標題與說明</summary><pre>'+esc(v.caption)+'</pre></details>':'')+
-      (ed?'<textarea id="note-'+e+'" placeholder="例如：開頭那句太慢、第 20 秒的畫面不是這種動物…">'+esc(lsGet('wfl.note.'+e,''))+'</textarea><div class="acts"><button class="btn" data-cancel="'+e+'" type="button">取消</button><button class="btn primary wide" data-send="'+e+'" type="button">送出修改意見</button></div>'
-         :'<div class="acts"><button class="btn" data-fix="'+e+'" type="button">要修改</button><button class="btn primary wide" data-ok="'+e+'" type="button">好，照排</button></div>')+'</div>';}
+      '<div class="acts"><button class="btn" data-fix="'+e+'" type="button">要修改</button><button class="btn primary wide" data-ok="'+e+'" type="button">好，照排</button></div></div>';}
   function row(e,v,right,sub,links){
     var L=links?[['yt','YouTube'],['tt','TikTok'],['ig','IG'],['fb','FB']].filter(function(x){return links[x[0]];}).map(function(x){return '<a href="'+esc(links[x[0]])+'" target="_blank" rel="noopener">'+x[1]+'</a>';}).join(''):'';
     return '<div class="row"><div><span class="no">'+no2(v.no)+'</span>'+esc(v.title)+'<small>'+esc(slot(v.slot))+(sub?'　'+esc(sub):'')+'</small>'+(L?'<div class="links">'+L+'</div>':'')+'</div><div>'+right+'</div></div>';}
   function bindReview(){
     document.querySelectorAll('[data-play]').forEach(function(b){b.addEventListener('click',function(){play(b.dataset.play,b);});});
     document.querySelectorAll('[data-ok]').forEach(function(b){b.addEventListener('click',function(){decide(b.dataset.ok,'approved');});});
-    document.querySelectorAll('[data-fix]').forEach(function(b){b.addEventListener('click',function(){S.editing[b.dataset.fix]=1;render();var t=$('note-'+b.dataset.fix);t&&t.focus();});});
-    document.querySelectorAll('[data-cancel]').forEach(function(b){b.addEventListener('click',function(){delete S.editing[b.dataset.cancel];render();});});
-    document.querySelectorAll('[data-send]').forEach(function(b){b.addEventListener('click',function(){var e=b.dataset.send,n=$('note-'+e).value.trim();if(!n){toast('寫一下要改哪裡');return;}decide(e,'revise',n);});});
+    document.querySelectorAll('[data-fix]').forEach(function(b){b.addEventListener('click',function(){openSheet(b.dataset.fix);});});
     document.querySelectorAll('[data-undo]').forEach(function(b){b.addEventListener('click',function(){decide(b.dataset.undo,'review');});});
-    document.querySelectorAll('textarea[id^="note-"]').forEach(function(t){t.addEventListener('input',function(){lsSet('wfl.note.'+t.id.slice(5),t.value);});});
   }
+  /* 修改意見輸入頁（不重畫審片頁，影片照樣在底下） */
+  var sheetEp=null;
+  function openSheet(e){var v=S.work.videos[e];sheetEp=e;
+    $('shTitle').textContent='要修改 '+no2(v.no)+' '+(v.title||'');$('shText').value=lsGet('wfl.note.'+e,'');
+    $('sheet').hidden=false;$('shText').focus();}
+  function closeSheet(){$('sheet').hidden=true;$('shText').blur();sheetEp=null;}
+  $('shText').addEventListener('input',function(){if(sheetEp)lsSet('wfl.note.'+sheetEp,$('shText').value);});
+  $('shCancel').addEventListener('click',closeSheet);
+  $('shSend').addEventListener('click',function(){var n=$('shText').value.trim();if(!n){toast('寫一下要改哪裡');return;}var e=sheetEp;closeSheet();decide(e,'revise',n);});
   function play(e,btn){var v=S.work.videos[e];btn.disabled=true;btn.textContent='下載中…';
     Promise.all([fetch(RAW(v.preview.file,'media')+'?v='+v.preview.v).then(function(r){if(!r.ok)throw new Error('dl '+r.status);return r.arrayBuffer();}),videoKey(S.keys)])
       .then(function(x){var u=new Uint8Array(x[0]);return crypto.subtle.decrypt({name:'AES-GCM',iv:u.subarray(0,12)},x[1],u.subarray(12));})
       .then(function(pt){S.videoUrl[e]=URL.createObjectURL(new Blob([pt],{type:'video/mp4'}));render();})
       .catch(function(){btn.disabled=false;btn.textContent='沒載入成功，再按一次';});}
   function decide(e,dec,note){
-    send({type:'review',ep:e,decision:dec,note:note||''}).then(function(){delete S.editing[e];try{localStorage.removeItem('wfl.note.'+e);}catch(x){}
+    send({type:'review',ep:e,decision:dec,note:note||''}).then(function(){try{localStorage.removeItem('wfl.note.'+e);}catch(x){}
       toast(dec==='approved'?'收到，電腦收到後就會排程':dec==='revise'?'收到，會照你的意見修改':'已改回待審');render();})
       .catch(function(err){toast(sendErr(err));});}
 
   /* ── 開機 ── */
-  function refresh(){var b=$('re');if(b)b.textContent='更新中…';return loadAll().then(render).catch(function(){if(b)b.textContent='沒連上，再按一次';});}
+  /* 自動更新會整頁重畫，正在看的預覽片會被換掉而停掉（10-04 Benson：全螢幕播到一半突然停）
+     ⇒ 審片頁有載入的影片、或正在打修改意見時，自動更新只抓資料不重畫；按「重新整理」或送出決定才重畫 */
+  function busyUI(){return !$('sheet').hidden||(S.tab==='review'&&!!document.querySelector('.rv video'));}
+  function refresh(manual){var b=$('re');if(b)b.textContent='更新中…';
+    return loadAll().then(function(){if(!manual&&busyUI()){var r=$('re');if(r)r.textContent='重新整理';return;}render();})
+      .catch(function(){if(b)b.textContent='沒連上，再按一次';});}
   var timer=null;
   function boot(){return loadAll().then(function(){
     $('tabs').hidden=false;var t=lsGet(LS_TAB,'data');setTab(['data','topics','review'].indexOf(t)>=0?t:'data');loadToken();
