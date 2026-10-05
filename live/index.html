@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="荒野數據">
 <link rel="apple-touch-icon" href="../avatar.jpg">
 <link rel="manifest" href="manifest.webmanifest">
-<title>荒野檔案 即時數據</title>
+<title>荒野數據</title>
 <style>
 :root{
   --ground:#0E1216;--surface:#161B21;--surface2:#1D232A;--line:#29313A;
@@ -35,6 +35,14 @@ button:focus-visible,textarea:focus-visible,.topic:focus-visible,.hk:focus-visib
 .top img{width:40px;height:40px;border-radius:50%}
 .top b{display:block;font-size:18px;letter-spacing:.04em;line-height:1.15}
 .top small{color:var(--accent);font-family:var(--num);letter-spacing:.22em;font-weight:600;font-size:12px}
+.top .av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--ink);font-weight:800;font-size:18px;flex:none}
+.chs{display:flex;gap:8px;overflow-x:auto;margin:0 0 12px;padding-bottom:2px;scrollbar-width:none}
+.chs::-webkit-scrollbar{display:none}
+.chip{flex:none;display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:14px;cursor:pointer;min-height:40px}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--ink);border-color:var(--accent);font-weight:700}
+.chip .dot{width:8px;height:8px;border-radius:50%;background:var(--warn)}
+.chip[aria-pressed="true"] .dot{background:var(--ink)}
+.chip small{font-size:11px;opacity:.7}
 .top .re{margin-left:auto;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px;cursor:pointer}
 .todo{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:var(--surface);border:1px solid var(--line);margin-bottom:14px;width:100%;text-align:left;cursor:pointer}
 .todo.hot{background:var(--accent);color:var(--ink);border-color:var(--accent)}
@@ -192,6 +200,8 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
   'use strict';
   /* 荒野數據（2026-10-02 起把原本 claude.ai 控制台的選題、審片併進來）
      讀：stats 分支的 stats.json（四平台數據）、work.json（製作進度）；media 分支的 epNN.bin（預覽片，AES-GCM）
+     10-05c 多頻道：stats.json 裡的 channels 是頻道清單；荒野檔案用 stats.json／work.json，其他頻道用 stats-<id>.json／work-<id>.json；
+       上方頻道按鈕切換，挑題／審片的動作帶 ch（沒帶＝荒野檔案，對應 animal-shorts/channels.json）
      寫：Benson 按的挑題／審片 ⇒ 加密成封包 ⇒ 用 live/wtoken.json 裡（加密過）的寫入金鑰放進 inbox 分支
          ⇒ 電腦每 10 分鐘的 live_stats.py 收進來（animal-shorts/live/work.py）
      解密跟 animal-shorts/live/wfcrypto.py（＝交易手機監控同一套）：PBKDF2 ⇒ k_enc‖k_mac；HMAC 金鑰流；影片鑰匙 = HMAC(k_enc,"wfvideo1") */
@@ -202,7 +212,8 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
   var MAGIC = new TextEncoder().encode('tlmon1');
   var PF = [{k:'yt',n:'YouTube',c:'var(--yt)'},{k:'tt',n:'TikTok',c:'var(--tt)'},{k:'ig',n:'Instagram',c:'var(--ig)'},{k:'fb',n:'Facebook',c:'var(--fb)'}];
   var $ = function (id) { return document.getElementById(id); };
-  var S = { keys:null, stats:null, statsT:0, work:null, token:null, tokenState:'?', tab:'data', picks:{}, videoUrl:{}, busy:false };
+  var LS_CH='wfl.ch',DEF='wildfiles';
+  var S = { keys:null, stats:null, statsT:0, work:null, token:null, tokenState:'?', tab:'data', picks:{}, videoUrl:{}, busy:false, ch:DEF, chans:[], all:{} };
   var etags = {};
 
   /* ── bytes / crypto ── */
@@ -238,9 +249,20 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       if(r.status===304&&etags[key])return etags[key].box;if(r.status===404)return null;if(!r.ok)throw new Error('api '+r.status);
       var tag=r.headers.get('ETag');return r.json().then(function(b){if(tag)etags[key]={tag:tag,box:b};return b;});})
     .catch(function(e){if(e&&e.message==='bad')throw e;return fetch(RAW(path,ref)+'?t='+Date.now(),{cache:'no-store'}).then(function(r){if(r.status===404)return null;if(!r.ok)throw new Error('raw '+r.status);return r.json();});});}
-  function loadAll(){return Promise.all([getBox('stats.json','stats'),getBox('work.json','stats')]).then(function(r){
-      if(!r[0])throw new Error('nodata');
-      return Promise.all([open(r[0],S.keys),r[1]?open(r[1],S.keys):null]).then(function(d){S.stats=d[0];S.statsT=r[0].t;S.work=d[1]||{videos:{}};});});}
+  function loadAll(){return getBox('stats.json','stats').then(function(b0){if(!b0)throw new Error('nodata');
+      return open(b0,S.keys).then(function(d0){
+        S.chans=(d0.channels&&d0.channels.length)?d0.channels:[{id:DEF,name:'荒野檔案',sub:'WILD FILES',active:true,stats:'stats.json',work:'work.json'}];
+        return Promise.all(S.chans.map(function(c){
+          var sp=c.stats==='stats.json'?Promise.resolve([b0,d0]):getBox(c.stats,'stats').then(function(b){return b?open(b,S.keys).then(function(d){return [b,d];}):[null,null];});
+          var wp=getBox(c.work,'stats').then(function(b){return b?open(b,S.keys):null;});
+          return Promise.all([sp,wp]).then(function(r){S.all[c.id]={stats:r[0][1],statsT:r[0][0]?r[0][0].t:0,work:r[1]||{videos:{}}};});}));});})
+      .then(function(){if(!S.all[S.ch])S.ch=DEF;useCh();});}
+  function useCh(){var a=S.all[S.ch]||{};S.stats=a.stats||null;S.statsT=a.statsT||0;S.work=a.work||{videos:{}};}
+  function chan(id){id=id||S.ch;return S.chans.filter(function(c){return c.id===id;})[0]||{id:id,name:id};}
+  function setCh(id){if(!S.all[id]||id===S.ch)return;S.ch=id;lsSet(LS_CH,id);useCh();render();$('scroller').scrollTop=0;}
+  /* 各頻道的 localStorage key：荒野檔案沿用舊 key（手機上已存的挑題草稿不會不見） */
+  function ck(k){return S.ch===DEF?k:k+S.ch+':';}
+  function myAct(a){return (a.ch||DEF)===S.ch;}
   function loadToken(){if(S.token)return Promise.resolve(S.token);
     return fetch('wtoken.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok){S.tokenState='none';return null;}return r.json();})
       .then(function(bx){if(!bx)return null;return open(bx,S.keys).then(function(o){S.token=o.token;S.tokenState='ok';return o.token;});})
@@ -255,8 +277,9 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       return fetch('https://api.github.com/repos/'+REPO+'/contents/inbox/'+action.id+'.json',{method:'PUT',headers:{'Authorization':'Bearer '+tok,'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify(body)});});})
     .then(function(r){if(!r.ok)throw new Error('put '+r.status);var p=lsGet(LS_PEND,{});p[action.id]=action;lsSet(LS_PEND,p);S.busy=false;return action;})
     .catch(function(e){S.busy=false;throw e;});}
-  function pending(){var p=lsGet(LS_PEND,{}),acks=(S.work&&S.work.acks)||{},out=[],changed=false;
-    for(var id in p){if(acks[id]){delete p[id];changed=true;}else if(Date.now()-new Date(p[id].at).getTime()>3*86400e3){delete p[id];changed=true;}else out.push(p[id]);}
+  function pending(all){var p=lsGet(LS_PEND,{}),acks={},out=[],changed=false;
+    for(var c in S.all){var ak=(S.all[c].work&&S.all[c].work.acks)||{};for(var x in ak)acks[x]=ak[x];}
+    for(var id in p){if(acks[id]){delete p[id];changed=true;}else if(Date.now()-new Date(p[id].at).getTime()>3*86400e3){delete p[id];changed=true;}else if(all||myAct(p[id]))out.push(p[id]);}
     if(changed)lsSet(LS_PEND,p);return out;}
   function sendErr(e){var m=String(e&&e.message);return m==='notoken'?'還沒設定寫入金鑰（電腦上跑一次 setup_write_token.py）':m.indexOf('put 401')===0||m.indexOf('put 403')===0?'寫入金鑰失效或權限不夠':'沒送出去，網路不穩再試一次';}
 
@@ -273,7 +296,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
   /* ── 鎖 ── */
   function lockView(msg){
     $('tabs').hidden=true;$('pickBar').hidden=true;
-    $('app').innerHTML='<div class="lock"><img src="../avatar.jpg" alt=""><h1>荒野檔案 即時數據</h1><p>輸入交易儀表板手機版那組密碼</p>'+
+    $('app').innerHTML='<div class="lock"><img src="../avatar.jpg" alt=""><h1>荒野數據</h1><p>輸入荒野數據的密碼</p>'+
       '<form id="f"><input id="pw" type="password" autocomplete="current-password" placeholder="密碼" aria-label="密碼">'+
       '<label><input id="rem" type="checkbox" checked> 記住這台手機</label><button id="go" type="submit">打開</button></form><div class="msg" id="msg">'+esc(msg||'')+'</div></div>';
     $('f').addEventListener('submit',function(ev){ev.preventDefault();var pw=$('pw').value,go=$('go'),m=$('msg');if(!pw)return;
@@ -287,8 +310,10 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
   function setTab(v){S.tab=v;lsSet(LS_TAB,v);document.querySelectorAll('.tab').forEach(function(b){b.setAttribute('aria-selected',String(b.dataset.v===v));});render();$('scroller').scrollTop=0;}
   document.querySelectorAll('.tab').forEach(function(b){b.addEventListener('click',function(){setTab(b.dataset.v);});});
 
-  function needPick(){var w=S.work&&S.work.week;return !!(w&&w.status==='picking'&&!pending().some(function(a){return a.type==='pick'&&a.week===w.id;}));}
-  function reviewList(){var v=(S.work&&S.work.videos)||{},p=pending();return Object.keys(v).filter(function(e){return v[e].status==='review'&&!p.some(function(a){return a.type==='review'&&a.ep===e;});});}
+  function needPick(cid){cid=cid||S.ch;var wk=S.all[cid]&&S.all[cid].work,w=wk&&wk.week;
+    return !!(w&&w.status==='picking'&&!pending(1).some(function(a){return (a.ch||DEF)===cid&&a.type==='pick'&&a.week===w.id;}));}
+  function reviewList(cid){cid=cid||S.ch;var wk=S.all[cid]&&S.all[cid].work,v=(wk&&wk.videos)||{},p=pending(1);
+    return Object.keys(v).filter(function(e){return v[e].status==='review'&&!p.some(function(a){return (a.ch||DEF)===cid&&a.type==='review'&&a.ep===e;});});}
   function todo(){
     var np=needPick(),nr=reviewList().length,w=S.work&&S.work.week,txt,go='',v='',hot=false;
     if(np){txt='本週題目等你挑 '+(w.pickCount||3)+' 個'+(w.deadline?'（'+slot(w.deadline)+' 前，沒選就代挑）':'');go='去挑 ›';v='topics';hot=true;}
@@ -298,7 +323,12 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
     $('bTopics').hidden=!np;$('bTopics').textContent=np?'!':'';$('bReview').hidden=!nr;$('bReview').textContent=nr||'';
     return '<button class="todo'+(hot?' hot':'')+'" id="todo" type="button" data-v="'+v+'"><i></i><span>'+esc(txt)+'</span><span class="go">'+go+'</span></button>';
   }
-  function header(){return '<header class="top"><img src="../avatar.jpg" alt=""><div><b>荒野檔案</b><small>WILD FILES</small></div><button class="re" id="re" type="button">重新整理</button></header>'+todo()+pushCard();}
+  function header(){var c=chan(),av=S.ch===DEF?'<img src="../avatar.jpg" alt="">':'<span class="av" aria-hidden="true">'+esc((c.name||'?').charAt(0))+'</span>';
+    return '<header class="top">'+av+'<div><b>'+esc(c.name)+'</b><small>'+esc(c.active===false?'籌備中':(c.sub||''))+'</small></div><button class="re" id="re" type="button">重新整理</button></header>'+chips()+todo()+pushCard();}
+  /* 頻道切換（10-05c）：兩個以上頻道才出現；別的頻道有事要處理時亮橘點 */
+  function chips(){if(S.chans.length<2)return '';
+    return '<div class="chs" role="group" aria-label="切換頻道">'+S.chans.map(function(c){var hot=c.id!==S.ch&&(needPick(c.id)||reviewList(c.id).length);
+      return '<button class="chip" type="button" data-ch="'+esc(c.id)+'" aria-pressed="'+(c.id===S.ch)+'">'+(hot?'<i class="dot" aria-label="有事要處理"></i>':'')+esc(c.name)+(c.active===false?' <small>籌備中</small>':'')+'</button>';}).join('')+'</div>';}
 
   /* ── 手機提醒（10-05）：題目出來了、有片可以審時，電腦的 work.py 推 Web Push 過來 ──
      ⚠ iPhone 只有「從主畫面打開的 App」能收推播（iOS 16.4+）；允許通知一定要在按鈕點擊當下問。
@@ -324,7 +354,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       .then(function(){PUSH.busy=false;render();});}
   document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('#pushBtn'))enablePush();});
   if('serviceWorker' in navigator){
-    navigator.serviceWorker.addEventListener('message',function(e){var t=e.data&&e.data.tab;if(t&&S.stats)setTab(t);});
+    navigator.serviceWorker.addEventListener('message',function(e){var t=e.data&&e.data.tab,c=e.data&&e.data.ch;if(!S.chans.length)return;if(c&&S.all[c]&&c!==S.ch){S.ch=c;lsSet(LS_CH,c);useCh();}if(t)setTab(t);else render();});
     if(lsGet(LS_PUSH,'')==='on')navigator.serviceWorker.register('sw.js').catch(function(){});
   }
   function render(){
@@ -333,6 +363,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
     $('app').innerHTML=h;
     $('re').addEventListener('click',function(){refresh(true);});
     var td=$('todo');td.addEventListener('click',function(){if(td.dataset.v)setTab(td.dataset.v);});
+    document.querySelectorAll('.chip[data-ch]').forEach(function(b){b.addEventListener('click',function(){setCh(b.dataset.ch);});});
     if(S.tab==='topics')bindTopics();if(S.tab==='review')bindReview();
     pickBar();
   }
@@ -341,6 +372,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
   function sumAt(h,key){var s=0,any=false;for(var p in (h[key]||{})){if(h[key][p]!=null){s+=h[key][p];any=true;}}return any?s:null;}
   function past(hist,hours){var cut=Date.now()-hours*3600e3,best=null;for(var i=0;i<hist.length;i++){if(new Date(hist[i].at).getTime()<=cut)best=hist[i];}return best;}
   function dataView(){
+    if(!S.stats)return '<div class="empty">'+esc(chan().name)+' 還沒有數據。<br>開好帳號、接上各平台後，電腦每 10 分鐘會自動更新。</div>';
     var d=S.stats,age=(Date.now()/1000)-S.statsT,st=age>60*60?'bad':age>25*60?'warn':'';
     var hist=d.hist||[],h24=past(hist,24);
     var views=0,fans=0;PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
@@ -357,7 +389,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       if(x.note)h+='<span class="err" style="color:var(--warn)">'+esc(x.note)+'</span>';
       h+='</div>';});
     h+='<h2>最近 3 天總觀看</h2>'+chart(hist)+'<h2>每支片</h2>'+videos(d,h24);
-    h+='<p class="note">版本 10-05b・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
+    h+='<p class="note">版本 10-05c・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
     h+='<p class="note">YouTube 公開觀看數比後台慢幾個小時，有「後台」字樣的是每天早上從 YouTube 後台讀的。FB 的觀看是 Reels 播放次數。</p>';
     return h;
   }
@@ -402,11 +434,11 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
   /* ── 選題 ── */
   function topicsView(){
     var w=S.work&&S.work.week;
-    if(!w||!w.topics||!w.topics.length)return '<h2>本週選題</h2><div class="empty">這週的題目還沒出來。<br>每週五 09:00 企劃會提下週的 5 個題目，到時候這裡會通知你。</div>';
-    var p=pending().filter(function(a){return a.type==='pick'&&a.week===w.id;})[0];
+    if(!w||!w.topics||!w.topics.length)return '<h2>本週選題</h2><div class="empty">'+(chan().active===false?esc(chan().name)+' 還在籌備中。<br>頻道風格定好、正式開工後，每週的題目會出現在這裡。':'這週的題目還沒出來。<br>每週五 09:00 企劃會提下週的 5 個題目，到時候這裡會通知你。')+'</div>';
+    var p=pending().filter(function(a){return a.type==='pick'&&a.week===w.id;})[0],pk=ck(LS_PICK)+w.id;
     var open=w.status==='picking'&&!p;
-    if(open&&!S.picks[w.id])S.picks[w.id]=lsGet(LS_PICK+w.id,{});
-    var sel=open?S.picks[w.id]:{};
+    if(open&&!S.picks[pk])S.picks[pk]=lsGet(pk,{});
+    var sel=open?S.picks[pk]:{};
     if(!open){(p?p.picks:(w.picks||[])).forEach(function(x){sel[x.id]=x.hook;});}
     var need=w.pickCount||3,st=p?'已送出，等電腦收':open?'挑 '+need+' 個，每個選一句開場':w.pickedBy==='producer'?'你沒選，製作人代挑了':'已選好，製作中';
     var h='<div class="wk"><b>'+esc(w.label||w.id)+'</b><span class="pill '+(open?'warn':'ok')+'">'+st+'</span></div>'+
@@ -421,18 +453,18 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
         '<div class="facts">'+(tp.film!=null?'<span class="'+(tp.film<4?'warnf':'')+'">4K 實拍素材 '+esc(tp.film)+' 支'+(tp.film<4?'（偏少）':'')+'</span>':'')+(tp.source?'<span>來源：'+esc(tp.source)+'</span>':'')+'</div></button>'+hh+'</div>';}).join('');
     return h;
   }
-  function bindTopics(){var w=S.work.week;
-    document.querySelectorAll('.topic .hd').forEach(function(b){b.addEventListener('click',function(){var sel=S.picks[w.id],id=b.dataset.t;
+  function bindTopics(){var w=S.work.week,pk=ck(LS_PICK)+w.id;
+    document.querySelectorAll('.topic .hd').forEach(function(b){b.addEventListener('click',function(){var sel=S.picks[pk],id=b.dataset.t;
       if(id in sel)delete sel[id];else{var need=w.pickCount||3;if(need===1){for(var k in sel)delete sel[k];}else if(Object.keys(sel).length>=need){toast('最多 '+need+' 個，先取消一個');return;}sel[id]=0;}
-      lsSet(LS_PICK+w.id,sel);render();});});
-    document.querySelectorAll('.hk[data-t]').forEach(function(b){b.addEventListener('click',function(){S.picks[w.id][b.dataset.t]=+b.dataset.h;lsSet(LS_PICK+w.id,S.picks[w.id]);render();});});
+      lsSet(pk,sel);render();});});
+    document.querySelectorAll('.hk[data-t]').forEach(function(b){b.addEventListener('click',function(){S.picks[pk][b.dataset.t]=+b.dataset.h;lsSet(pk,S.picks[pk]);render();});});
   }
   function pickBar(){var w=S.work&&S.work.week,show=S.tab==='topics'&&needPick();$('pickBar').hidden=!show;if(!show)return;
-    var n=Object.keys(S.picks[w.id]||{}).length,need=w.pickCount||3;$('pickCount').textContent='已選 '+n+' / '+need;$('pickSubmit').disabled=n!==need||S.busy;}
-  $('pickSubmit').addEventListener('click',function(){var w=S.work.week,sel=S.picks[w.id]||{},ids=Object.keys(sel);if(ids.length!==(w.pickCount||3))return;
+    var n=Object.keys(S.picks[ck(LS_PICK)+w.id]||{}).length,need=w.pickCount||3;$('pickCount').textContent='已選 '+n+' / '+need;$('pickSubmit').disabled=n!==need||S.busy;}
+  $('pickSubmit').addEventListener('click',function(){var w=S.work.week,sel=S.picks[ck(LS_PICK)+w.id]||{},ids=Object.keys(sel);if(ids.length!==(w.pickCount||3))return;
     var order=w.topics.map(function(t){return t.id;}).filter(function(id){return id in sel;});
     $('pickSubmit').disabled=true;$('pickSubmit').textContent='送出中…';
-    send({type:'pick',week:w.id,picks:order.map(function(id){return {id:id,hook:sel[id]};})})
+    send({type:'pick',ch:S.ch,week:w.id,picks:order.map(function(id){return {id:id,hook:sel[id]};})})
       .then(function(){toast('送出了，電腦最慢 10 分鐘內收');$('pickSubmit').textContent='送出';render();})
       .catch(function(e){toast(sendErr(e));$('pickSubmit').textContent='送出';pickBar();});});
 
@@ -453,7 +485,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
     return h;
   }
   function card(e,v){
-    var pl=S.videoUrl[e]?'<video src="'+S.videoUrl[e]+'" controls playsinline autoplay></video>':
+    var vk=S.ch+':'+e,pl=S.videoUrl[vk]?'<video src="'+S.videoUrl[vk]+'" controls playsinline autoplay></video>':
       v.preview?'<button class="btn" data-play="'+e+'" type="button">▶ 播放預覽（'+(v.preview.size/1048576).toFixed(1)+' MB）</button>':'<span class="pnote">預覽片還在上傳</span>';
     return '<div class="rv"><div class="player" id="pl-'+e+'">'+pl+'</div>'+
       '<div class="head"><b><span class="no">'+no2(v.no)+'</span>'+esc(v.title)+'</b><span class="slot">'+esc(slot(v.slot))+' 發</span></div>'+
@@ -472,19 +504,19 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
   /* 修改意見輸入頁（不重畫審片頁，影片照樣在底下） */
   var sheetEp=null;
   function openSheet(e){var v=S.work.videos[e];sheetEp=e;
-    $('shTitle').textContent='要修改 '+no2(v.no)+' '+(v.title||'');$('shText').value=lsGet('wfl.note.'+e,'');
+    $('shTitle').textContent='要修改 '+no2(v.no)+' '+(v.title||'');$('shText').value=lsGet(ck('wfl.note.')+e,'');
     $('sheet').hidden=false;$('shText').focus();}
   function closeSheet(){$('sheet').hidden=true;$('shText').blur();sheetEp=null;}
-  $('shText').addEventListener('input',function(){if(sheetEp)lsSet('wfl.note.'+sheetEp,$('shText').value);});
+  $('shText').addEventListener('input',function(){if(sheetEp)lsSet(ck('wfl.note.')+sheetEp,$('shText').value);});
   $('shCancel').addEventListener('click',closeSheet);
   $('shSend').addEventListener('click',function(){var n=$('shText').value.trim();if(!n){toast('寫一下要改哪裡');return;}var e=sheetEp;closeSheet();decide(e,'revise',n);});
   function play(e,btn){var v=S.work.videos[e];btn.disabled=true;btn.textContent='下載中…';
     Promise.all([fetch(RAW(v.preview.file,'media')+'?v='+v.preview.v).then(function(r){if(!r.ok)throw new Error('dl '+r.status);return r.arrayBuffer();}),videoKey(S.keys)])
       .then(function(x){var u=new Uint8Array(x[0]);return crypto.subtle.decrypt({name:'AES-GCM',iv:u.subarray(0,12)},x[1],u.subarray(12));})
-      .then(function(pt){S.videoUrl[e]=URL.createObjectURL(new Blob([pt],{type:'video/mp4'}));render();})
+      .then(function(pt){S.videoUrl[S.ch+':'+e]=URL.createObjectURL(new Blob([pt],{type:'video/mp4'}));render();})
       .catch(function(){btn.disabled=false;btn.textContent='沒載入成功，再按一次';});}
   function decide(e,dec,note){
-    send({type:'review',ep:e,decision:dec,note:note||''}).then(function(){try{localStorage.removeItem('wfl.note.'+e);}catch(x){}
+    send({type:'review',ch:S.ch,ep:e,decision:dec,note:note||''}).then(function(){try{localStorage.removeItem(ck('wfl.note.')+e);}catch(x){}
       toast(dec==='approved'?'收到，電腦收到後就會排程':dec==='revise'?'收到，會照你的意見修改':'已改回待審');render();})
       .catch(function(err){toast(sendErr(err));});}
 
@@ -497,10 +529,12 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       .catch(function(){if(b)b.textContent='沒連上，再按一次';});}
   var timer=null;
   function boot(){return loadAll().then(function(){
-    $('tabs').hidden=false;var t=(location.hash||'').slice(1)||lsGet(LS_TAB,'data');if(location.hash)history.replaceState(null,'',location.pathname);setTab(['data','topics','review'].indexOf(t)>=0?t:'data');loadToken();
+    $('tabs').hidden=false;var hs=(location.hash||'').slice(1).split(':'),t=hs[0]||lsGet(LS_TAB,'data');
+    if(hs[1]&&S.all[hs[1]]&&hs[1]!==S.ch){S.ch=hs[1];lsSet(LS_CH,S.ch);useCh();}if(location.hash)history.replaceState(null,'',location.pathname);setTab(['data','topics','review'].indexOf(t)>=0?t:'data');loadToken();
     clearInterval(timer);timer=setInterval(function(){if(!document.hidden)refresh();},90000);});}
   document.addEventListener('visibilitychange',function(){if(!document.hidden&&S.keys&&S.stats)refresh();});
 
+  S.ch=lsGet(LS_CH,DEF);
   S.keys=loadKeys(LS)||loadKeys(LS_SHARED);
   if(!S.keys){lockView();return;}
   $('app').innerHTML='<p class="note" style="text-align:center;margin-top:30vh">讀取中…</p>';
