@@ -10,6 +10,7 @@
 <!-- ⛔ 不要用 black-translucent：iPhone 主畫面 App 會讓底部約一個狀態列高的區域畫不上去（分頁列浮起、文字被切），10-02 踩過三輪 -->
 <meta name="apple-mobile-web-app-title" content="荒野數據">
 <link rel="apple-touch-icon" href="../avatar.jpg">
+<link rel="manifest" href="manifest.webmanifest">
 <title>荒野檔案 即時數據</title>
 <style>
 :root{
@@ -61,11 +62,30 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
 .pf .err{grid-column:1/4;font-size:12px;color:var(--bad)}
 .chart{background:var(--surface);border-radius:12px;padding:10px 8px 4px}
 .chart svg{display:block;width:100%;height:auto}
-.vid{padding:12px 0;border-top:1px solid var(--line)}
-.vid .h{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+/* 每支片（10-05 改版：Benson 嫌原本一串文字很亂 ⇒ 卡片＋四平台格子＋比例條） */
+.vid{background:var(--surface);border-radius:14px;padding:14px;margin-top:10px}
+.vid .h{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.vid .tt{font-size:15px;font-weight:700;line-height:1.4;min-width:0}
+.vid .sub{display:block;font-size:12px;color:var(--muted);font-weight:400;margin-top:2px}
+.vid .tot{text-align:right;flex:none}
+.vid .tot .n{display:block;font-size:30px;line-height:1.05}
+.vid .tot small{font-size:12px;color:var(--muted)}
 .no{font-family:var(--num);color:var(--accent);font-weight:600;margin-right:6px}
-.vid .tot{font-size:26px}
-.vid .m{font-size:12px;color:var(--muted);margin-top:2px;display:flex;gap:4px 12px;flex-wrap:wrap}
+.vbar{display:flex;height:6px;border-radius:3px;overflow:hidden;margin:12px 0 10px;background:var(--surface2)}
+.vbar i{display:block;height:100%}
+.vgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.vcell{background:var(--ground);border-radius:10px;padding:8px 8px 7px;min-width:0}
+.vcell .pn{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden}
+.vcell .pn .sw{width:7px;height:7px;border-radius:50%}
+.vcell .pv{font-size:20px;line-height:1.25;margin-top:3px}
+.vcell .ps{font-size:11px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vcell.off .pv{color:var(--faint)}
+.vfoot{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted);margin-top:10px}
+.vfoot b{color:var(--text);font-weight:600;font-family:var(--num)}
+.pushc{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;background:var(--surface);border:1px dashed var(--line);margin:-4px 0 14px;font-size:13px;color:var(--muted)}
+.pushc b{display:block;color:var(--text);font-size:14px;margin-bottom:1px}
+.pushc .btn{flex:none;padding:9px 14px;font-size:14px}
+.pushc .err{color:var(--warn)}
 .empty{padding:24px 16px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px;font-size:14px}
 .note{font-size:12px;color:var(--faint);margin-top:18px}
 .pnote{font-size:13px;color:var(--muted)}
@@ -278,7 +298,35 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
     $('bTopics').hidden=!np;$('bTopics').textContent=np?'!':'';$('bReview').hidden=!nr;$('bReview').textContent=nr||'';
     return '<button class="todo'+(hot?' hot':'')+'" id="todo" type="button" data-v="'+v+'"><i></i><span>'+esc(txt)+'</span><span class="go">'+go+'</span></button>';
   }
-  function header(){return '<header class="top"><img src="../avatar.jpg" alt=""><div><b>荒野檔案</b><small>WILD FILES</small></div><button class="re" id="re" type="button">重新整理</button></header>'+todo();}
+  function header(){return '<header class="top"><img src="../avatar.jpg" alt=""><div><b>荒野檔案</b><small>WILD FILES</small></div><button class="re" id="re" type="button">重新整理</button></header>'+todo()+pushCard();}
+
+  /* ── 手機提醒（10-05）：題目出來了、有片可以審時，電腦的 work.py 推 Web Push 過來 ──
+     ⚠ iPhone 只有「從主畫面打開的 App」能收推播（iOS 16.4+）；允許通知一定要在按鈕點擊當下問。
+     訂閱用加密的 inbox 動作送回電腦（type:'push-sub'），VAPID 跟交易儀表板共用。 */
+  var VAPID_PUBLIC='BKQoOkXK8Wpe3mSHL6ZkqTzMm6kKv1cpkCWs9wG1jT9cy7PhVVnpilv2SIM_zEOXl5w5CXw-TNH76JW__iPIqIM',LS_PUSH='wfl.push.v1',PUSH={busy:false,msg:''};
+  function pushOK(){return 'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;}
+  function pushOn(){return lsGet(LS_PUSH,'')==='on'&&pushOK()&&Notification.permission==='granted';}
+  function pushCard(){
+    if(pushOn())return '';
+    if(!pushOK())return window.navigator.standalone===false||!window.navigator.standalone?'<div class="pushc"><div><b>手機提醒</b>要從主畫面的「荒野數據」圖示打開才能開啟提醒（iOS 16.4 以上）。</div></div>':'';
+    return '<div class="pushc"><div><b>手機提醒</b>有題目要挑、有片要審時，手機會跳通知。'+(PUSH.msg?'<div class="err">'+esc(PUSH.msg)+'</div>':'')+'</div>'+
+      '<button class="btn primary" id="pushBtn" type="button"'+(PUSH.busy?' disabled':'')+'>'+(PUSH.busy?'設定中…':'開啟')+'</button></div>';}
+  function urlB64(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';var r=atob(s),u=new Uint8Array(r.length);for(var i=0;i<r.length;i++)u[i]=r.charCodeAt(i);return u;}
+  function enablePush(){
+    if(PUSH.busy)return;PUSH.busy=true;PUSH.msg='';render();
+    Notification.requestPermission().then(function(p){   // ⚠ 要在點擊當下問（iOS 規定），放最前面
+      if(p!=='granted')throw new Error('沒有允許通知（可到 iPhone「設定 → 通知 → 荒野數據」打開）');
+      return navigator.serviceWorker.register('sw.js').then(function(){return navigator.serviceWorker.ready;});
+    }).then(function(reg){return reg.pushManager.getSubscription().then(function(s){return s||reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlB64(VAPID_PUBLIC)});});})
+      .then(function(sub){return send({type:'push-sub',sub:sub.toJSON()});})
+      .then(function(){lsSet(LS_PUSH,'on');toast('提醒開好了，電腦收到後會先送一則測試通知');})
+      .catch(function(e){PUSH.msg='開不起來：'+(String(e&&e.message)==='notoken'||String(e&&e.message).indexOf('put')===0?sendErr(e):(e&&e.message||e));})
+      .then(function(){PUSH.busy=false;render();});}
+  document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('#pushBtn'))enablePush();});
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.addEventListener('message',function(e){var t=e.data&&e.data.tab;if(t&&S.stats)setTab(t);});
+    if(lsGet(LS_PUSH,'')==='on')navigator.serviceWorker.register('sw.js').catch(function(){});
+  }
   function render(){
     var h=header();
     if(S.tab==='topics')h+=topicsView();else if(S.tab==='review')h+=reviewView();else h+=dataView();
@@ -309,7 +357,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       if(x.note)h+='<span class="err" style="color:var(--warn)">'+esc(x.note)+'</span>';
       h+='</div>';});
     h+='<h2>最近 3 天總觀看</h2>'+chart(hist)+'<h2>每支片</h2>'+videos(d,h24);
-    h+='<p class="note">版本 10-04a・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
+    h+='<p class="note">版本 10-05a・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
     h+='<p class="note">YouTube 公開觀看數比後台慢幾個小時，有「後台」字樣的是每天早上從 YouTube 後台讀的。FB 的觀看是 Reels 播放次數。</p>';
     return h;
   }
@@ -335,12 +383,20 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
     var list=Object.keys(rows).map(function(k){var r=rows[k];r.tot=0;for(var p in r.per)r.tot+=r.per[p];
       if(h24&&r.ep&&h24.e&&h24.e[r.ep]){var s=0;for(var q in h24.e[r.ep])s+=h24.e[r.ep][q];r.d24=r.tot-s;}return r;}).sort(function(a,b){return b.tot-a.tot;});
     if(!list.length)return '<div class="empty">還沒有片的數據。</div>';
-    return list.map(function(r){var no=r.ep&&d.episodes&&d.episodes[r.ep]?d.episodes[r.ep].no:null,y=r.yt||{};
-      var extra=[];if(y.studioViews!=null)extra.push('YouTube 後台 '+fmt(y.studioViews));if(y.stayedPct!=null)extra.push(y.stayedPct+'% 選擇看下去');if(y.avgViewPct!=null)extra.push('平均看完 '+y.avgViewPct+'%');if(y.subsGained)extra.push('帶來 '+y.subsGained+' 訂閱');
-      return '<div class="vid"><div class="h"><span>'+(no?'<span class="no">'+no2(no)+'</span>':'')+esc(r.title)+'</span><span class="tot n">'+fmt(r.tot)+'</span></div>'+
-        '<div class="m">'+PF.filter(function(p){return r.per[p.k]!=null;}).map(function(p){return '<span>'+p.n+' '+fmt(r.per[p.k])+(r.watch[p.k]!=null?'（平均看 '+r.watch[p.k]+' 秒）':'')+'</span>';}).join('')+
-        '<span>讚 '+fmt(r.likes)+'</span><span>留言 '+fmt(r.comments)+'</span>'+(r.d24!=null?'<span>24 小時 '+plus(r.d24)+'</span>':'')+'</div>'+
-        (extra.length?'<div class="m">'+extra.map(function(x){return '<span>'+esc(x)+'</span>';}).join('')+'</div>':'')+'</div>';}).join('');
+    return list.map(function(r){var ep=r.ep&&d.episodes?d.episodes[r.ep]:null,no=ep?ep.no:null,y=r.yt||{};
+      var sub=ep&&ep.slot?slot(ep.slot).replace(/\s.*$/,'')+' 發':'還沒對上集數';
+      var bar=r.tot?PF.filter(function(p){return r.per[p.k];}).map(function(p){return '<i style="width:'+(r.per[p.k]/r.tot*100).toFixed(1)+'%;background:'+p.c+'"></i>';}).join(''):'';
+      var cells=PF.map(function(p){var v=r.per[p.k],w=r.watch[p.k],s=p.k==='yt'&&y.avgViewPct!=null?'看完 '+y.avgViewPct+'%':w!=null?'平均 '+Math.round(w)+' 秒':'';
+        return '<div class="vcell'+(v==null?' off':'')+'"><div class="pn"><span class="sw" style="background:'+p.c+'"></span>'+({ig:'IG',fb:'FB'}[p.k]||p.n)+'</div>'+
+          '<div class="pv n">'+(v==null?'—':fmt(v))+'</div><div class="ps">'+(s||'&nbsp;')+'</div></div>';}).join('');
+      var foot=['讚 <b>'+fmt(r.likes)+'</b>','留言 <b>'+fmt(r.comments)+'</b>'];
+      if(y.studioViews!=null)foot.push('YouTube 後台 <b>'+fmt(y.studioViews)+'</b>');
+      if(y.stayedPct!=null)foot.push('選擇看下去 <b>'+y.stayedPct+'%</b>');
+      if(y.subsGained)foot.push('帶來訂閱 <b>'+y.subsGained+'</b>');
+      return '<div class="vid"><div class="h"><div class="tt">'+(no?'<span class="no">'+no2(no)+'</span>':'')+esc(r.title)+'<span class="sub">'+esc(sub)+'</span></div>'+
+        '<div class="tot"><span class="n">'+fmt(r.tot)+'</span><small>'+(r.d24!=null?'24 小時 '+plus(r.d24):'總觀看')+'</small></div></div>'+
+        (bar?'<div class="vbar" aria-hidden="true">'+bar+'</div>':'')+'<div class="vgrid">'+cells+'</div>'+
+        '<div class="vfoot">'+foot.map(function(x){return '<span>'+x+'</span>';}).join('')+'</div></div>';}).join('');
   }
 
   /* ── 選題 ── */
@@ -441,7 +497,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       .catch(function(){if(b)b.textContent='沒連上，再按一次';});}
   var timer=null;
   function boot(){return loadAll().then(function(){
-    $('tabs').hidden=false;var t=lsGet(LS_TAB,'data');setTab(['data','topics','review'].indexOf(t)>=0?t:'data');loadToken();
+    $('tabs').hidden=false;var t=(location.hash||'').slice(1)||lsGet(LS_TAB,'data');if(location.hash)history.replaceState(null,'',location.pathname);setTab(['data','topics','review'].indexOf(t)>=0?t:'data');loadToken();
     clearInterval(timer);timer=setInterval(function(){if(!document.hidden)refresh();},90000);});}
   document.addEventListener('visibilitychange',function(){if(!document.hidden&&S.keys&&S.stats)refresh();});
 
