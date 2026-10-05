@@ -357,7 +357,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       if(x.note)h+='<span class="err" style="color:var(--warn)">'+esc(x.note)+'</span>';
       h+='</div>';});
     h+='<h2>最近 3 天總觀看</h2>'+chart(hist)+'<h2>每支片</h2>'+videos(d,h24);
-    h+='<p class="note">版本 10-05a・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
+    h+='<p class="note">版本 10-05b・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
     h+='<p class="note">YouTube 公開觀看數比後台慢幾個小時，有「後台」字樣的是每天早上從 YouTube 後台讀的。FB 的觀看是 Reels 播放次數。</p>';
     return h;
   }
@@ -402,7 +402,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
   /* ── 選題 ── */
   function topicsView(){
     var w=S.work&&S.work.week;
-    if(!w||!w.topics||!w.topics.length)return '<h2>本週選題</h2><div class="empty">這週的題目還沒出來。<br>每週一 09:00 企劃會提 5 個題目，到時候這裡會通知你。</div>';
+    if(!w||!w.topics||!w.topics.length)return '<h2>本週選題</h2><div class="empty">這週的題目還沒出來。<br>每週五 09:00 企劃會提下週的 5 個題目，到時候這裡會通知你。</div>';
     var p=pending().filter(function(a){return a.type==='pick'&&a.week===w.id;})[0];
     var open=w.status==='picking'&&!p;
     if(open&&!S.picks[w.id])S.picks[w.id]=lsGet(LS_PICK+w.id,{});
@@ -410,7 +410,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
     if(!open){(p?p.picks:(w.picks||[])).forEach(function(x){sel[x.id]=x.hook;});}
     var need=w.pickCount||3,st=p?'已送出，等電腦收':open?'挑 '+need+' 個，每個選一句開場':w.pickedBy==='producer'?'你沒選，製作人代挑了':'已選好，製作中';
     var h='<div class="wk"><b>'+esc(w.label||w.id)+'</b><span class="pill '+(open?'warn':'ok')+'">'+st+'</span></div>'+
-      '<p class="pnote">'+(open?(w.deadline?esc(slot(w.deadline))+' 前沒選，製作人會挑'+(need===1?'排名第 1 的':'排名前 '+need+' 的')+'、用第一句開場。':''):'這'+(need===1?'支':'週的 '+need+' 支')+'會在 '+esc(w.slotsText||'週四、週六、下週二')+' 11:30 發。')+'</p>';
+      '<p class="pnote">'+(open?(w.deadline?esc(slot(w.deadline))+' 前沒選，製作人會挑'+(need===1?'排名第 1 的':'排名前 '+need+' 的')+'、用第一句開場。':''):'這'+(need===1?'支':'週的 '+need+' 支')+'會在 '+esc(w.slotsText||'週二、週四、週六')+' 11:30 發。')+'</p>';
     h+=w.topics.map(function(tp,i){var on=tp.id in sel,hooks=tp.hooks||[];
       var hh='';if(hooks.length&&(on||!open)){hh='<div class="hooks"><span class="lab">'+(open?'選一句開場：':'開場：')+'</span>'+hooks.map(function(s,j){
         if(!open)return on&&sel[tp.id]===j?'<div class="hk static" aria-pressed="true">'+esc(s)+'</div>':'';
@@ -441,7 +441,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
     var v=(S.work&&S.work.videos)||{},p=pending(),eps=Object.keys(v).sort(function(a,b){return (v[a].no||0)-(v[b].no||0);});
     var pend=function(e){return p.filter(function(a){return a.type==='review'&&a.ep===e;})[0];};
     var rv=eps.filter(function(e){return v[e].status==='review'&&!pend(e);});
-    var h='<h2>等你看</h2>'+(rv.length?rv.map(function(e){return card(e,v[e]);}).join(''):'<div class="empty">沒有等你看的片。每週二晚上會送新片過來。</div>');
+    var h='<h2>等你看</h2>'+(rv.length?rv.map(function(e){return card(e,v[e]);}).join(''):'<div class="empty">沒有等你看的片。挑完題目後，做好的片會陸續送過來（發片當天 09:00 前要按好）。</div>');
     var sent=eps.filter(function(e){return pend(e);});
     if(sent.length)h+='<h2>你剛送出的</h2>'+sent.map(function(e){var a=pend(e);return row(e,v[e],'<span class="pill">'+(a.decision==='approved'?'好，照排':a.decision==='revise'?'要修改':'改回待審')+'・等電腦收</span>');}).join('');
     var ok=eps.filter(function(e){return v[e].status==='approved'&&!pend(e);});
