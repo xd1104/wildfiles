@@ -145,6 +145,16 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
 #shText::placeholder{color:var(--faint)}
 .row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--line);font-size:14px}
 .row small{display:block;color:var(--muted);font-size:12px}
+/* 10-06c 工作進度（state.plan）：每支片一列＋步驟點 */
+.plan{padding:12px 0;border-top:1px solid var(--line)}
+.plan .ph{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:14px}
+.plan .ph small{color:var(--muted);font-size:12px;white-space:nowrap}
+.steps{display:flex;gap:4px;margin-top:8px}
+.steps span{flex:1;min-width:0;font-size:11px;text-align:center;color:var(--faint);padding-top:8px;position:relative;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.steps span::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;border-radius:2px;background:var(--line)}
+.steps span.done{color:var(--muted)} .steps span.done::before{background:var(--ok)}
+.steps span.doing{color:var(--text);font-weight:700} .steps span.doing::before{background:var(--accent)}
+.plan .pn{font-size:12px;color:var(--muted);margin-top:6px}
 .links{display:flex;gap:10px;font-size:12px;margin-top:2px}
 .links a{color:var(--muted)}
 .links .q{color:var(--muted);opacity:.6}
@@ -390,7 +400,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       if(x.note)h+='<span class="err" style="color:var(--warn)">'+esc(x.note)+'</span>';
       h+='</div>';});
     h+='<h2>最近 3 天總觀看</h2>'+chart(hist)+'<h2>每支片</h2><p class="note">看完％＝平均看幾秒 ÷ 片長（三個平台同一把尺）；Shorts 會重播，可能超過 100%。YouTube 的數字每天早上更新一次。</p>'+videos(d,h24);
-    h+='<p class="note">版本 10-06b・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
+    h+='<p class="note">版本 10-06c・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
     h+='<p class="note">YouTube 公開觀看數比後台慢幾個小時，有「後台」字樣的是每天早上從 YouTube 後台讀的。FB 的觀看是 Reels 播放次數。</p>';
     return h;
   }
@@ -481,10 +491,17 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
     if(ok.length)h+='<h2>你說好了，等排程</h2>'+ok.map(function(e){return row(e,v[e],'<button class="btn" data-undo="'+e+'" type="button" style="padding:6px 12px;font-size:13px">改回待審</button>');}).join('');
     var fix=eps.filter(function(e){return (v[e].status==='revise'||v[e].status==='producing')&&!pend(e);});
     if(fix.length)h+='<h2>製作中／修改中</h2>'+fix.map(function(e){return row(e,v[e],'<span class="pill warn">'+(v[e].status==='revise'?'照你的意見修改中':'製作中')+'</span>',v[e].note?'你的意見：'+v[e].note:'');}).join('');
+    h+=planView();
     var done=eps.filter(function(e){return v[e].status==='scheduled'||v[e].status==='published';}).reverse();
     if(done.length)h+='<h2>已排程／已發布</h2>'+done.map(function(e){return row(e,v[e],'<span class="pill '+(v[e].status==='published'?'ok':'')+'">'+(v[e].status==='published'?'已發布':'已排程')+'</span>','',v[e].links);}).join('');
     return h;
   }
+  /* 10-06c：工作進度。state.plan＝[{title, slot, steps:[{t:"讀 DM", s:"done|doing|todo"}], note}]，電腦做片時隨時更新 */
+  function planView(){var pl=(S.work&&S.work.plan)||[];if(!pl.length)return '';
+    return '<h2>工作進度・接下來要發的</h2>'+pl.map(function(x){
+      var st=(x.steps||[]).map(function(k){return '<span class="'+esc(k.s||'todo')+'">'+esc(k.t)+'</span>';}).join('');
+      return '<div class="plan"><div class="ph"><b>'+esc(x.title)+'</b><small>'+esc(x.slot?slot(x.slot)+' 發':'')+'</small></div>'+
+        (st?'<div class="steps">'+st+'</div>':'')+(x.note?'<div class="pn">'+esc(x.note)+'</div>':'')+'</div>';}).join('');}
   function card(e,v){
     var vk=S.ch+':'+e,pl=S.videoUrl[vk]?'<video src="'+S.videoUrl[vk]+'" controls playsinline autoplay></video>':
       v.preview?'<button class="btn" data-play="'+e+'" type="button">▶ 播放預覽（'+(v.preview.size/1048576).toFixed(1)+' MB）</button>':'<span class="pnote">預覽片還在上傳</span>';
