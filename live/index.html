@@ -389,8 +389,8 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       else h+='<span class="off" style="color:var(--bad)">這次沒抓到</span><span class="err">'+esc(x.err||'')+'</span>';
       if(x.note)h+='<span class="err" style="color:var(--warn)">'+esc(x.note)+'</span>';
       h+='</div>';});
-    h+='<h2>最近 3 天總觀看</h2>'+chart(hist)+'<h2>每支片</h2>'+videos(d,h24);
-    h+='<p class="note">版本 10-06a・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
+    h+='<h2>最近 3 天總觀看</h2>'+chart(hist)+'<h2>每支片</h2><p class="note">看完％＝平均看幾秒 ÷ 片長（三個平台同一把尺）；Shorts 會重播，可能超過 100%。YouTube 的數字每天早上更新一次。</p>'+videos(d,h24);
+    h+='<p class="note">版本 10-06b・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
     h+='<p class="note">YouTube 公開觀看數比後台慢幾個小時，有「後台」字樣的是每天早上從 YouTube 後台讀的。FB 的觀看是 Reels 播放次數。</p>';
     return h;
   }
@@ -410,8 +410,8 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
   }
   function videos(d,h24){
     var rows={};PF.forEach(function(p){var x=d.platforms[p.k];if(!x||!x.ok)return;(x.videos||[]).forEach(function(v){
-      var key=v.ep||(p.k+':'+v.id),r=rows[key]||(rows[key]={ep:v.ep,title:(v.ep&&d.episodes&&d.episodes[v.ep]&&d.episodes[v.ep].title)||v.title,per:{},watch:{},likes:0,comments:0});
-      r.per[p.k]=v.views;if(v.avgWatchSec!=null)r.watch[p.k]=v.avgWatchSec;r.likes+=v.likes||0;r.comments+=v.comments||0;
+      var key=v.ep||(p.k+':'+v.id),r=rows[key]||(rows[key]={ep:v.ep,title:(v.ep&&d.episodes&&d.episodes[v.ep]&&d.episodes[v.ep].title)||v.title,per:{},watch:{},pct:{},likes:0,comments:0});
+      r.per[p.k]=v.views;if(v.avgWatchSec!=null)r.watch[p.k]=v.avgWatchSec;if(v.avgPct!=null)r.pct[p.k]=v.avgPct;r.likes+=v.likes||0;r.comments+=v.comments||0;
       if(p.k==='yt'){r.yt=v;}});});
     var list=Object.keys(rows).map(function(k){var r=rows[k];r.tot=0;for(var p in r.per)r.tot+=r.per[p];
       if(h24&&r.ep&&h24.e&&h24.e[r.ep]){var s=0;for(var q in h24.e[r.ep])s+=h24.e[r.ep][q];r.d24=r.tot-s;}return r;}).sort(function(a,b){return b.tot-a.tot;});
@@ -419,7 +419,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
     return list.map(function(r){var ep=r.ep&&d.episodes?d.episodes[r.ep]:null,no=ep?ep.no:null,y=r.yt||{};
       var sub=ep&&ep.slot?slot(ep.slot).replace(/\s.*$/,'')+' 發':'還沒對上集數';
       var bar=r.tot?PF.filter(function(p){return r.per[p.k];}).map(function(p){return '<i style="width:'+(r.per[p.k]/r.tot*100).toFixed(1)+'%;background:'+p.c+'"></i>';}).join(''):'';
-      var cells=PF.map(function(p){var v=r.per[p.k],w=r.watch[p.k],s=p.k==='yt'&&y.avgViewPct!=null?'看完 '+y.avgViewPct+'%':w!=null?'平均 '+Math.round(w)+' 秒':'';
+      var cells=PF.map(function(p){var v=r.per[p.k],w=r.watch[p.k],pc=r.pct[p.k],s=pc!=null?'看完 '+pc+'%':w!=null?'平均 '+Math.round(w)+' 秒':'';
         return '<div class="vcell'+(v==null?' off':'')+'"><div class="pn"><span class="sw" style="background:'+p.c+'"></span>'+({ig:'IG',fb:'FB'}[p.k]||p.n)+'</div>'+
           '<div class="pv n">'+(v==null?'—':fmt(v))+'</div><div class="ps">'+(s||'&nbsp;')+'</div></div>';}).join('');
       var foot=['讚 <b>'+fmt(r.likes)+'</b>','留言 <b>'+fmt(r.comments)+'</b>'];
