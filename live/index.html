@@ -264,6 +264,9 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
 
   /* ── 讀 ── */
   function getBox(path,ref){var h={'Accept':'application/vnd.github.raw'},key=ref+':'+path;if(etags[key])h['If-None-Match']=etags[key].tag;
+    /* 10-07：沒帶金鑰的 API 一小時只能 60 次，App 每 90 秒讀好幾個檔很快用完 ⇒ 掉到 raw 網址（GitHub 快取 5 分鐘，數據會晚到 15 分鐘）
+       ⇒ 有寫入金鑰就一起帶上（一小時 5000 次） */
+    if(S.token)h['Authorization']='Bearer '+S.token;
     return fetch(API(path,ref),{headers:h,cache:'no-store'}).then(function(r){
       if(r.status===304&&etags[key])return etags[key].box;if(r.status===404)return null;if(!r.ok)throw new Error('api '+r.status);
       var tag=r.headers.get('ETag');return r.json().then(function(b){if(tag)etags[key]={tag:tag,box:b};return b;});})
@@ -379,7 +382,8 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
     navigator.serviceWorker.addEventListener('message',function(e){var t=e.data&&e.data.tab,c=e.data&&e.data.ch;if(!S.chans.length)return;if(c&&S.all[c]&&c!==S.ch){S.ch=c;lsSet(LS_CH,c);useCh();}if(t)setTab(t);else render();});
     if(lsGet(LS_PUSH,'')==='on')navigator.serviceWorker.register('sw.js').catch(function(){});
   }
-  function render(){
+  function stopVideos(){document.querySelectorAll('video').forEach(function(v){try{v.pause();v.removeAttribute('src');v.load();}catch(x){}});}
+  function render(){stopVideos();
     var h=header();
     if(S.tab==='topics')h+=topicsView();else if(S.tab==='review')h+=reviewView();else h+=dataView();
     $('app').innerHTML=h;
@@ -411,7 +415,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       if(x.note)h+='<span class="err" style="color:var(--warn)">'+esc(x.note)+'</span>';
       h+='</div>';});
     h+='<h2>最近 3 天每小時新增觀看</h2>'+chart(hist)+'<h2>每支片</h2><p class="note">看完％＝平均看幾秒 ÷ 片長（三個平台同一把尺）；Shorts 會重播，可能超過 100%。YouTube 的數字每天早上更新一次。</p>'+videos(d,h24);
-    h+='<p class="note">版本 10-06e・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
+    h+='<p class="note">版本 10-07a・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
     h+='<p class="note">YouTube 公開觀看數比後台慢幾個小時，有「後台」字樣的是每天早上從 YouTube 後台讀的。FB 的觀看是 Reels 播放次數。</p>';
     return h;
   }
@@ -528,7 +532,9 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       return '<div class="plan"><div class="ph"><b>'+esc(x.title)+'</b><small>'+esc(x.slot?slot(x.slot)+' 發':'')+'</small></div>'+
         (st?'<div class="steps">'+st+'</div>':'')+(x.note?'<div class="pn">'+esc(x.note)+'</div>':'')+'</div>';}).join('');}
   function card(e,v){
-    var vk=S.ch+':'+e,pl=S.videoUrl[vk]?'<video src="'+S.videoUrl[vk]+'" controls playsinline autoplay></video>':
+    /* 10-07：切回審片頁影片會自己播 ⇒ autoplay 只給剛按「播放」的那一支，用一次就清掉 */
+    var vk=S.ch+':'+e,ap=S.justPlayed===vk;if(ap)S.justPlayed=null;
+    var pl=S.videoUrl[vk]?'<video src="'+S.videoUrl[vk]+'" controls playsinline'+(ap?' autoplay':'')+'></video>':
       v.preview?'<button class="btn" data-play="'+e+'" type="button">▶ 播放預覽（'+(v.preview.size/1048576).toFixed(1)+' MB）</button>':'<span class="pnote">預覽片還在上傳</span>';
     return '<div class="rv"><div class="player" id="pl-'+e+'">'+pl+'</div>'+
       '<div class="head"><b><span class="no">'+no2(v.no)+'</span>'+esc(v.title)+'</b><span class="slot">'+esc(slot(v.slot))+' 發</span></div>'+
@@ -562,7 +568,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
   function play(e,btn){var v=S.work.videos[e];btn.disabled=true;btn.textContent='下載中…';
     Promise.all([fetch(RAW(v.preview.file,'media')+'?v='+v.preview.v).then(function(r){if(!r.ok)throw new Error('dl '+r.status);return r.arrayBuffer();}),videoKey(S.keys)])
       .then(function(x){var u=new Uint8Array(x[0]);return crypto.subtle.decrypt({name:'AES-GCM',iv:u.subarray(0,12)},x[1],u.subarray(12));})
-      .then(function(pt){S.videoUrl[S.ch+':'+e]=URL.createObjectURL(new Blob([pt],{type:'video/mp4'}));render();})
+      .then(function(pt){S.videoUrl[S.ch+':'+e]=URL.createObjectURL(new Blob([pt],{type:'video/mp4'}));S.justPlayed=S.ch+':'+e;render();})
       .catch(function(){btn.disabled=false;btn.textContent='沒載入成功，再按一次';});}
   function decide(e,dec,note){
     send({type:'review',ch:S.ch,ep:e,decision:dec,note:note||''}).then(function(){try{localStorage.removeItem(ck('wfl.note.')+e);}catch(x){}
@@ -581,7 +587,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
     $('tabs').hidden=false;var hs=(location.hash||'').slice(1).split(':'),t=hs[0]||lsGet(LS_TAB,'data');
     if(hs[1]&&S.all[hs[1]]&&hs[1]!==S.ch){S.ch=hs[1];lsSet(LS_CH,S.ch);useCh();}if(location.hash)history.replaceState(null,'',location.pathname);setTab(['data','topics','review'].indexOf(t)>=0?t:'data');loadToken();
     clearInterval(timer);timer=setInterval(function(){if(!document.hidden)refresh();},90000);});}
-  document.addEventListener('visibilitychange',function(){if(!document.hidden&&S.keys&&S.stats)refresh();});
+  document.addEventListener('visibilitychange',function(){if(document.hidden){document.querySelectorAll('video').forEach(function(v){try{v.pause();}catch(x){}});return;}if(S.keys&&S.stats)refresh();});
 
   S.ch=lsGet(LS_CH,DEF);
   S.keys=loadKeys(LS)||loadKeys(LS_SHARED);
