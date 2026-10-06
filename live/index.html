@@ -145,6 +145,9 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
 #shText::placeholder{color:var(--faint)}
 .row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--line);font-size:14px}
 .row small{display:block;color:var(--muted);font-size:12px}
+.qlink{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 0;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);text-decoration:none;font-size:14px}
+.qlink small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.qlink i{font-style:normal;color:var(--accent);font-size:22px;line-height:1}
 /* 10-06c 工作進度（state.plan）：每支片一列＋步驟點 */
 .plan{padding:12px 0;border-top:1px solid var(--line)}
 .plan .ph{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:14px}
@@ -335,7 +338,10 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
     return '<button class="todo'+(hot?' hot':'')+'" id="todo" type="button" data-v="'+v+'"><i></i><span>'+esc(txt)+'</span><span class="go">'+go+'</span></button>';
   }
   function header(){var c=chan(),av=S.ch===DEF?'<img src="../avatar.jpg" alt="">':'<span class="av" aria-hidden="true">'+esc((c.name||'?').charAt(0))+'</span>';
-    return '<header class="top">'+av+'<div><b>'+esc(c.name)+'</b><small>'+esc(c.active===false?'籌備中':(c.sub||''))+'</small></div><button class="re" id="re" type="button">重新整理</button></header>'+chips()+todo()+pushCard();}
+    return '<header class="top">'+av+'<div><b>'+esc(c.name)+'</b><small>'+esc(c.active===false?'籌備中':(c.sub||''))+'</small></div><button class="re" id="re" type="button">重新整理</button></header>'+chips()+links()+todo()+pushCard();}
+  /* 10-06d：頻道的快速連結（channels.json 的 links；買了啦＝特價清單網頁） */
+  function links(){var L=chan().links||[];if(!L.length)return '';
+    return L.map(function(x){return '<a class="qlink" href="'+esc(x.u)+'" target="_blank" rel="noopener"><span><b>'+esc(x.t)+'</b>'+(x.sub?'<small>'+esc(x.sub)+'</small>':'')+'</span><i aria-hidden="true">›</i></a>';}).join('');}
   /* 頻道切換（10-05c）：兩個以上頻道才出現；別的頻道有事要處理時亮橘點 */
   function chips(){if(S.chans.length<2)return '';
     return '<div class="chs" role="group" aria-label="切換頻道">'+S.chans.map(function(c){var hot=c.id!==S.ch&&(needPick(c.id)||reviewList(c.id).length);
@@ -400,7 +406,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       if(x.note)h+='<span class="err" style="color:var(--warn)">'+esc(x.note)+'</span>';
       h+='</div>';});
     h+='<h2>最近 3 天總觀看</h2>'+chart(hist)+'<h2>每支片</h2><p class="note">看完％＝平均看幾秒 ÷ 片長（三個平台同一把尺）；Shorts 會重播，可能超過 100%。YouTube 的數字每天早上更新一次。</p>'+videos(d,h24);
-    h+='<p class="note">版本 10-06c・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
+    h+='<p class="note">版本 10-06d・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
     h+='<p class="note">YouTube 公開觀看數比後台慢幾個小時，有「後台」字樣的是每天早上從 YouTube 後台讀的。FB 的觀看是 Reels 播放次數。</p>';
     return h;
   }
