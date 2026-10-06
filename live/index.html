@@ -147,6 +147,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
 .row small{display:block;color:var(--muted);font-size:12px}
 .links{display:flex;gap:10px;font-size:12px;margin-top:2px}
 .links a{color:var(--muted)}
+.links .q{color:var(--muted);opacity:.6}
 .sent{margin-top:10px;font-size:13px;color:var(--ok)}
 .sent.err{color:var(--bad)}
 /* 送出列與分頁列 */
@@ -389,7 +390,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       if(x.note)h+='<span class="err" style="color:var(--warn)">'+esc(x.note)+'</span>';
       h+='</div>';});
     h+='<h2>最近 3 天總觀看</h2>'+chart(hist)+'<h2>每支片</h2>'+videos(d,h24);
-    h+='<p class="note">版本 10-05c・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
+    h+='<p class="note">版本 10-06a・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
     h+='<p class="note">YouTube 公開觀看數比後台慢幾個小時，有「後台」字樣的是每天早上從 YouTube 後台讀的。FB 的觀看是 Reels 播放次數。</p>';
     return h;
   }
@@ -493,7 +494,13 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       (v.caption?'<details><summary>上架標題與說明</summary><pre>'+esc(v.caption)+'</pre></details>':'')+
       '<div class="acts"><button class="btn" data-fix="'+e+'" type="button">要修改</button><button class="btn primary wide" data-ok="'+e+'" type="button">好，照排</button></div></div>';}
   function row(e,v,right,sub,links){
-    var L=links?[['yt','YouTube'],['tt','TikTok'],['ig','IG'],['fb','FB']].filter(function(x){return links[x[0]];}).map(function(x){return '<a href="'+esc(links[x[0]])+'" target="_blank" rel="noopener">'+x[1]+'</a>';}).join(''):'';
+    /* 10-06a：TikTok／IG／FB 要等發出去才有網址 ⇒ 還沒網址但已排程的平台顯示灰字「已排」（排程紀錄在 v.sched：tt、meta＝FB+IG） */
+    var sc=v.sched||{}, queued={tt:!!sc.tt, ig:!!(sc.meta||(v.meta&&v.meta.ig)), fb:!!(sc.meta||(v.meta&&v.meta.fb)), yt:!!sc.yt};
+    links=links||{};
+    var L=[['yt','YouTube'],['tt','TikTok'],['ig','IG'],['fb','FB']].map(function(x){
+      if(links[x[0]])return '<a href="'+esc(links[x[0]])+'" target="_blank" rel="noopener">'+x[1]+'</a>';
+      if(v.status==='scheduled'&&queued[x[0]])return '<span class="q">'+x[1]+' 已排</span>';
+      return '';}).join('');
     return '<div class="row"><div><span class="no">'+no2(v.no)+'</span>'+esc(v.title)+'<small>'+esc(slot(v.slot))+(sub?'　'+esc(sub):'')+'</small>'+(L?'<div class="links">'+L+'</div>':'')+'</div><div>'+right+'</div></div>';}
   function bindReview(){
     document.querySelectorAll('[data-play]').forEach(function(b){b.addEventListener('click',function(){play(b.dataset.play,b);});});
