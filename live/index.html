@@ -589,7 +589,7 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
       h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝YouTube 觀看（公開數與後台數取大的；會賺錢的平台）。<br><b>開頭</b>＝在 YouTube 滑到這支片的人，幾成停下來看（YouTube 還沒出來時用 IG 前 3 秒，標 (IG)）。<b>看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<b>同時間</b>＝發布一樣久，比其他片多或少幾 %。<br>'+
         '<span class="up">▲</span><span class="dn">▼</span>＝比其他片的中間值高／低 5 點以上（同時間是 30%）；不到 6 支片都只供參考。<b>還在推／變慢／停了</b>：YouTube 最近還有沒有在送觀看；公開數常卡好幾小時，卡住時不判。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
     var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
-    return h+'<p class="note">版本 10-07i・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+    return h+'<p class="note">版本 10-07j・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
   /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
@@ -721,8 +721,9 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
   function scheduleView(){var sc=chan().schedule,wd='日一二三四五六',today=new Date();today.setHours(0,0,0,0);
     var nx=(sc.next||[]).filter(function(x){return new Date(x.d+'T00:00:00')>=today;});
     var h='<h2>發片規則</h2><div class="sched">'+(sc.rules||[]).map(function(r,i){return '<p><b>'+(i+1)+'</b>'+esc(r)+'</p>';}).join('')+'</div>';
-    h+='<h2>接下來要發的</h2>'+(nx.length?nx.map(function(x){var d=new Date(x.d+'T00:00:00');
-      return '<div class="row"><div><b>'+(d.getMonth()+1)+'/'+d.getDate()+'（'+wd.charAt(d.getDay())+'）</b>　'+esc(x.s)+' 新檔<small>18:00 發'+(x.t?'・'+esc(x.t):'')+'</small></div>'+
+    var md=function(s){var d=new Date(s+'T00:00:00');return (d.getMonth()+1)+'/'+d.getDate()+'（'+wd.charAt(d.getDay())+'）';};
+    h+='<h2>接下來要發的</h2>'+(nx.length?nx.map(function(x){   /* 10-07j（Benson：各個檔期是何時？）：每列寫出整檔起訖 */
+      return '<div class="row"><div><b>'+esc(x.s)+'</b>　'+md(x.d)+(x.e?'～'+md(x.e):'')+'<small>第一天 18:00 發'+(x.t?'・'+esc(x.t):'')+'</small></div>'+
         '<span class="pill'+(x.ok?' ok':'')+'">'+(x.ok?'DM 已確認':'推算')+'</span></div>';}).join(''):'<div class="empty">還沒排。</div>');
     h+='<h2>各家檔期</h2>'+(sc.stores||[]).map(function(s){return '<div class="row"><div><b>'+esc(s.s)+'</b><small>'+esc(s.cycle)+'</small></div><div class="pnote" style="margin:0">這檔 '+esc(s.now)+'</div></div>';}).join('');
     if(sc.note)h+='<p class="pnote">'+esc(sc.note)+'</p>';
