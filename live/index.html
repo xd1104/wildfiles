@@ -417,7 +417,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       if(x.note)h+='<span class="err" style="color:var(--warn)">'+esc(x.note)+'</span>';
       h+='</div>';});
     h+='<h2>最近 3 天每小時新增觀看</h2>'+chart(hist)+'<h2>每支片</h2><p class="note">看完％＝平均看幾秒 ÷ 片長（三個平台同一把尺）；Shorts 會重播，可能超過 100%。YouTube 的數字每天早上更新一次。</p>'+videos(d,h24);
-    h+='<p class="note">版本 10-07b・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
+    h+='<p class="note">版本 10-07c・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
     h+='<p class="note">YouTube 公開觀看數比後台慢幾個小時，有「後台」字樣的是每天早上從 YouTube 後台讀的。FB 的觀看是 Reels 播放次數。</p>';
     return h;
   }
@@ -492,7 +492,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       return '<div class="topic'+(on?' on':'')+(!open&&!on?' dim':'')+'"><button type="button" class="hd" data-t="'+esc(tp.id)+'" '+(open?'':'disabled')+' aria-pressed="'+on+'"><span class="tick">'+(on?'✓':'')+'</span>'+
         '<div class="rank">企劃排名 '+(i+1)+(tp.animal?'　·　'+esc(tp.animal):'')+'</div><div class="tt">'+esc(tp.title)+'</div>'+
         (tp.why?'<div class="why">'+esc(tp.why)+'</div>':'')+
-        '<div class="facts">'+(tp.film!=null?'<span class="'+(tp.film<4?'warnf':'')+'">4K 實拍素材 '+esc(tp.film)+' 支'+(tp.film<4?'（偏少）':'')+'</span>':'')+(tp.source?'<span>來源：'+esc(tp.source)+'</span>':'')+'</div></button>'+hh+'</div>';}).join('');
+        '<div class="facts">'+(tp.film==null?'':typeof tp.film==='number'?'<span class="'+(tp.film<4?'warnf':'')+'">4K 實拍素材 '+esc(tp.film)+' 支'+(tp.film<4?'（偏少）':'')+'</span>':'<span>畫面：'+esc(tp.film)+'</span>')+(tp.source?'<span>來源：'+esc(tp.source)+'</span>':'')+'</div></button>'+hh+'</div>';}).join('');
     return h;
   }
   function bindTopics(){var w=S.work.week,pk=ck(LS_PICK)+w.id;
