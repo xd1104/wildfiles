@@ -31,184 +31,146 @@ button:focus-visible,textarea:focus-visible,.topic:focus-visible,.hk:focus-visib
 .scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:0 16px 28px}
 .wrap{max-width:560px;margin:0 auto}
 .n{font-family:var(--num);font-variant-numeric:tabular-nums;font-weight:600}
-.top{display:flex;align-items:center;gap:12px;padding-block:16px 12px}
-.top img{width:40px;height:40px;border-radius:50%}
-.top b{display:block;font-size:18px;letter-spacing:.04em;line-height:1.15}
-.top small{color:var(--accent);font-family:var(--num);letter-spacing:.22em;font-weight:600;font-size:12px}
-.top .av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--ink);font-weight:800;font-size:18px;flex:none}
-.chs{display:flex;gap:8px;overflow-x:auto;margin:0 0 12px;padding-bottom:2px;scrollbar-width:none}
+/* 10-07f 精簡版（照 work/data-research/ux-demo-slim.html，Benson：「可以，照這版改」）：390×844 第一屏要看得到 2～3 支片卡 */
+/* 標題列：頭像＋頻道名＋右邊「● N 分鐘前」（按了＝重新整理；過久變紅） */
+.top{display:flex;align-items:center;gap:10px;padding-block:12px 10px}
+.top img,.top .av{width:34px;height:34px;border-radius:50%;flex:none}
+.top .av{display:grid;place-items:center;background:var(--accent);color:var(--ink);font-weight:800;font-size:16px}
+.top b{font-size:18px;letter-spacing:.04em;line-height:1.2;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top b small{font-size:11px;color:var(--warn);font-weight:400;letter-spacing:0;margin-left:6px}
+.top .st{margin-left:auto;flex:none;display:flex;align-items:center;gap:6px;background:none;border:0;font-size:13px;color:var(--muted);padding:8px 2px 8px 10px;min-height:40px;cursor:pointer}
+.top .st i{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.top .st.warn i{background:var(--warn)}
+.top .st.bad{color:var(--bad)} .top .st.bad i{background:var(--bad)}
+.chs{display:flex;gap:8px;overflow-x:auto;margin:0 0 10px;padding-bottom:2px;scrollbar-width:none}
 .chs::-webkit-scrollbar{display:none}
-.chip{flex:none;display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:14px;cursor:pointer;min-height:40px}
+.chip{flex:none;display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:14px;cursor:pointer;min-height:38px}
 .chip[aria-pressed="true"]{background:var(--accent);color:var(--ink);border-color:var(--accent);font-weight:700}
 .chip .dot{width:8px;height:8px;border-radius:50%;background:var(--warn)}
 .chip[aria-pressed="true"] .dot{background:var(--ink)}
 .chip small{font-size:11px;opacity:.7}
-.top .re{margin-left:auto;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px;cursor:pointer}
-.todo{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:var(--surface);border:1px solid var(--line);margin-bottom:14px;width:100%;text-align:left;cursor:pointer}
-.todo.hot{background:var(--accent);color:var(--ink);border-color:var(--accent)}
+/* 待辦：有事才出現 */
+.todo{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:12px;background:var(--surface);border:1px solid var(--line);margin-bottom:10px;width:100%;text-align:left;cursor:pointer}
+.todo.hot{background:var(--accent);color:var(--ink);border-color:var(--accent);font-weight:700}
 .todo i{width:8px;height:8px;border-radius:50%;background:var(--ok);flex:none}
 .todo.hot i{background:var(--ink)}
-.todo span.go{margin-left:auto;font-size:13px;opacity:.75}
-.status{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-bottom:16px}
-.status i{width:8px;height:8px;border-radius:50%;background:var(--ok);flex:none}
-.status.warn i{background:var(--warn)} .status.bad i{background:var(--bad)}
-.status.bad{color:var(--bad)}
+.todo span.go{margin-left:auto;font-size:13px;opacity:.75;font-weight:400}
+/* 有事才出現的警示（電腦斷線、平台沒抓到、Meta 授權快到期） */
+.alert{font-size:13px;color:var(--warn);margin:0 0 10px;line-height:1.5}
+.alert.bad{color:var(--bad)}
 h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin:26px 0 10px}
-.up{color:var(--ok)}
-.pf{display:grid;grid-template-columns:1fr auto auto;gap:4px 18px;align-items:baseline;padding:11px 0;border-top:1px solid var(--line)}
-.pf .nm{display:flex;align-items:center;gap:8px}
-.sw{width:10px;height:10px;border-radius:3px;flex:none}
-.pf .c{text-align:right}
-.pf .c .n{font-size:21px}
-.pf .c small{display:block;font-size:11px;color:var(--muted)}
-.pf .off{grid-column:2/4;text-align:right;font-size:12px;color:var(--faint)}
-.pf .err{grid-column:1/4;font-size:12px;color:var(--bad)}
-.chart{background:var(--surface);border-radius:12px;padding:10px 8px 4px}
-.chart svg{display:block;width:100%;height:auto}
-/* 10-07d 數據頁改版（照 work/data-research/ux-demo.html）：首頁上方「實驗檢查點」＋「YouTube 營利進度」，每支片＝YouTube 觀看＋一句話結論＋3 個數字，點進去看細節 */
-h2 .pill{letter-spacing:0;font-weight:400}
-.card{background:var(--surface);border-radius:14px;padding:14px;margin-top:10px}
-.card .hd{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-.card .hd b{font-size:15px}
-.card .hd span{font-size:13px;color:var(--muted);white-space:nowrap}
-.seg12{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:3px;margin:10px 0 12px}
-.seg12 i{height:6px;border-radius:2px;background:var(--line)}
-.seg12 i.on{background:var(--accent)}
-.kv{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
-.kv:first-of-type{border-top:0}
-.kv .l{font-size:13px;color:var(--muted);min-width:0}
-.kv .r{text-align:right;flex:none}
-.kv .r .n{font-size:24px;line-height:1.1}
-.kv .r small{font-size:12px;color:var(--muted)}
-.trend{font-size:13px;color:var(--muted)}
-.trend b{color:var(--text);font-family:var(--num);font-weight:600;font-size:15px}
-.mrow{padding:10px 0 4px;border-top:1px solid var(--line)}
-.mrow:first-of-type{border-top:0}
-.mrow .top2{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-.mrow .top2 .l{font-size:13px;color:var(--muted)}
-.mrow .top2 .r{white-space:nowrap}
-.mrow .top2 .r .n{font-size:24px}
-.mrow .top2 .r small{font-size:13px;color:var(--muted)}
-.mrow .top2 .r .na{font-size:14px;color:var(--warn)}
-.mile{display:flex;gap:4px;margin-top:8px}
+h2.sh{margin:16px 0 2px;display:flex;align-items:center;gap:8px}
+h2.sh .pill{font-size:11px;padding:1px 8px;letter-spacing:0}
+.up{color:var(--ok)} .dn{color:var(--bad)}
+/* 一行摘要（點開才看營利） */
+.sum{display:flex;align-items:center;gap:8px;width:100%;background:none;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 2px;font-size:14px;color:var(--muted);cursor:pointer;text-align:left}
+.sum span.t{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sum b{color:var(--text);font-family:var(--num);font-weight:600;font-size:16px}
+.sum em{margin-left:auto;font-style:normal;color:var(--faint);transition:transform .15s}
+.sum[aria-expanded="true"] em{transform:rotate(90deg)}
+.sumx{font-size:13px;color:var(--muted);padding:8px 2px 2px;line-height:1.6}
+.sumx b{color:var(--text);font-weight:600}
+.mile{display:flex;gap:4px;margin:6px 0 4px}
 .mile span{flex:1;min-width:0;font-size:11px;text-align:center;color:var(--faint);padding-top:9px;position:relative;white-space:nowrap}
 .mile span::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;border-radius:3px;background:var(--line)}
 .mile span.done{color:var(--muted)} .mile span.done::before{background:var(--ok)}
 .mile span.doing{color:var(--text);font-weight:700}
 .mile span.doing::after{content:"";position:absolute;top:0;left:0;width:var(--p,0%);height:5px;border-radius:3px;background:var(--accent)}
-.lin{height:6px;border-radius:3px;background:var(--line);margin-top:8px;overflow:hidden}
-.lin i{display:block;height:100%;background:var(--accent);min-width:2px}
-.sub2{font-size:12px;color:var(--muted);margin-top:4px}
-.why{font-size:12px;color:var(--muted);background:var(--ground);border-radius:10px;padding:9px 11px;margin-top:10px;line-height:1.6}
-.why b{color:var(--text);font-weight:600}
-.vid{display:block;width:100%;text-align:left;border:0;background:var(--surface);border-radius:14px;padding:14px;margin-top:10px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+/* 片卡：三行 */
+.vid{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;row-gap:3px;width:100%;text-align:left;border:0;background:var(--surface);border-radius:14px;padding:12px 12px 11px 14px;margin-top:8px;cursor:pointer;-webkit-tap-highlight-color:transparent;align-items:center}
 .vid:active{background:var(--surface2)}
-.vid .h{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
-.vid .tt{font-size:15px;font-weight:700;line-height:1.4;min-width:0}
-.vid .sub{display:block;font-size:12px;color:var(--muted);font-weight:400;margin-top:2px}
-.vid .tot{text-align:right;flex:none}
-.vid .tot .n{display:block;font-size:30px;line-height:1.05}
-.vid .tot small{display:block;font-size:12px;color:var(--muted)}
-.no{font-family:var(--num);color:var(--accent);font-weight:600;margin-right:6px}
-.vd{display:flex;gap:9px;align-items:flex-start;margin-top:10px;font-size:14px;line-height:1.45}
-.vd i{width:8px;height:8px;border-radius:50%;margin-top:6px;flex:none;background:var(--muted)}
-.vd.good i{background:var(--ok)} .vd.bad i{background:var(--bad)} .vd.mid i{background:var(--warn)} .vd.wait i{background:var(--faint)}
-.mt{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:10px}
-.m{background:var(--ground);border-radius:10px;padding:8px 9px 8px;min-width:0}
-.m .k{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.m .v{font-size:24px;line-height:1.2;margin-top:2px;white-space:nowrap}
-.m .v.txt{font-family:inherit;font-size:16px;font-weight:700;line-height:1.5;margin-top:3px}
-.m .v.go{color:var(--ok)} .m .v.stop{color:var(--muted)} .m .v.slow{color:var(--warn)} .m .v.na{color:var(--faint)}
-.m .v small{font-size:11px;color:var(--muted);font-family:inherit;font-weight:400;margin-left:2px}
-.bd{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted)}
-.bd.up{color:var(--ok)} .bd.dn{color:var(--bad)} .bd.eq{color:var(--muted)} .bd.na{color:var(--faint)}
-.bd.wrap{white-space:normal;line-height:1.35}
-.few .bd.up,.few .bd.dn{opacity:.72}
-.pfm{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin-top:10px;font-size:12px;color:var(--muted)}
-.pfm span{display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;min-width:0}
-.pfm span i{width:7px;height:7px;border-radius:50%;flex:none}
-.pfm span b{color:var(--text);font-family:var(--num);font-weight:600;font-size:14px}
-.pfm span.x b{color:var(--faint);text-decoration:line-through}
-.more{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
-.more em{font-style:normal;color:var(--accent);font-size:13px;white-space:nowrap}
-details.qa{margin-top:2px}
-details.qa summary{font-size:12px;color:var(--muted);cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:4px;min-height:32px}
-details.qa summary::-webkit-details-marker{display:none}
-details.qa summary::before{content:"?";display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;border:1px solid var(--faint);font-size:11px}
-details.box{background:var(--surface);border-radius:12px;padding:0 14px;margin-top:10px}
-details.box summary{cursor:pointer;padding:12px 0;font-size:14px;list-style:none;display:flex;justify-content:space-between;gap:10px}
-details.box summary::-webkit-details-marker{display:none}
-details.box summary::after{content:"＋";color:var(--muted)}
-details.box[open] summary::after{content:"－"}
-details.box > div{padding-bottom:12px}
-.alert{font-size:13px;color:var(--warn);margin:-8px 0 14px}
+.vid .tt{font-size:15px;font-weight:700;line-height:1.4;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no{font-family:var(--num);color:var(--accent);font-weight:600;margin-right:5px}
+.new{display:inline-block;font-size:11px;font-weight:700;background:var(--accent);color:var(--ink);border-radius:4px;padding:0 5px;margin-right:6px;vertical-align:2px;line-height:17px}
+.vid .vw{display:flex;align-items:baseline;gap:6px;justify-self:end}
+.vid .vw .n{font-size:22px;line-height:1.1}
+.vid .vw em{font-style:normal;color:var(--faint);font-size:20px;line-height:1}
+.vid .vd{grid-column:1/3;display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.45}
+.vid .vd i{width:8px;height:8px;border-radius:50%;margin-top:6px;flex:none;background:var(--faint)}
+.vd.good i{background:var(--ok)} .vd.bad i{background:var(--bad)} .vd.mid i{background:var(--warn)}
+.vid .ms{grid-column:1/3;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vid .ms b{color:var(--text);font-family:var(--num);font-weight:600;font-size:14px}
+.vid .ms .sl{color:var(--warn)}
+/* 最底下「更多」 */
+details.more{margin-top:18px;border-top:1px solid var(--line)}
+details.more>summary{cursor:pointer;list-style:none;padding:12px 2px;font-size:14px;color:var(--muted);display:flex;justify-content:space-between;gap:10px}
+details.more>summary::-webkit-details-marker{display:none}
+details.more>summary::after{content:"＋";flex:none} details.more[open]>summary::after{content:"－"}
+.mh{font-size:12px;color:var(--muted);margin:14px 0 6px}
+.tip{font-size:13px;color:var(--muted);line-height:1.65}
+.tip b{color:var(--text);font-weight:600}
+.pushrow{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--muted)}
+.pushrow .btn{flex:none;padding:8px 14px;font-size:14px}
+.pushrow .err{color:var(--warn)}
+.pf{display:grid;grid-template-columns:1fr auto auto;gap:4px 18px;align-items:baseline;padding:9px 0;border-top:1px solid var(--line)}
+.pf .nm{display:flex;align-items:center;gap:8px}
+.sw{width:10px;height:10px;border-radius:3px;flex:none}
+.pf .c{text-align:right}
+.pf .c .n{font-size:19px}
+.pf .c small{display:block;font-size:11px;color:var(--muted)}
+.pf .off{grid-column:2/4;text-align:right;font-size:12px;color:var(--faint)}
+.pf .err{grid-column:1/4;font-size:12px;color:var(--bad)}
+.chart{background:var(--surface);border-radius:12px;padding:10px 8px 4px}
+.chart svg{display:block;width:100%;height:auto}
+.ckey{display:flex;gap:12px;justify-content:center;font-size:11px;color:var(--muted);margin-top:4px;flex-wrap:wrap}
+.ckey i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px}
 /* 單支片的細節頁（整頁推進來） */
 .detail{position:fixed;left:0;right:0;top:0;height:var(--app-h,100%);z-index:40;background:var(--ground);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);transform:translateX(0);transition:transform .22s ease-out}
 .detail[hidden]{display:none}
 .detail.enter{transform:translateX(100%)}
-.dbar{flex:none;display:flex;align-items:center;gap:8px;padding:8px 10px 8px 6px;border-bottom:1px solid var(--line);background:var(--ground)}
-.dbar .back{background:none;border:0;font-size:16px;color:var(--accent);padding:8px 10px;min-height:44px;cursor:pointer;display:flex;align-items:center;gap:2px;flex:none}
+.dbar{flex:none;display:flex;align-items:center;gap:6px;padding:6px 8px 6px 4px;border-bottom:1px solid var(--line)}
+.dbar .back{background:none;border:0;font-size:16px;color:var(--accent);padding:8px 10px;min-height:44px;cursor:pointer;flex:none}
 .dbar b{flex:1;min-width:0;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.jump{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:10px 16px;border-bottom:1px solid var(--line);flex:none}
-.jump button{background:var(--surface);border:1px solid var(--line);border-radius:999px;font-size:13px;padding:7px 0;min-height:36px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dbar .tocm{flex:none;background:none;border:1px solid var(--line);border-radius:999px;font-size:13px;padding:5px 11px;min-height:34px;cursor:pointer;color:var(--muted)}
 .dscroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:4px 16px 40px}
-.verd{border-radius:14px;padding:14px;margin-top:12px;background:var(--surface);border-left:4px solid var(--muted)}
-.verd.good{border-left-color:var(--ok)} .verd.bad{border-left-color:var(--bad)} .verd.mid{border-left-color:var(--warn)} .verd.wait{border-left-color:var(--faint)}
+.verd{border-radius:14px;padding:13px 14px;margin-top:12px;background:var(--surface);border-left:4px solid var(--faint)}
+.verd.good{border-left-color:var(--ok)} .verd.bad{border-left-color:var(--bad)} .verd.mid{border-left-color:var(--warn)}
 .verd .t{font-size:17px;font-weight:700;line-height:1.4}
-.verd .nx{font-size:14px;margin-top:8px;line-height:1.55}
-.verd .nx b{color:var(--accent);font-weight:700;margin-right:4px}
-.verd .cf{font-size:12px;color:var(--muted);margin-top:8px}
-.bars{display:grid;gap:12px}
+.verd .nx{font-size:14px;margin-top:6px;line-height:1.55}
+.verd .nx b{color:var(--accent);margin-right:4px}
+.dh{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;color:var(--muted);letter-spacing:.06em;margin:20px 0 8px}
+.qbtn{flex:none;width:26px;height:26px;border-radius:50%;border:1px solid var(--faint);background:none;color:var(--muted);font-size:13px;cursor:pointer;display:grid;place-items:center;padding:0}
+.qtx{font-size:13px;color:var(--muted);background:var(--surface);border-radius:10px;padding:10px 12px;margin-bottom:8px;line-height:1.6}
+.qtx[hidden]{display:none}
+.dcard{background:var(--surface);border-radius:14px;padding:13px 14px;margin-top:8px}
+.bars{display:grid;gap:14px}
 .bar .l{display:flex;justify-content:space-between;gap:10px;font-size:13px}
-.bar .l span:last-child{color:var(--muted);white-space:nowrap}
-.bar .tr{position:relative;height:12px;border-radius:6px;background:rgba(255,95,85,.35);margin-top:6px;overflow:visible}
-.bar .tr i{display:block;height:100%;border-radius:6px 0 0 6px;background:var(--ok)}
-.bar .tr u{position:absolute;top:-4px;width:2px;height:20px;background:var(--text);border-radius:1px}
-.bar .tr u::after{content:"平常";position:absolute;top:21px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted);text-decoration:none;white-space:nowrap}
-.bar .ex{font-size:12px;color:var(--muted);margin-top:16px}
-.bar.off .l{color:var(--faint);flex-direction:column;gap:0}
-.bar.off .l span:last-child{color:var(--warn);font-size:12px;white-space:normal}
-.bar.off .tr{background:var(--line)}
-.where{display:inline-block;font-size:14px;font-weight:700;padding:3px 10px;border-radius:999px;background:rgba(255,95,85,.16);color:var(--bad);margin-bottom:8px}
+.bar .l span:last-child{white-space:nowrap}
+.bar .tr{position:relative;height:10px;border-radius:5px;background:rgba(255,95,85,.35);margin-top:6px}
+.bar .tr i{display:block;height:100%;border-radius:5px 0 0 5px;background:var(--ok)}
+.bar .tr u{position:absolute;top:-4px;width:2px;height:18px;background:var(--text);border-radius:1px}
+.bar.off .l{color:var(--faint)} .bar.off .l span:last-child{color:var(--warn);font-size:12px;white-space:normal;text-align:right}
+.bar.off .tr{display:none}
+.where{display:inline-block;font-size:14px;font-weight:700;padding:2px 10px;border-radius:999px;background:rgba(255,95,85,.16);color:var(--bad);margin-bottom:6px}
 .where.mid{background:rgba(255,159,67,.16);color:var(--warn)}
 .ret svg{display:block;width:100%;height:auto}
-.ret .say{font-size:14px;line-height:1.55;margin-top:6px}
-.ph{border:1px dashed var(--line);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--muted);margin-top:10px}
-.cmf{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:4px}
-.cmf::-webkit-scrollbar{display:none}
-.cmf button{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;font-size:13px;padding:6px 12px;min-height:36px;cursor:pointer;display:flex;align-items:center;gap:5px}
-.cmf button[aria-pressed="true"]{background:var(--accent);color:var(--ink);border-color:var(--accent);font-weight:700}
-.cmf button i{width:7px;height:7px;border-radius:50%}
-.cm{padding:11px 0;border-top:1px solid var(--line)}
-.cm .who{display:flex;align-items:center;gap:7px;font-size:13px;min-width:0}
-.cm .who i{width:7px;height:7px;border-radius:50%;flex:none}
-.cm .who b{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-.cm .who em{font-style:normal;font-size:11px;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:0 6px;flex:none}
-.cm .who span{color:var(--muted);font-size:12px;white-space:nowrap;margin-left:auto}
-.cm p{margin:4px 0 0 14px;font-size:15px;line-height:1.5;overflow-wrap:anywhere}
-.cm.rp{padding-left:16px}
-.extra{display:grid;grid-template-columns:1fr auto;gap:2px 12px;font-size:13px;color:var(--muted)}
-.extra b{color:var(--text);font-family:var(--num);font-weight:600;text-align:right}
-.vcell.badc .pv{color:var(--faint);text-decoration:line-through}
-.vcell .warnt{font-size:11px;color:var(--warn);line-height:1.3}
+.ret .say{font-size:14px;margin:6px 0 0}
+.dph{font-size:13px;color:var(--muted);margin:0}
 .vgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
-.vcell{background:var(--ground);border-radius:10px;padding:8px 8px 7px;min-width:0}
+.vcell{background:var(--surface);border-radius:10px;padding:8px 8px 7px;min-width:0}
 .vcell .pn{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden}
 .vcell .pn .sw{width:7px;height:7px;border-radius:50%}
 .vcell .pv{font-size:20px;line-height:1.25;margin-top:3px}
 .vcell .ps{font-size:11px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vcell.off .pv{color:var(--faint)}
-.vcell .spk{display:block;width:100%;height:26px;margin-top:4px}
+.vcell.badc .pv{color:var(--faint);text-decoration:line-through}
+.vcell .warnt{font-size:11px;color:var(--warn);line-height:1.3}
+.vcell .spk{display:block;width:100%;height:24px;margin-top:4px}
 .vcell .g .up{color:#4ade80}
 .vcell .g .stop{color:var(--faint)}
-.ckey{display:flex;gap:12px;justify-content:center;font-size:11px;color:var(--muted);margin-top:4px;flex-wrap:wrap}
-.ckey i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px}
-.vfoot{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted);margin-top:10px}
-.vfoot b{color:var(--text);font-weight:600;font-family:var(--num)}
-.pushc{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;background:var(--surface);border:1px dashed var(--line);margin:-4px 0 14px;font-size:13px;color:var(--muted)}
-.pushc b{display:block;color:var(--text);font-size:14px;margin-bottom:1px}
-.pushc .btn{flex:none;padding:9px 14px;font-size:14px}
-.pushc .err{color:var(--warn)}
+.cmf{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:2px}
+.cmf::-webkit-scrollbar{display:none}
+.cmf button{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;font-size:13px;padding:5px 12px;min-height:34px;cursor:pointer;display:flex;align-items:center;gap:5px}
+.cmf button[aria-pressed="true"]{background:var(--accent);color:var(--ink);border-color:var(--accent);font-weight:700}
+.cmf button i{width:7px;height:7px;border-radius:50%}
+.cm{padding:10px 0;border-top:1px solid var(--line)}
+.cm .who{display:flex;align-items:center;gap:7px;font-size:13px;min-width:0}
+.cm .who i{width:7px;height:7px;border-radius:50%;flex:none}
+.cm .who b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.cm .who em{font-style:normal;font-size:11px;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:0 6px;flex:none}
+.cm .who span{color:var(--muted);font-size:12px;white-space:nowrap;margin-left:auto}
+.cm p{margin:3px 0 0 14px;font-size:15px;line-height:1.5;overflow-wrap:anywhere}
+.cm.rp{padding-left:16px}
 .empty{padding:24px 16px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px;font-size:14px}
 .note{font-size:12px;color:var(--faint);margin-top:18px}
 .pnote{font-size:13px;color:var(--muted)}
@@ -319,8 +281,7 @@ details.box > div{padding-bottom:12px}
   <textarea id="shText" placeholder="例如：開頭那句太慢、第 20 秒的畫面不是這種動物…"></textarea>
 </div>
 <div class="detail" id="detail" role="dialog" aria-modal="true" aria-labelledby="dTitle" hidden>
-  <div class="dbar"><button class="back" id="dBack" type="button" aria-label="返回">‹ 返回</button><b id="dTitle"></b></div>
-  <div class="jump" id="dJump"></div>
+  <div class="dbar"><button class="back" id="dBack" type="button" aria-label="返回">‹ 返回</button><b id="dTitle"></b><button class="tocm" id="dToCm" type="button"></button></div>
   <div class="dscroll" id="dScroll"><div class="wrap" id="dBody"></div></div>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -453,17 +414,20 @@ details.box > div{padding-bottom:12px}
     return Object.keys(v).filter(function(e){return v[e].status==='review'&&!p.some(function(a){return (a.ch||DEF)===cid&&a.type==='review'&&a.ep===e;});});}
   function todo(){
     var np=needPick(),nr=reviewList().length,w=S.work&&S.work.week,txt,go='',v='',hot=false;
+    $('bTopics').hidden=!np;$('bTopics').textContent=np?'!':'';$('bReview').hidden=!nr;$('bReview').textContent=nr||'';   /* 徽章要在「沒事 return」之前更新（10-07f 品管：切頻道徽章沒換） */
     if(np){txt='本週題目等你挑 '+(w.pickCount||3)+' 個'+(w.deadline?'（'+slot(w.deadline)+' 前，沒選就代挑）':'');go='去挑 ›';v='topics';hot=true;}
     else if(nr){txt='有 '+nr+' 支片等你看，說「好」才會排程';go='去看 ›';v='review';hot=true;}
     else if(pending().length)txt='你送出的 '+pending().length+' 個動作，電腦最慢 10 分鐘內收';
-    else txt='目前沒有要你處理的事';
-    $('bTopics').hidden=!np;$('bTopics').textContent=np?'!':'';$('bReview').hidden=!nr;$('bReview').textContent=nr||'';
+    else return '';   /* 10-07f：沒事不顯示（Benson 嫌亂） */
     return '<button class="todo'+(hot?' hot':'')+'" id="todo" type="button" data-v="'+v+'"><i></i><span>'+esc(txt)+'</span><span class="go">'+go+'</span></button>';
   }
   /* 各頻道頭像（10-07：買了啦＝B2、計謀研究所＝A3；沒列的用頻道名第一個字） */
   var AVATAR={wildfiles:'../avatar.jpg',puff:'../avatar-puff.png',scheme:'../avatar-scheme.png'};
   function header(){var c=chan(),av=AVATAR[S.ch]?'<img src="'+AVATAR[S.ch]+'" alt="">':'<span class="av" aria-hidden="true">'+esc((c.name||'?').charAt(0))+'</span>';
-    return '<header class="top">'+av+'<div><b>'+esc(c.name)+'</b><small>'+esc(c.active===false?'籌備中':(c.sub||''))+'</small></div><button class="re" id="re" type="button">重新整理</button></header>'+chips()+links()+todo()+pushCard();}
+    /* 10-07f：更新狀態縮成右上「● N 分鐘前」，按了＝重新整理；超過 25 分鐘變橘、1 小時變紅 */
+    var age=S.statsT?(Date.now()/1000)-S.statsT:null,st=age==null?'':age>60*60?'bad':age>25*60?'warn':'',lab=age==null?'重新整理':ago(age);
+    return '<header class="top">'+av+'<b>'+esc(c.name)+(c.active===false?'<small>籌備中</small>':'')+'</b><button class="st '+st+'" id="re" type="button" aria-label="數據更新於 '+esc(lab)+'，按一下重新整理"><i></i>'+esc(lab)+'</button></header>'+
+      chips()+links()+todo()+alerts();}
   /* 10-06d：頻道的快速連結（channels.json 的 links；買了啦＝特價清單網頁） */
   function links(){var L=chan().links||[];if(!L.length)return '';
     return L.map(function(x){return '<a class="qlink" href="'+esc(x.u)+'" target="_blank" rel="noopener"><span><b>'+esc(x.t)+'</b>'+(x.sub?'<small>'+esc(x.sub)+'</small>':'')+'</span><i aria-hidden="true">›</i></a>';}).join('');}
@@ -478,10 +442,10 @@ details.box > div{padding-bottom:12px}
   var VAPID_PUBLIC='BKQoOkXK8Wpe3mSHL6ZkqTzMm6kKv1cpkCWs9wG1jT9cy7PhVVnpilv2SIM_zEOXl5w5CXw-TNH76JW__iPIqIM',LS_PUSH='wfl.push.v1',PUSH={busy:false,msg:''};
   function pushOK(){return 'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;}
   function pushOn(){return lsGet(LS_PUSH,'')==='on'&&pushOK()&&Notification.permission==='granted';}
-  function pushCard(){
+  function pushRow(){   /* 10-07f：提醒卡不放上面了，放在數據頁最底「更多」裡（已開就不顯示） */
     if(pushOn())return '';
-    if(!pushOK())return window.navigator.standalone===false||!window.navigator.standalone?'<div class="pushc"><div><b>手機提醒</b>要從主畫面的「荒野數據」圖示打開才能開啟提醒（iOS 16.4 以上）。</div></div>':'';
-    return '<div class="pushc"><div><b>手機提醒</b>有題目要挑、有片要審時，手機會跳通知。'+(PUSH.msg?'<div class="err">'+esc(PUSH.msg)+'</div>':'')+'</div>'+
+    if(!pushOK())return '<div class="pushrow"><span>要從主畫面的「荒野數據」圖示打開才能開啟提醒（iOS 16.4 以上）。</span></div>';
+    return '<div class="pushrow"><span>有題目要挑、有片要審時，手機會跳通知。'+(PUSH.msg?'<span class="err"> '+esc(PUSH.msg)+'</span>':'')+'</span>'+
       '<button class="btn primary" id="pushBtn" type="button"'+(PUSH.busy?' disabled':'')+'>'+(PUSH.busy?'設定中…':'開啟')+'</button></div>';}
   function urlB64(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';var r=atob(s),u=new Uint8Array(r.length);for(var i=0;i<r.length;i++)u[i]=r.charCodeAt(i);return u;}
   function enablePush(){
@@ -505,7 +469,7 @@ details.box > div{padding-bottom:12px}
     if(S.tab==='topics')h+=topicsView();else if(S.tab==='review')h+=reviewView();else h+=dataView();
     $('app').innerHTML=h;
     $('re').addEventListener('click',function(){refresh(true);});
-    var td=$('todo');td.addEventListener('click',function(){if(td.dataset.v)setTab(td.dataset.v);});
+    var td=$('todo');if(td)td.addEventListener('click',function(){if(td.dataset.v)setTab(td.dataset.v);});
     document.querySelectorAll('.chip[data-ch]').forEach(function(b){b.addEventListener('click',function(){setCh(b.dataset.ch);});});
     if(S.tab==='topics')bindTopics();if(S.tab==='review')bindReview();
     pickBar();
@@ -540,14 +504,13 @@ details.box > div{padding-bottom:12px}
     var last=pts[pts.length-1],ref=null;for(var i=pts.length-1;i>=0;i--){if(pts[i].t<=last.t-3*3600e3){ref=pts[i];break;}}
     return {svg:'<svg class="spk" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><path d="'+d+'" fill="none" stroke="'+color+'" stroke-width="1.6" vector-effect="non-scaling-stroke"/></svg>',d3:ref?last.v-ref.v:null};
   }
-  /* 10-07d 數據頁改版（Benson 拍板，照 work/data-research/ux-demo.html）：
-     首頁上方「實驗檢查點」＋「YouTube 營利進度（分關卡）」；每支片＝YouTube 觀看＋一句話結論＋3 個數字（開頭留人／看完／還在推嗎），點進去看細節。
-     數字、紅綠、結論句都由電腦端（live/verdict.py、medians.py）算好放在 stats 的 episodes[ep]，這裡只顯示；欄位說明 work/data-research/schema.md。
-     舊格式（電腦還沒更新）的 stats 也要能開：缺的欄位一律顯示「—」。 */
+  /* 10-07f 數據頁精簡版（Benson 看 10-07e 嫌太亂 ⇒ 照 work/data-research/ux-demo-slim.html）：
+     一行摘要（點開才看營利）＋每支片三行卡（片名＋YouTube 觀看／一句結論／小字：同時間・開頭・看完・推不推，沒資料就省略）；
+     每小時觀看、四平台合計、怎麼看、手機提醒都收進最底「更多」。細節頁減字、說明改「?」。
+     數字、紅綠、結論句都由電腦端（live/verdict.py、medians.py）算好放在 stats 的 episodes[ep]，這裡只顯示；欄位 work/data-research/schema.md。
+     舊格式（電腦還沒更新）的 stats 也要能開：缺的欄位一律省略。 */
   function pname(k){return {ig:'IG',fb:'FB'}[k]||(PF.filter(function(p){return p.k===k;})[0]||{}).n||k;}
-  function day(iso){var d=new Date(iso);return (d.getMonth()+1)+'/'+d.getDate()+'（'+WD[d.getDay()]+'）';}
   function hmTxt(iso){var d=new Date(iso);return (d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
-  function ageTxt(slotIso){var h=(Date.now()-new Date(slotIso).getTime())/3600e3;return h<1?'剛發布':h<24?'發布 '+Math.round(h)+' 小時':'第 '+Math.ceil(h/24)+' 天';}
   /* 這個頻道「已發布」的片：照發片時間新到舊 */
   function epList(d){
     var by={},E=d.episodes||{},now=Date.now();
@@ -560,42 +523,64 @@ details.box > div{padding-bottom:12px}
           cm:(d.comments&&d.comments[ep])||{}};})
       .sort(function(a,b){return new Date(b.slot)-new Date(a.slot);});}
   function cmCount(e){var n=0;for(var k in e.cm)n+=(e.cm[k]||[]).length;return n;}
-  /* 百分比跟「平常」（其他片中位數）比：差 5 點以上才上色 */
-  function badgePct(o,wait){if(!o||o.v==null)return '<span class="bd na">'+(wait||'還沒出來')+'</span>';if(o.base==null)return '<span class="bd na">還沒得比</span>';
-    var d=Math.round((o.v-o.base)*10)/10;if(d>=5)return '<span class="bd up">▲ 高 '+Math.round(d)+' 點</span>';if(d<=-5)return '<span class="bd dn">▼ 低 '+Math.round(-d)+' 點</span>';return '<span class="bd eq">＝ 差不多</span>';}
-  function platformAlerts(d){var a=[];PF.forEach(function(p){var x=d.platforms[p.k]||{};
-      if(!x.ok&&!x.pending)a.push(p.n+' 這次沒抓到');if(x.note)a.push(x.note);});
-    return a.length?'<div class="alert">⚠ '+a.map(esc).join('；')+'（細節在下面「四平台合計」）</div>':'';}
+  /* 跟「平常」（其他片中位數）比：差 5 點以上才標 ▲▼ */
+  function arrow(o){if(!o||o.v==null||o.base==null)return '';var d=o.v-o.base;return d>=5?' <span class="up">▲</span>':d<=-5?' <span class="dn">▼</span>':'';}
+  /* 有事才出現的警示：電腦斷線、平台沒抓到、Meta 授權快到期（放在最上面） */
+  function alerts(){if(!S.stats)return '';var d=S.stats,age=(Date.now()/1000)-S.statsT,a=[];
+    var h=age>60*60?'<div class="alert bad">⚠ 超過 '+esc(ago(age).replace('前',''))+'沒更新，電腦可能關機或斷線（下面是舊的數字）</div>':'';
+    PF.forEach(function(p){var x=d.platforms[p.k]||{};if(!x.ok&&!x.pending)a.push(p.n+' 這次沒抓到');if(x.note)a.push(x.note);});
+    return h+(a.length?'<div class="alert">⚠ '+a.map(esc).join('；')+'</div>':'');}
+  function sameTxt(sa){if(!sa||!sa.n||sa.ratio==null||(sa.views||0)<50||(sa.med||0)<30)return '';
+    var p=Math.round((sa.ratio-1)*100);return '同時間 <b>'+(p>0?'+':'')+p+'%</b>'+(p>=30?' <span class="up">▲</span>':p<=-30?' <span class="dn">▼</span>':'');}
   function dataView(){
-    if(!S.stats)return '<div class="empty">'+esc(chan().name)+' 還沒有數據。<br>開好帳號、接上各平台後，電腦每 10 分鐘會自動更新。</div>';
-    var d=S.stats,age=(Date.now()/1000)-S.statsT,st=age>60*60?'bad':age>25*60?'warn':'';
-    var hist=d.hist||[],eps=epList(d),few=eps.length<6;
-    var h='<div class="status '+st+'"><i></i>'+(st==='bad'?'超過 '+ago(age).replace('前','')+'沒更新，電腦可能關機或斷線（下面是舊的數字）':'數據更新於 '+ago(age)+'（每 10 分鐘自動更新）')+'</div>'+platformAlerts(d);
-    h+=checkpoint(d,eps)+money(d);
-    h+='<h2>每支片'+(eps.length&&few?' <span class="pill warn">樣本少</span>':'')+'</h2>';
-    if(!eps.length)h+='<div class="empty">還沒有發出去的片。<br>第一支發布後約 10 分鐘，這裡就會出現。</div>';
-    else{
-      h+='<details class="qa"><summary>這三個數字是什麼？紅綠怎麼算？</summary><div class="why" style="margin-top:4px">'+
-        '<b>開頭留人</b>：在 YouTube 滑到這支片的人，有幾成停下來看（沒滑走）。YouTube 還沒出來時先用 IG「前 3 秒沒滑走」，會標（IG）。開頭那句話、第一個畫面好不好，看這個。<br>'+
-        '<b>看完</b>：YouTube 平均看了片長的幾成。中間無不無聊，看這個。<br>'+
-        '<b>還在推嗎</b>：YouTube 最近還有沒有在送觀看（第 1 天看近 3 小時；之後看後台每天新增有沒有第 1 天的一半）。YouTube 公開數常卡好幾個小時，卡住時不判，會寫「公開數 N 小時沒更新」。<br>'+
-        '<b>紅綠</b>：跟這個頻道其他片的中間值比，高 5 點以上綠、低 5 點以上紅。'+(few?'現在只有 '+eps.length+' 支片，顏色只供參考，<b>滿 6 支</b>才算數。':'')+'</div></details>';
-      h+=eps.map(function(e){return vcard(e,few);}).join('');
-    }
+    if(!S.stats)return '<div class="empty">'+esc(chan().name)+' 還沒有數據。<br>開好帳號、接上各平台後，電腦每 10 分鐘會自動更新。</div>'+moreBox(null);
+    var d=S.stats,eps=epList(d),few=eps.length<6;
+    var h=summary(d,eps)+'<h2 class="sh">每支片'+(eps.length&&few?'<span class="pill warn">樣本少</span>':'')+'</h2>';
+    h+=eps.length?eps.map(vcard).join(''):'<div class="empty">還沒有發出去的片。<br>第一支發布後約 10 分鐘，這裡就會出現。</div>';
     var lost=0;PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok)(x.videos||[]).forEach(function(v){if(!v.ep)lost++;});});
-    if(lost)h+='<p class="note">另有 '+lost+' 支片還沒對上集數（製作人補上 episodes.json 後就會出現）。</p>';
-    h+='<h2>最近 3 天每小時新增觀看</h2>'+chart(hist);
-    h+=totals(d);
-    h+='<p class="note">YouTube 觀看取公開數與後台數較大的那個（公開數常卡幾小時）；開頭留人、看完來自 YouTube 後台，每天早上 8 點更新，發布後最多 2 天才出來。FB 的觀看是 Reels 播放次數。</p>';
-    h+='<p class="note">版本 10-07e・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
-    return h;
+    if(lost)h+='<p class="note">另有 '+lost+' 支片還沒對上集數。</p>';
+    return h+moreBox(d);
   }
-  /* 四平台合計（各平台算法不同，只看大概）：原本的「各平台」列表收進來 */
+  /* 一行摘要：第 N／12 支・最高 X・訂閱 Y／1,000；點開才看營利一句（有效觀看有值才畫進度條） */
+  function summary(d,eps){
+    var X=d.experiment||{},n=X.n!=null?X.n:eps.length,best=null,y=d.platforms.yt||{},subs=y.subscribers!=null?y.subscribers:y.followers;
+    eps.forEach(function(e){if(e.views!=null&&(best==null||e.views>best))best=e.views;});
+    var t=(X.total?'第 <b>'+n+'</b>／'+X.total+' 支':'已發 <b>'+n+'</b> 支')+(best!=null?'・最高 <b>'+fmt(best)+'</b>':'')+(y.ok?'・訂閱 <b>'+fmt(subs)+'</b>／1,000':'');
+    var h='<button class="sum" id="sum" type="button" aria-expanded="'+!!S.sumOpen+'"><span class="t">'+t+'</span><em aria-hidden="true">›</em></button>';
+    if(!S.sumOpen)return h;
+    var e=y.engagedViews90d,pw=((chan().rhythm||{}).per_week)||3,per=Math.round(2e7/(pw*90/7)/1e4),bar='';
+    if(e!=null){var ms=[[1e4,'1 萬'],[1e5,'10 萬'],[1e6,'100 萬'],[1e7,'1000 萬'],[2e7,'2000 萬']],prev=0,done=false;
+      bar='<div class="mile" aria-hidden="true">'+ms.map(function(m){var cls='',st='';if(e>=m[0])cls='done';else if(!done){done=true;cls='doing';st=' style="--p:'+Math.max(2,(e-prev)/(m[0]-prev)*100).toFixed(1)+'%"';}
+        prev=m[0];return '<span class="'+cls+'"'+st+'>'+m[1]+'</span>';}).join('')+'</div>';}
+    return h+'<div class="sumx">營利進度：'+(e!=null?'有效觀看（近 90 天）<b>'+fmt(e)+'</b>／2,000 萬'+bar:'<b>還沒接上 YouTube 授權</b>，接上後這裡會出現進度條。')+
+      '<br>照一週 '+pw+' 支算，每支平均要約 '+per+' 萬有效觀看才達標，重點是找出「哪一支開始爆」。'+(X.target?'<br>實驗目標：任一支破 '+(X.target>=1e4?fmt(X.target/1e4)+' 萬':fmt(X.target))+'。':'')+'</div>';}
+  /* 片卡三行：①（新）#NN 片名＋YouTube 觀看 › ② 一句結論 ③ 小字：同時間・開頭・看完・推不推（沒資料就省略） */
+  function vcard(e){
+    var E=e.E,V=E.verdict,hk=E.hook,w=E.watch,ps=E.push||{},bits=[];
+    var st=sameTxt(E.same);if(st)bits.push(st);
+    if(hk&&hk.v!=null)bits.push('開頭'+(hk.src==='ig'?'(IG)':'')+' <b>'+Math.round(hk.v)+'%</b>'+arrow(hk));
+    if(w&&w.v!=null)bits.push('看完 <b>'+Math.round(w.v)+'%</b>'+arrow(w));
+    var lb=ps.label||(ps.on===true?'還在推':ps.on===false?'停了':'');
+    if(lb==='還在推')bits.push('<span class="up">還在推</span>');else if(lb==='變慢')bits.push('<span class="sl">變慢</span>');else if(lb==='停了')bits.push('停了');
+    var isNew=(Date.now()-new Date(e.slot).getTime())/3600e3<24;
+    return '<button class="vid" type="button" data-ep="'+esc(e.id)+'">'+
+      '<span class="tt">'+(isNew?'<span class="new">新</span>':'')+'<span class="no">'+no2(e.no)+'</span>'+esc(e.title)+'</span>'+
+      '<span class="vw"><span class="n">'+fmt(e.views)+'</span><em aria-hidden="true">›</em></span>'+
+      (V?'<span class="vd '+esc(V.tone)+'"><i></i><span>'+esc(V.t)+'</span></span>':'')+
+      (bits.length?'<span class="ms">'+bits.join('・')+'</span>':'')+'</button>';}
+  /* 最底下「更多」：每小時觀看、四平台合計、怎麼看、手機提醒（提醒卡不放上面了，沒開過的人從這裡開） */
+  function moreBox(d){
+    var h='<details class="more" id="more"'+(S.moreOpen?' open':'')+'><summary>更多：每小時觀看、四平台合計、怎麼看'+(pushOn()?'':'、手機提醒')+'</summary>';
+    if(d){h+='<div class="mh">最近 3 天每小時新增觀看</div>'+chart(d.hist||[])+'<div class="mh">四平台合計（各平台算法不同，只看大概）</div>'+totals(d);
+      h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝YouTube 觀看（公開數與後台數取大的；會賺錢的平台）。<br><b>開頭</b>＝在 YouTube 滑到這支片的人，幾成停下來看（YouTube 還沒出來時用 IG 前 3 秒，標 (IG)）。<b>看完</b>＝平均看了片長的幾成。<b>同時間</b>＝發布一樣久，比其他片多或少幾 %。<br>'+
+        '<span class="up">▲</span><span class="dn">▼</span>＝比其他片的中間值高／低 5 點以上（同時間是 30%）；不到 6 支片都只供參考。<b>還在推／變慢／停了</b>：YouTube 最近還有沒有在送觀看；公開數常卡好幾小時，卡住時不判。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
+    var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
+    return h+'<p class="note">版本 10-07f・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+  /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
     var dv=h24?views-(sumAt(h24,'v')||0):null;
-    var h='<details class="box"><summary><span>四平台合計（各平台算法不同，只看大概）</span></summary><div>'+
-      '<div class="pf"><span class="nm">合計</span><span class="c"><span class="n">'+fmt(views)+'</span><small>觀看 '+(h24?plus(dv):'')+'</small></span><span class="c"><span class="n">'+fmt(fans)+'</span><small>粉絲</small></span></div>';
+    var h='<div class="pf"><span class="nm">合計</span><span class="c"><span class="n">'+fmt(views)+'</span><small>觀看 '+(h24?plus(dv):'')+'</small></span><span class="c"><span class="n">'+fmt(fans)+'</span><small>粉絲</small></span></div>';
     PF.forEach(function(p){var x=d.platforms[p.k]||{};var b=h24&&h24.v?h24.v[p.k]:null,bf=h24&&h24.f?h24.f[p.k]:null;
       h+='<div class="pf"><span class="nm"><span class="sw" style="background:'+p.c+'"></span>'+p.n+'</span>';
       if(x.ok)h+='<span class="c"><span class="n">'+fmt(x.totalViews)+'</span><small>觀看 '+(b!=null?plus(x.totalViews-b):'')+'</small></span><span class="c"><span class="n">'+fmt(x.followers)+'</span><small>粉絲 '+(bf!=null?plus(x.followers-bf):'')+'</small></span>';
@@ -603,52 +588,7 @@ details.box > div{padding-bottom:12px}
       else h+='<span class="off" style="color:var(--bad)">這次沒抓到</span><span class="err">'+esc(x.err||'')+'</span>';
       if(x.note)h+='<span class="err" style="color:var(--warn)">'+esc(x.note)+'</span>';
       h+='</div>';});
-    return h+'</div></details>';}
-  /* 實驗檢查點（channels.json 有設 experiment 的頻道才有「第 N / 12 支」） */
-  function checkpoint(d,eps){
-    var X=d.experiment||{},n=X.n!=null?X.n:eps.length,tot=X.total,best=null;
-    eps.forEach(function(e){if(e.views!=null&&(!best||e.views>best.views))best=e;});
-    var h='<div class="card"><div class="hd"><b>'+(tot?'實驗檢查點':'已發的片')+'</b><span>'+(tot?'第 <span class="n" style="font-size:17px;color:var(--text)">'+n+'</span> / '+tot+' 支':'共 <span class="n" style="font-size:17px;color:var(--text)">'+n+'</span> 支')+'</span></div>';
-    if(tot){var seg='';for(var i=0;i<tot;i++)seg+='<i class="'+(i<n?'on':'')+'"></i>';h+='<div class="seg12" aria-hidden="true" style="grid-template-columns:repeat('+tot+',minmax(0,1fr))">'+seg+'</div>';}
-    if(!best)return h+'<div class="sub2">第一支片發出去後，這裡開始記錄。</div></div>';
-    h+='<div class="kv"><span class="l">最高單支（YouTube）<br><span style="color:var(--text)">'+no2(best.no)+' '+esc(best.title.slice(0,10))+(best.title.length>10?'…':'')+'</span></span><span class="r"><span class="n">'+fmt(best.views)+'</span>'+(X.target?'<br><small>目標：任一支破 '+(X.target>=10000?fmt(X.target/10000)+' 萬':fmt(X.target))+'</small>':'')+'</span></div>';
-    var seq=eps.slice().sort(function(a,b){return (a.no||0)-(b.no||0);}).map(function(e){return (e.E.d1||{}).yt;});
-    if(seq.some(function(x){return x!=null;})){var vals=seq.filter(function(x){return x!=null;}),tr='';
-      if(vals.length>=3){var f=vals[0],l=vals[vals.length-1];tr=l>=f*1.1?'<span class="up">▲ 越來越好</span>':l<=f*0.9?'<span style="color:var(--bad)">▼ 往下</span>':'＝ 差不多';}
-      h+='<div class="trend">每支 YouTube 第 1 天：'+seq.map(function(x){return '<b>'+fmt(x)+'</b>';}).join(' → ')+(tr?'　'+tr:'')+'</div>';}
-    return h+'</div>';}
-  /* YouTube 營利進度（分關卡，Benson 選的）。有效觀看要 YouTube Analytics 授權，沒接上前不放數字 */
-  function money(d){
-    var y=d.platforms.yt||{},e=y.engagedViews90d,subs=y.subscribers!=null?y.subscribers:y.followers;
-    var ms=[[1e4,'1 萬'],[1e5,'10 萬'],[1e6,'100 萬'],[1e7,'1000 萬'],[2e7,'2000 萬']],prev=0,nextL='';
-    var bar='<div class="mile" aria-hidden="true">'+ms.map(function(m){var cls='',st='';
-      if(e!=null){if(e>=m[0])cls='done';else if(e>=prev&&!nextL){cls='doing';st=' style="--p:'+Math.max(2,(e-prev)/(m[0]-prev)*100).toFixed(1)+'%"';nextL='下一關 '+m[1]+'：已到 '+Math.round(e/m[0]*100)+'%，還差 '+fmt(m[0]-e);}}
-      prev=m[0];return '<span class="'+cls+'"'+st+'>'+m[1]+'</span>';}).join('')+'</div>';
-    var ev=e!=null?'<span class="n">'+fmt(e)+'</span> <small>/ 2,000 萬</small>':'<span class="na">還沒接上 YouTube 授權</span>';
-    /* 近 90 天 2,000 萬，照頻道節奏（channels.json rhythm.per_week）算每支平均要多少 */
-    var pw=((chan().rhythm||{}).per_week)||3,per=Math.round(2e7/(pw*90/7)/1e4);
-    return '<div class="card"><div class="hd"><b>YouTube 營利進度</b><span>兩個都達標才能申請</span></div>'+
-      '<div class="mrow"><div class="top2"><span class="l">有效觀看（近 90 天）</span><span class="r">'+ev+'</span></div>'+bar+
-      '<div class="sub2">'+(e!=null?nextL:'有效觀看要接上 YouTube 後台授權才拿得到，接好之前這裡不放數字。')+'</div></div>'+
-      '<div class="mrow"><div class="top2"><span class="l">訂閱</span><span class="r">'+(y.ok?'<span class="n">'+fmt(subs)+'</span> <small>/ 1,000</small>':'<span class="na">這次沒抓到</span>')+'</span></div>'+
-      (y.ok?'<div class="lin"><i style="width:'+Math.min(100,(subs||0)/10)+'%"></i></div>':'')+'</div>'+
-      '<div class="why"><b>營利只算「有效觀看」</b>：真的停下來看的才算，滑過去的不算，所以會比公開的觀看數少。照一週 '+pw+' 支算，每支平均要約 '+per+' 萬才達標 ⇒ 重點是找出「哪一支開始爆」。</div></div>';}
-  function vcard(e,few){
-    var E=e.E,hk=E.hook,w=E.watch,ps=E.push||{},V=E.verdict;
-    var hv=hk&&hk.v!=null,wv=w&&w.v!=null;
-    /* 還在推嗎：電腦端給 label（還在推／停了／變慢／看不出來／剛發布）；舊格式只有 on */
-    var lb=ps.label||(ps.on===true?'還在推':ps.on===false?'停了':'—'),pc={'還在推':['go','up'],'停了':['stop','eq'],'變慢':['slow','eq']}[lb]||['na','na'];
-    var pv='<div class="v txt '+pc[0]+'">'+esc(lb)+'</div><span class="bd wrap '+pc[1]+'">'+esc(ps.txt||'還沒資料')+'</span>';
-    var pfm=PF.map(function(p){var x=e.v[p.k];return '<span class="'+(e.bad[p.k]?'x':'')+'"><i style="background:'+p.c+'"></i>'+({yt:'YT',tt:'TT',ig:'IG',fb:'FB'}[p.k])+' <b>'+fmt(p.k==='yt'?e.views:x?x.views:null)+'</b></span>';}).join('');
-    return '<button class="vid" type="button" data-ep="'+esc(e.id)+'"><div class="h"><div class="tt"><span class="no">'+no2(e.no)+'</span>'+esc(e.title)+'<span class="sub">'+day(e.slot)+' 發・'+ageTxt(e.slot)+'</span></div>'+
-      '<div class="tot"><span class="n">'+fmt(e.views)+'</span><small>YouTube 觀看</small></div></div>'+
-      (V?'<div class="vd '+esc(V.tone)+'"><i></i><span>'+esc(V.t)+'</span></div>':'')+
-      '<div class="mt'+(few?' few':'')+'">'+
-        '<div class="m"><div class="k">開頭留人'+(hv&&hk.src==='ig'?'（IG）':'')+'</div><div class="v n'+(hv?'':' na')+'">'+(hv?Math.round(hk.v)+'<small>%</small>':'—')+'</div>'+badgePct(hk)+'</div>'+
-        '<div class="m"><div class="k">看完</div><div class="v n'+(wv?'':' na')+'">'+(wv?Math.round(w.v)+'<small>%</small>':'—')+'</div>'+badgePct(w)+'</div>'+
-        '<div class="m"><div class="k">還在推嗎</div>'+pv+'</div></div>'+
-      '<div class="pfm">'+pfm+'</div>'+
-      '<div class="more"><span>哪裡跑掉・四平台・留言 '+cmCount(e)+'</span><em>看細節 ›</em></div></button>';}
+    return h;}
 
   /* ── 單支片細節頁 ── */
   var DT={ep:null,cf:'all'};
@@ -656,17 +596,15 @@ details.box > div{padding-bottom:12px}
   function retAt(r,s){var x=s/r.step,i=Math.floor(x),p=r.pct;if(i>=p.length-1)return p[p.length-1];return p[i]+(p[i+1]-p[i])*(x-i);}
   function retView(e,all){
     var fb=e.v.fb||{},r=fb.retention;
-    if(e.bad.fb)return '<div class="ph">FB 這支發布流程出錯，不列入比較。</div>';
-    if(!r||!r.pct||r.pct.length<3||!r.step)return '<div class="ph">FB 播放還太少（要 30 次以上），畫不出留存曲線。</div>';
-    var dur=r.step*(r.pct.length-1),W=340,H=190,l=32,rr=12,t=14,b=26,iw=W-l-rr,ih=H-t-b;
+    if(e.bad.fb)return '<p class="dph">FB 這支發布流程出錯，不算。</p>';
+    if(!r||!r.pct||r.pct.length<3||!r.step)return '<p class="dph">FB 播放還太少，畫不出曲線。</p>';
+    var dur=r.step*(r.pct.length-1),W=340,H=170,l=32,rr=12,t=12,b=24,iw=W-l-rr,ih=H-t-b;
     var X=function(s){return l+s/dur*iw;},Y=function(p){return t+(100-Math.min(100,Math.max(0,p)))/100*ih;};
-    var others=all.filter(function(o){return o!==e&&o.id!==e.id&&!o.bad.fb&&o.v.fb&&o.v.fb.retention&&o.v.fb.retention.pct&&o.v.fb.retention.pct.length>2;}).map(function(o){return o.v.fb.retention;});
-    var g='',e10=Math.min(10,dur);
-    g+='<rect x="'+X(0).toFixed(1)+'" y="'+t+'" width="'+(X(e10)-X(0)).toFixed(1)+'" height="'+ih+'" fill="rgba(255,255,255,.035)"/>';
-    g+='<text x="'+((X(0)+X(e10))/2).toFixed(1)+'" y="'+(t+ih-6)+'" text-anchor="middle" font-size="10" fill="var(--faint)">開頭 10 秒</text>';
-    [0,50,100].forEach(function(p){g+='<line x1="'+l+'" x2="'+(W-rr)+'" y1="'+Y(p).toFixed(1)+'" y2="'+Y(p).toFixed(1)+'" stroke="var(--line)" stroke-width="1"/><text x="'+(l-5)+'" y="'+(Y(p)+3.5).toFixed(1)+'" text-anchor="end" font-size="10" fill="var(--muted)">'+p+'%</text>';});
+    var others=all.filter(function(o){return o.id!==e.id&&!o.bad.fb&&o.v.fb&&o.v.fb.retention&&o.v.fb.retention.pct&&o.v.fb.retention.pct.length>2;}).map(function(o){return o.v.fb.retention;});
+    var g='';
+    [0,50,100].forEach(function(p){g+='<line x1="'+l+'" x2="'+(W-rr)+'" y1="'+Y(p).toFixed(1)+'" y2="'+Y(p).toFixed(1)+'" stroke="var(--line)"/><text x="'+(l-5)+'" y="'+(Y(p)+3.5).toFixed(1)+'" text-anchor="end" font-size="10" fill="var(--muted)">'+p+'%</text>';});
     var stepS=dur>90?30:dur>45?20:10;
-    for(var s=0;s<=dur+0.01;s+=stepS)g+='<text x="'+X(s).toFixed(1)+'" y="'+(H-8)+'" text-anchor="middle" font-size="10" fill="var(--muted)">'+s+' 秒</text>';
+    for(var s=0;s<=dur+0.01;s+=stepS)g+='<text x="'+X(s).toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle" font-size="10" fill="var(--muted)">'+s+' 秒</text>';
     var oth10=null;
     if(others.length){ /* 平常＝其他片同一秒的中間值；短的片到片尾就停 */
       var maxS=Math.min(dur,Math.min.apply(null,others.map(function(o){return o.step*(o.pct.length-1);}))),path='';
@@ -676,72 +614,50 @@ details.box > div{padding-bottom:12px}
       if(maxS>=10)oth10=medAt(10);}
     g+='<path d="'+r.pct.map(function(p,i){return (i?'L':'M')+X(i*r.step).toFixed(1)+' '+Y(p).toFixed(1);}).join('')+'" fill="none" stroke="var(--fb)" stroke-width="2.5" stroke-linejoin="round"/>';
     function mark(sx,val,lab){var x=X(sx),y=Y(val);return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="4.5" fill="var(--accent)" stroke="var(--ground)" stroke-width="2"/>'+
-      '<text x="'+(x+8).toFixed(1)+'" y="'+(y+15).toFixed(1)+'" text-anchor="start" font-size="12" font-weight="700" fill="var(--text)">'+lab+'</text>';}
-    var r3=retAt(r,3);
-    g+=mark(3,r3,'第 3 秒剩 '+Math.round(r3)+'%');
-    var key='<div class="ckey"><span><i style="background:var(--fb)"></i>這支片（FB）</span>'+(others.length?'<span><i style="background:var(--muted)"></i>平常（其他片，虛線）</span>':'')+'</div>';
-    if(dur<=12)return '<div class="ret"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="FB 留存曲線">'+g+'</svg>'+key+'</div>';
+      '<text x="'+(x+8).toFixed(1)+'" y="'+(y+15).toFixed(1)+'" font-size="12" font-weight="700" fill="var(--text)">'+lab+'</text>';}
+    var r3=retAt(r,3);g+=mark(3,r3,'第 3 秒 '+Math.round(r3)+'%');
+    var svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="FB 留存曲線">';
+    if(dur<=12)return '<div class="ret">'+svg+g+'</svg></div>';
     var r10=retAt(r,10),end=r.pct[r.pct.length-1],early=(r3-r10)/7,late=(r10-end)/(dur-10),isEarly=early>=late*2;
-    g+=mark(10,r10,'第 10 秒剩 '+Math.round(r10)+'%');
+    g+=mark(10,r10,'第 10 秒 '+Math.round(r10)+'%');
     var cmp=oth10==null?null:Math.round(r10-oth10);
-    var txt='第 3～10 秒走掉 <b>'+Math.round(r3-r10)+'%</b> 的人（每秒約 '+Math.round(early)+' 點），之後到片尾每秒只掉約 '+(Math.round(late*10)/10)+' 點。第 10 秒還剩 '+Math.round(r10)+'%'+
-      (cmp==null?'。':'，'+(Math.abs(cmp)<5?'跟平常差不多':cmp>0?'<span class="up">比平常多留 '+cmp+' 點</span>':'<span style="color:var(--bad)">比平常少 '+(-cmp)+' 點</span>')+'。');
     return '<span class="where'+(isEarly?'':' mid')+'">'+(isEarly?'主要在開頭跑掉':'主要在中間跑掉')+'</span>'+
-      '<div class="ret"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="FB 留存曲線">'+g+'</svg>'+key+'<p class="say">'+txt+'</p></div>';}
+      '<div class="ret">'+svg+g+'</svg>'+(cmp==null?'':'<p class="say">第 10 秒剩 '+Math.round(r10)+'%，'+(Math.abs(cmp)<5?'跟平常差不多':cmp>0?'<span class="up">比平常多 '+cmp+' 點</span>':'<span class="dn">比平常少 '+(-cmp)+' 點</span>')+'（虛線＝平常）</p>')+'</div>';}
   function hookBars(e){
-    var E=e.E,y=E.hookYt,ig=E.hookIg,studio=epList(S.stats).some(function(o){return o.v.yt&&o.v.yt.stayedPct!=null;});
-    var ytWait=!studio?'這個頻道還沒有讀 YouTube 後台的數字':(Date.now()-new Date(e.slot).getTime())/3600e3<48?'YouTube 後台每天早上更新，發布後最多 2 天才出來':'YouTube 後台還沒有這支的數字';
-    function bar(name,o,ex,off){if(!o||o.v==null)return '<div class="bar off"><div class="l"><span>'+name+'</span><span>'+off+'</span></div><div class="tr"></div></div>';
+    var E=e.E,studio=epList(S.stats).some(function(o){return o.v.yt&&o.v.yt.stayedPct!=null;});
+    var ytOff=!studio?'這個頻道沒讀後台':(Date.now()-new Date(e.slot).getTime())/3600e3<48?'最多 2 天才出來':'後台沒有這支';
+    function bar(name,o,off){if(!o||o.v==null)return '<div class="bar off"><div class="l"><span>'+name+'</span><span>'+off+'</span></div></div>';
       var v=Math.max(0,Math.min(100,o.v));
-      return '<div class="bar"><div class="l"><span>'+name+'</span><span>留住 <b class="n" style="font-size:16px;color:var(--text)">'+Math.round(o.v)+'%</b></span></div><div class="tr"><i style="width:'+v+'%"></i>'+(o.base!=null?'<u style="left:calc('+Math.max(0,Math.min(100,o.base))+'% - 1px)"></u>':'')+'</div><div class="ex">'+ex+'</div></div>';}
-    return '<div class="bars">'+
-      bar('YouTube：滑到的人有幾成停下來看',y,y?'100 人裡 '+Math.round(y.v)+' 人停下來看'+(y.base!=null?'；平常 '+Math.round(y.base)+' 人':''):'',ytWait)+
-      bar('IG：前 3 秒沒滑走',ig,ig?'100 人裡 '+Math.round(100-ig.v)+' 人 3 秒內就滑走'+(ig.base!=null?'；平常 '+Math.round(100-ig.base)+' 人':''):'',e.bad.ig?'發布流程出錯，不列入比較':'IG 觀看滿 30 次才有')+'</div>';}
+      return '<div class="bar"><div class="l"><span>'+name+'</span><span>留住 <b class="n" style="font-size:16px">'+Math.round(o.v)+'%</b>'+(o.base!=null?'・平常 '+Math.round(o.base)+'%':'')+'</span></div><div class="tr"><i style="width:'+v+'%"></i>'+(o.base!=null?'<u style="left:calc('+Math.max(0,Math.min(100,o.base))+'% - 1px)"></u>':'')+'</div></div>';}
+    return '<div class="bars">'+bar('YouTube',E.hookYt,ytOff)+bar('IG（前 3 秒）',E.hookIg,e.bad.ig?'流程出錯，不算':'播放太少')+'</div>';}
   function grid(e){var hist=(S.stats&&S.stats.hist)||[],slotT=new Date(e.slot).getTime();
     return '<div class="vgrid">'+PF.map(function(p){var x=e.v[p.k],bad=e.bad[p.k];
       if(!x)return '<div class="vcell off"><div class="pn"><span class="sw" style="background:'+p.c+'"></span>'+pname(p.k)+'</div><div class="pv n">—</div><div class="ps">沒有這支</div></div>';
-      var s=p.k==='tt'?'官方不提供':x.avgPct!=null?'看完 '+x.avgPct+'%':x.avgWatchSec!=null?'平均 '+Math.round(x.avgWatchSec)+' 秒':'看完 —';
+      var s=p.k==='tt'?'官方不提供':x.avgPct!=null?'看完 '+x.avgPct+'%':'&nbsp;';
       var sp=spark(hist,e.id,p.k,slotT,p.c),grow=sp.d3==null?'&nbsp;':(sp.d3>0?'<span class="up">近3時 +'+fmt(sp.d3)+'</span>':'<span class="stop">近3時 停了</span>');
       return '<div class="vcell'+(bad?' badc':'')+'"><div class="pn"><span class="sw" style="background:'+p.c+'"></span>'+pname(p.k)+'</div><div class="pv n">'+fmt(p.k==='yt'?e.views:x.views)+'</div>'+
-        (bad?'<div class="warnt">流程出錯<br>不列入比較</div>':'<div class="ps">'+s+'</div>'+sp.svg+'<div class="ps g">'+grow+'</div>')+'</div>';}).join('')+'</div>';}
-  function extras(e){var v=e.v,yt=v.yt||{},ig=v.ig||{},tt=v.tt||{},rows=[];
-    rows.push(['讚（YT／TT／IG／FB）',PF.map(function(p){return fmt(v[p.k]?v[p.k].likes:null);}).join('／')]);
-    rows.push(['留言數（YT／TT／IG／FB）',PF.map(function(p){return fmt(v[p.k]?v[p.k].comments:null);}).join('／')]);
-    rows.push(['分享（TT／IG）',fmt(tt.shares)+'／'+fmt(ig.shares)]);
-    if(ig.reach!=null)rows.push(['IG 觸及人數',fmt(ig.reach)]);
-    if(ig.saves!=null)rows.push(['IG 收藏',fmt(ig.saves)]);
-    if(ig.skipRate!=null)rows.push(['IG 前 3 秒滑走',ig.skipRate+'%']);
-    if(yt.subsGained!=null)rows.push(['YouTube 帶來訂閱',fmt(yt.subsGained)]);
-    if(yt.shortsFeedPct!=null)rows.push(['YouTube 來自 Shorts 推薦',yt.shortsFeedPct+'%']);
-    if(yt.studioViews!=null)rows.push(['YouTube 後台觀看（每天早上）',fmt(yt.studioViews)]);
-    if(yt.views!=null)rows.push(['YouTube 公開觀看（常卡幾小時）',fmt(yt.views)]);
-    var sa=e.E.same;if(sa&&sa.n&&sa.views!=null)rows.push(['YouTube 發布 '+sa.h+' 小時：這支 vs 平常',fmt(sa.views)+' vs '+fmt(sa.med)]);
-    return '<details class="box"><summary><span>其他數字</span></summary><div><div class="extra">'+rows.map(function(r){return '<span>'+esc(r[0])+'</span><b>'+esc(r[1])+'</b>';}).join('')+'</div></div></details>';}
+        (bad?'<div class="warnt">流程出錯<br>不算</div>':'<div class="ps">'+s+'</div>'+sp.svg+'<div class="ps g">'+grow+'</div>')+'</div>';}).join('')+'</div>';}
   function comments(e){
     var all=[];['yt','ig','fb'].forEach(function(k){(e.cm[k]||[]).forEach(function(c){all.push(c);});});
-    var cnt={all:all.length};PF.forEach(function(p){cnt[p.k]=(e.cm[p.k]||[]).length;});
+    var cnt={all:all.length};['yt','ig','fb'].forEach(function(k){cnt[k]=(e.cm[k]||[]).length;});
     var f='<div class="cmf" role="group" aria-label="篩選平台"><button type="button" data-cf="all" aria-pressed="'+(DT.cf==='all')+'">全部 '+cnt.all+'</button>'+
-      ['yt','ig','fb','tt'].map(function(k){return PF.filter(function(p){return p.k===k;})[0];}).map(function(p){return '<button type="button" data-cf="'+p.k+'" aria-pressed="'+(DT.cf===p.k)+'"><i style="background:'+p.c+'"></i>'+pname(p.k)+' '+(p.k==='tt'?'<small>官方不提供</small>':cnt[p.k])+'</button>';}).join('')+'</div>';
-    if(DT.cf==='tt')return f+'<div class="empty" style="margin-top:8px">TikTok 官方不提供留言資料，要看請開 TikTok App。</div>';
+      ['yt','ig','fb'].map(function(k){var p=PF.filter(function(x){return x.k===k;})[0];return '<button type="button" data-cf="'+k+'" aria-pressed="'+(DT.cf===k)+'"><i style="background:'+p.c+'"></i>'+pname(k)+' '+cnt[k]+'</button>';}).join('')+'</div>';
     var list=all.filter(function(c){return DT.cf==='all'||c.p===DT.cf;}).sort(function(a,b){return new Date(b.at)-new Date(a.at);});
-    var body=list.length?list.map(function(c){var p=PF.filter(function(x){return x.k===c.p;})[0]||{c:'var(--muted)',n:c.p};
+    return f+(list.length?list.map(function(c){var p=PF.filter(function(x){return x.k===c.p;})[0]||{c:'var(--muted)'};
         return '<div class="cm'+(c.reply?' rp':'')+'"><div class="who"><i style="background:'+p.c+'"></i><b>'+(c.reply?'↳ ':'')+esc(c.name||'（沒有名字）')+'</b>'+(c.own?'<em>頻道</em>':'')+'<span>'+pname(c.p)+'・'+hmTxt(c.at)+'</span></div><p>'+esc(c.text)+'</p></div>';}).join('')
-      :'<div class="empty" style="margin-top:8px">'+(DT.cf==='all'?'這支片還沒有人留言。':esc(pname(DT.cf))+' 還沒有人留言。')+'</div>';
-    return f+body+'<p class="note">新的在上面。YouTube、IG、FB 留言數有變就更新（最慢約 10 分鐘，回覆最慢約 2 小時）；每支片每平台保留最早 50 則＋最近 150 則。TikTok 官方不給留言，這裡看不到。</p>';}
+      :'<div class="empty" style="margin-top:8px">還沒有人留言。</div>');}
+  function qb(id,txt){return '<button class="qbtn" type="button" data-q="'+id+'" aria-label="說明" aria-expanded="false">?</button></div><div class="qtx" id="'+id+'" hidden>'+txt+'</div>';}
   function detailBody(e){
     var V=e.E.verdict,h='';
-    h+='<section id="s-sum">'+(V?'<div class="verd '+esc(V.tone)+'"><div class="t">'+esc(V.t)+'</div><div class="nx"><b>該做什麼</b>'+esc(V.next)+'</div>'+(V.conf?'<div class="cf">'+esc(V.conf)+'</div>':'')+'</div>':
-      '<div class="verd wait"><div class="t">電腦還沒算結論</div><div class="cf">電腦端更新到新版後，最慢 10 分鐘出現。</div></div>')+'</section>';
-    h+='<section id="s-ret"><h2>觀眾在哪裡跑掉</h2><div class="card" style="margin-top:0"><div class="hd" style="margin-bottom:10px"><b>開頭 3 秒</b><span>白線＝平常</span></div>'+hookBars(e)+'</div>'+
-      '<div class="card"><div class="hd" style="margin-bottom:8px"><b>整支片：FB 留存曲線</b><span>還剩幾 % 的人</span></div>'+retView(e,epList(S.stats))+
-      '<p class="note" style="margin-top:6px">FB 第 3 秒幾乎都還有 9 成以上，分不出開頭好壞 ⇒ 開頭看上面的 YouTube／IG，FB 曲線看第 3 秒以後。</p></div>'+
-      '<div class="ph">YouTube 的留存曲線（比 FB 準、能對到稿子哪一句）還沒接上，要你授權一次，之後另外問你。</div></section>';
-    h+='<section id="s-pf"><h2>四平台</h2>'+grid(e)+extras(e)+'</section>';
-    h+='<section id="s-cm"><h2>留言 '+cmCount(e)+'</h2><div id="cmBox">'+comments(e)+'</div></section>';
+    h+=V?'<div class="verd '+esc(V.tone)+'"><div class="t">'+esc(V.t)+'</div><div class="nx"><b>該做什麼</b>'+esc(V.next)+'</div></div>':
+      '<div class="verd"><div class="t">電腦還沒算結論</div></div>';
+    h+='<div class="dh"><span>開頭 3 秒留住幾成</span>'+qb('q1','滑到這支片的人，有幾成停下來看（沒滑走）。白線＝其他片的中間值。'+(V&&V.conf?'<br>'+esc(V.conf):''))+'<div class="dcard">'+hookBars(e)+'</div>';
+    h+='<div class="dh"><span>整支片哪裡跑掉（FB）</span>'+qb('q2','FB 每一秒還剩幾 % 的人。FB 第 3 秒幾乎都還有 9 成以上，開頭好壞看上面那塊。YouTube 的曲線比較準，要你授權一次才拿得到，之後另外問。')+'<div class="dcard">'+retView(e,epList(S.stats))+'</div>';
+    h+='<div class="dh"><span>四平台</span>'+qb('q3','觀看、平均看完幾成、最近 3 小時有沒有在漲。YouTube 觀看是公開數與後台數取大的。TikTok 官方不給看完率和留言。')+grid(e);
+    h+='<div class="dh" id="s-cm"><span>留言 '+cmCount(e)+'</span></div><div id="cmBox">'+comments(e)+'</div>';
     return h;}
   function fillDetail(e,keep){var sc=$('dScroll'),top=sc.scrollTop;
-    $('dTitle').innerHTML='<span class="no">'+no2(e.no)+'</span>'+esc(e.title);
-    $('dJump').innerHTML=[['s-sum','結論'],['s-ret','哪裡跑掉'],['s-pf','四平台'],['s-cm','留言 '+cmCount(e)]].map(function(x){return '<button type="button" data-j="'+x[0]+'">'+x[1]+'</button>';}).join('');
+    $('dTitle').innerHTML='<span class="no">'+no2(e.no)+'</span>'+esc(e.title);$('dToCm').textContent='留言 '+cmCount(e);
     $('dBody').innerHTML=detailBody(e);sc.scrollTop=keep?top:0;}
   function openDetail(id){DT.ep=id;DT.cf='all';var e=curEp();if(!e){DT.ep=null;return;}
     fillDetail(e,false);var d=$('detail');d.hidden=false;d.classList.add('enter');
@@ -755,9 +671,15 @@ details.box > div{padding-bottom:12px}
   $('dBack').addEventListener('click',function(){closeDetail(false);});
   window.addEventListener('popstate',function(){closeDetail(true);});
   document.addEventListener('keydown',function(ev){if(ev.key==='Escape'&&!$('detail').hidden)closeDetail(false);});
-  $('dJump').addEventListener('click',function(ev){var b=ev.target.closest('[data-j]');if(!b)return;var el=document.getElementById(b.dataset.j);if(el)$('dScroll').scrollTop=el.offsetTop-6;});
-  $('dBody').addEventListener('click',function(ev){var b=ev.target.closest('[data-cf]');if(!b)return;var e=curEp();if(!e)return;DT.cf=b.dataset.cf;$('cmBox').innerHTML=comments(e);});
-  $('app').addEventListener('click',function(ev){var c=ev.target.closest&&ev.target.closest('.vid[data-ep]');if(c)openDetail(c.dataset.ep);});
+  $('dToCm').addEventListener('click',function(){var el=document.getElementById('s-cm');if(el)$('dScroll').scrollTop=el.offsetTop-6;});
+  $('dBody').addEventListener('click',function(ev){
+    var b=ev.target.closest('[data-cf]');if(b){var e=curEp();if(!e)return;DT.cf=b.dataset.cf;$('cmBox').innerHTML=comments(e);return;}
+    var q=ev.target.closest('[data-q]');if(q){var t=document.getElementById(q.dataset.q);t.hidden=!t.hidden;q.setAttribute('aria-expanded',String(!t.hidden));}});
+  $('app').addEventListener('click',function(ev){var t=ev.target;if(!t.closest)return;
+    var c=t.closest('.vid[data-ep]');if(c){openDetail(c.dataset.ep);return;}
+    if(t.closest('#sum')){S.sumOpen=!S.sumOpen;render();}});
+  /* 「更多」開著就記住，自動更新重畫時不要收起來 */
+  $('app').addEventListener('toggle',function(ev){if(ev.target&&ev.target.id==='more')S.moreOpen=ev.target.open;},true);
 
   /* ── 選題 ── */
   function topicsView(){
