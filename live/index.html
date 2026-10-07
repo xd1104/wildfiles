@@ -345,7 +345,9 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
     $('bTopics').hidden=!np;$('bTopics').textContent=np?'!':'';$('bReview').hidden=!nr;$('bReview').textContent=nr||'';
     return '<button class="todo'+(hot?' hot':'')+'" id="todo" type="button" data-v="'+v+'"><i></i><span>'+esc(txt)+'</span><span class="go">'+go+'</span></button>';
   }
-  function header(){var c=chan(),av=S.ch===DEF?'<img src="../avatar.jpg" alt="">':'<span class="av" aria-hidden="true">'+esc((c.name||'?').charAt(0))+'</span>';
+  /* 各頻道頭像（10-07：買了啦＝B2、計謀研究所＝A3；沒列的用頻道名第一個字） */
+  var AVATAR={wildfiles:'../avatar.jpg',puff:'../avatar-puff.png',scheme:'../avatar-scheme.png'};
+  function header(){var c=chan(),av=AVATAR[S.ch]?'<img src="'+AVATAR[S.ch]+'" alt="">':'<span class="av" aria-hidden="true">'+esc((c.name||'?').charAt(0))+'</span>';
     return '<header class="top">'+av+'<div><b>'+esc(c.name)+'</b><small>'+esc(c.active===false?'籌備中':(c.sub||''))+'</small></div><button class="re" id="re" type="button">重新整理</button></header>'+chips()+links()+todo()+pushCard();}
   /* 10-06d：頻道的快速連結（channels.json 的 links；買了啦＝特價清單網頁） */
   function links(){var L=chan().links||[];if(!L.length)return '';
@@ -415,7 +417,7 @@ h2{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em;margin
       if(x.note)h+='<span class="err" style="color:var(--warn)">'+esc(x.note)+'</span>';
       h+='</div>';});
     h+='<h2>最近 3 天每小時新增觀看</h2>'+chart(hist)+'<h2>每支片</h2><p class="note">看完％＝平均看幾秒 ÷ 片長（三個平台同一把尺）；Shorts 會重播，可能超過 100%。YouTube 的數字每天早上更新一次。</p>'+videos(d,h24);
-    h+='<p class="note">版本 10-07a・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
+    h+='<p class="note">版本 10-07b・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p>';
     h+='<p class="note">YouTube 公開觀看數比後台慢幾個小時，有「後台」字樣的是每天早上從 YouTube 後台讀的。FB 的觀看是 Reels 播放次數。</p>';
     return h;
   }
