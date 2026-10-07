@@ -186,6 +186,18 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
 .pill{display:inline-block;font-size:12px;padding:2px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
 .pill.ok{color:var(--ok);border-color:var(--ok)} .pill.warn{color:var(--warn);border-color:var(--warn)}
 /* 10-07i 發片日程（買了啦） */
+.ip{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
+.ip button{display:flex;flex-direction:column;align-items:stretch;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:8px;cursor:pointer;position:relative;color:var(--text);font:inherit;min-width:0}
+.ip button.on{border-color:var(--accent);background:var(--surface2)}
+.ip button[disabled]{opacity:.55;cursor:default}
+.ip img{width:100%;aspect-ratio:1;object-fit:contain;background:#fff;border-radius:8px}
+.ip b{font-size:13px;line-height:1.35;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ip .pr{font-family:var(--num);font-size:17px;font-weight:700;color:var(--accent);margin-top:2px}
+.ip .pr s{color:var(--muted);font-size:12px;font-weight:400;margin-left:4px}
+.ip small{font-size:11.5px;color:var(--muted)}
+.ip .tk{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;border:2px solid var(--line);background:var(--surface);display:grid;place-items:center;font-size:15px;font-weight:700}
+.ip button.on .tk{background:var(--accent);border-color:var(--accent);color:var(--ink)}
+.ip .tg{position:absolute;top:6px;left:6px;font-size:10.5px;background:rgba(0,0,0,.55);color:#fff;border-radius:6px;padding:1px 6px}
 .sched{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 14px}
 .sched p{display:flex;gap:10px;align-items:baseline;margin:8px 0;font-size:15px;line-height:1.5}
 .sched p b{flex:none;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--ink);font-size:13px;display:grid;place-items:center;font-family:var(--num)}
@@ -418,15 +430,19 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
   function setTab(v){if(!$('detail').hidden)closeDetail(false);S.tab=v;lsSet(LS_TAB,v);document.querySelectorAll('.tab').forEach(function(b){b.setAttribute('aria-selected',String(b.dataset.v===v));});render();$('scroller').scrollTop=0;}
   document.querySelectorAll('.tab').forEach(function(b){b.addEventListener('click',function(){setTab(b.dataset.v);});});
 
+  /* 10-07m 買了啦挑商品（work.itemPick）：status=picking 而且還沒送出 */
+  function needItems(cid){cid=cid||S.ch;var wk=S.all[cid]&&S.all[cid].work,ip=wk&&wk.itemPick;
+    return !!(ip&&ip.status==='picking'&&!pending(1).some(function(a){return (a.ch||DEF)===cid&&a.type==='items'&&a.pick===ip.id;}));}
   function needPick(cid){cid=cid||S.ch;var wk=S.all[cid]&&S.all[cid].work,w=wk&&wk.week;
     return !!(w&&w.status==='picking'&&!pending(1).some(function(a){return (a.ch||DEF)===cid&&a.type==='pick'&&a.week===w.id;}));}
   function reviewList(cid){cid=cid||S.ch;var wk=S.all[cid]&&S.all[cid].work,v=(wk&&wk.videos)||{},p=pending(1);
     return Object.keys(v).filter(function(e){return v[e].status==='review'&&!p.some(function(a){return (a.ch||DEF)===cid&&a.type==='review'&&a.ep===e;});});}
   function todo(){
-    var np=needPick(),nr=reviewList().length,w=S.work&&S.work.week,txt,go='',v='',hot=false;
+    var ni=needItems(),np=needPick()||ni,nr=reviewList().length,w=S.work&&S.work.week,ip=S.work&&S.work.itemPick,txt,go='',v='',hot=false;
     $('tTopics').textContent=chan().schedule?'日程':'選題';   /* 10-07i：買了啦沒有選題，這格改放發片日程 */
     $('bTopics').hidden=!np;$('bTopics').textContent=np?'!':'';$('bReview').hidden=!nr;$('bReview').textContent=nr||'';   /* 徽章要在「沒事 return」之前更新（10-07f 品管：切頻道徽章沒換） */
-    if(np){txt='本週題目等你挑 '+(w.pickCount||3)+' 個'+(w.deadline?'（'+slot(w.deadline)+' 前，沒選就代挑）':'');go='去挑 ›';v='topics';hot=true;}
+    if(ni){txt=(ip.title||'下一支')+'：挑 '+(ip.need||10)+' 樣商品'+(ip.deadline?'（'+slot(ip.deadline)+' 前，沒挑就代挑）':'');go='去挑 ›';v='topics';hot=true;}
+    else if(np){txt='本週題目等你挑 '+(w.pickCount||3)+' 個'+(w.deadline?'（'+slot(w.deadline)+' 前，沒選就代挑）':'');go='去挑 ›';v='topics';hot=true;}
     else if(nr){txt='有 '+nr+' 支片等你看，說「好」才會排程';go='去看 ›';v='review';hot=true;}
     else if(pending().length)txt='你送出的 '+pending().length+' 個動作，電腦最慢 10 分鐘內收';
     else return '';   /* 10-07f：沒事不顯示（Benson 嫌亂） */
@@ -482,7 +498,7 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
     $('re').addEventListener('click',function(){refresh(true);});
     var td=$('todo');if(td)td.addEventListener('click',function(){if(td.dataset.v)setTab(td.dataset.v);});
     document.querySelectorAll('.chip[data-ch]').forEach(function(b){b.addEventListener('click',function(){setCh(b.dataset.ch);});});
-    if(S.tab==='topics')bindTopics();if(S.tab==='review')bindReview();
+    if(S.tab==='topics'){bindTopics();bindItems();}if(S.tab==='review')bindReview();
     pickBar();
   }
 
@@ -589,7 +605,7 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
       h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝YouTube 觀看（公開數與後台數取大的；會賺錢的平台）。<br><b>開頭</b>＝在 YouTube 滑到這支片的人，幾成停下來看（YouTube 還沒出來時用 IG 前 3 秒，標 (IG)）。<b>看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<b>同時間</b>＝發布一樣久，比其他片多或少幾 %。<br>'+
         '<span class="up">▲</span><span class="dn">▼</span>＝比其他片的中間值高／低 5 點以上（同時間是 30%）；不到 6 支片都只供參考。<b>還在推／變慢／停了</b>：YouTube 最近還有沒有在送觀看；公開數常卡好幾小時，卡住時不判。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
     var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
-    return h+'<p class="note">版本 10-07l・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+    return h+'<p class="note">版本 10-07m・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
   /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
@@ -729,9 +745,27 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
     h+='<h2>各家檔期</h2>'+(sc.stores||[]).map(function(s){return '<div class="row"><div><b>'+esc(s.s)+'</b><small>'+esc(s.cycle)+'</small></div><div class="pnote" style="margin:0">這檔 '+esc(s.now)+'</div></div>';}).join('');
     if(sc.note)h+='<p class="pnote">'+esc(sc.note)+'</p>';
     return h;}
+  function itemsView(){var ip=S.work&&S.work.itemPick;if(!ip||!ip.items)return '';
+    var p=pending().filter(function(a){return a.type==='items'&&a.pick===ip.id;})[0],pk=ck(LS_PICK)+'items:'+ip.id,open=ip.status==='picking'&&!p,need=ip.need||10;
+    if(open&&!S.picks[pk])S.picks[pk]=lsGet(pk,{});
+    var sel={};if(open)sel=S.picks[pk];else (p?p.items:(ip.picks||[])).forEach(function(id){sel[id]=1;});
+    var n=Object.keys(sel).length,st=p?'已送出，等電腦收':open?'已選 '+n+' / '+need:ip.pickedBy==='producer'?'沒挑，製作人代挑了':'已挑好，製作中';
+    var h='<h2>挑商品・'+esc(ip.title||'')+'</h2><div class="wk"><b>從 '+ip.items.length+' 樣裡挑 '+need+' 樣</b><span class="pill '+(open?'warn':'ok')+'">'+st+'</span></div>'+
+      (open&&ip.deadline?'<p class="pnote">'+esc(slot(ip.deadline))+' 前沒挑，製作人會先用排前面的。標「試片用過」的是上一支試片放過的。</p>':'');
+    h+='<div class="ip">'+ip.items.map(function(x){var on=x.id in sel;
+      return '<button type="button" data-ip="'+esc(x.id)+'" class="'+(on?'on':'')+'" '+(open?'':'disabled')+' aria-pressed="'+on+'">'+
+        (x.tag?'<span class="tg">'+esc(x.tag)+'</span>':'')+'<span class="tk">'+(on?'✓':'')+'</span>'+
+        (x.img?'<img src="'+esc(x.img)+'" alt="" loading="lazy">':'')+'<b>'+esc(x.name)+'</b>'+
+        '<span class="pr">$'+x.price+(x.unit&&x.unit!=='元'?esc(x.unit.replace('元',''))
+        :'')+(x.orig?'<s>'+x.orig+'</s>':'')+'</span><small>'+esc(x.spec||'')+(x.unitp?'・'+esc(x.unitp):'')+'</small></button>';}).join('')+'</div>';
+    return h;}
+  function bindItems(){var ip=S.work&&S.work.itemPick;if(!ip)return;var pk=ck(LS_PICK)+'items:'+ip.id,need=ip.need||10;
+    document.querySelectorAll('[data-ip]').forEach(function(b){b.addEventListener('click',function(){var sel=S.picks[pk]||(S.picks[pk]={}),id=b.dataset.ip;
+      if(id in sel)delete sel[id];else{if(Object.keys(sel).length>=need){toast('最多 '+need+' 樣，先取消一個');return;}sel[id]=1;}
+      lsSet(pk,sel);var y=$('scroller').scrollTop;render();$('scroller').scrollTop=y;});});}
   function topicsView(){
     var w=S.work&&S.work.week;
-    if(chan().schedule&&!(w&&w.topics&&w.topics.length))return scheduleView();
+    if(chan().schedule&&!(w&&w.topics&&w.topics.length))return itemsView()+scheduleView();
     if(!w||!w.topics||!w.topics.length)return '<h2>本週選題</h2><div class="empty">'+(chan().active===false?esc(chan().name)+' 還在籌備中。<br>頻道風格定好、正式開工後，每週的題目會出現在這裡。':'這週的題目還沒出來。<br>每週五 09:00 企劃會提下週的 5 個題目，到時候這裡會通知你。')+'</div>';
     var p=pending().filter(function(a){return a.type==='pick'&&a.week===w.id;})[0],pk=ck(LS_PICK)+w.id;
     var open=w.status==='picking'&&!p;
@@ -751,15 +785,23 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
         '<div class="facts">'+(tp.film==null?'':typeof tp.film==='number'?'<span class="'+(tp.film<4?'warnf':'')+'">4K 實拍素材 '+esc(tp.film)+' 支'+(tp.film<4?'（偏少）':'')+'</span>':'<span>畫面：'+esc(tp.film)+'</span>')+(tp.source?'<span>來源：'+esc(tp.source)+'</span>':'')+'</div></button>'+hh+'</div>';}).join('');
     return h;
   }
-  function bindTopics(){var w=S.work.week,pk=ck(LS_PICK)+w.id;
+  function bindTopics(){var w=S.work.week;if(!w)return;var pk=ck(LS_PICK)+w.id;
     document.querySelectorAll('.topic .hd').forEach(function(b){b.addEventListener('click',function(){var sel=S.picks[pk],id=b.dataset.t;
       if(id in sel)delete sel[id];else{var need=w.pickCount||3;if(need===1){for(var k in sel)delete sel[k];}else if(Object.keys(sel).length>=need){toast('最多 '+need+' 個，先取消一個');return;}sel[id]=0;}
       lsSet(pk,sel);render();});});
     document.querySelectorAll('.hk[data-t]').forEach(function(b){b.addEventListener('click',function(){S.picks[pk][b.dataset.t]=+b.dataset.h;lsSet(pk,S.picks[pk]);render();});});
   }
-  function pickBar(){var w=S.work&&S.work.week,show=S.tab==='topics'&&needPick();$('pickBar').hidden=!show;if(!show)return;
+  function pickBar(){var w=S.work&&S.work.week,ip=S.work&&S.work.itemPick;
+    if(S.tab==='topics'&&needItems()){$('pickBar').hidden=false;var ni=Object.keys(S.picks[ck(LS_PICK)+'items:'+ip.id]||{}).length,nn=ip.need||10;
+      $('pickCount').textContent='已選 '+ni+' / '+nn+' 樣';$('pickSubmit').disabled=ni!==nn||S.busy;return;}
+    var show=S.tab==='topics'&&needPick();$('pickBar').hidden=!show;if(!show)return;
     var n=Object.keys(S.picks[ck(LS_PICK)+w.id]||{}).length,need=w.pickCount||3;$('pickCount').textContent='已選 '+n+' / '+need;$('pickSubmit').disabled=n!==need||S.busy;}
-  $('pickSubmit').addEventListener('click',function(){var w=S.work.week,sel=S.picks[ck(LS_PICK)+w.id]||{},ids=Object.keys(sel);if(ids.length!==(w.pickCount||3))return;
+  $('pickSubmit').addEventListener('click',function(){
+    var ip=S.work&&S.work.itemPick;if(needItems()){var isel=S.picks[ck(LS_PICK)+'items:'+ip.id]||{},ids2=ip.items.map(function(x){return x.id;}).filter(function(id){return id in isel;});
+      if(ids2.length!==(ip.need||10))return;$('pickSubmit').disabled=true;$('pickSubmit').textContent='送出中…';
+      send({type:'items',ch:S.ch,pick:ip.id,items:ids2}).then(function(){toast('送出了，電腦最慢 10 分鐘內收');$('pickSubmit').textContent='送出';render();})
+        .catch(function(e){toast(sendErr(e));$('pickSubmit').textContent='送出';pickBar();});return;}
+    var w=S.work.week,sel=S.picks[ck(LS_PICK)+w.id]||{},ids=Object.keys(sel);if(ids.length!==(w.pickCount||3))return;
     var order=w.topics.map(function(t){return t.id;}).filter(function(id){return id in sel;});
     $('pickSubmit').disabled=true;$('pickSubmit').textContent='送出中…';
     send({type:'pick',ch:S.ch,week:w.id,picks:order.map(function(id){return {id:id,hook:sel[id]};})})
