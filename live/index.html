@@ -185,6 +185,10 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
 .wk b{font-size:20px}
 .pill{display:inline-block;font-size:12px;padding:2px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
 .pill.ok{color:var(--ok);border-color:var(--ok)} .pill.warn{color:var(--warn);border-color:var(--warn)}
+/* 10-07i 發片日程（買了啦） */
+.sched{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 14px}
+.sched p{display:flex;gap:10px;align-items:baseline;margin:8px 0;font-size:15px;line-height:1.5}
+.sched p b{flex:none;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--ink);font-size:13px;display:grid;place-items:center;font-family:var(--num)}
 .topic{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:14px;margin-top:10px;position:relative}
 .topic.on{border-color:var(--accent);background:var(--surface2)}
 .topic.dim{opacity:.45}
@@ -278,7 +282,7 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
 <div class="sticky" id="pickBar" hidden><div class="wrap"><span class="pnote" id="pickCount"></span><button class="btn primary wide" id="pickSubmit" type="button" disabled>送出</button></div></div>
 <nav class="tabs" id="tabs" role="tablist" hidden><div class="wrap">
   <button class="tab" role="tab" data-v="data" type="button"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>數據</button>
-  <button class="tab" role="tab" data-v="topics" type="button"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg><span class="badge" id="bTopics" hidden></span></span>選題</button>
+  <button class="tab" role="tab" data-v="topics" type="button"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg><span class="badge" id="bTopics" hidden></span></span><span id="tTopics">選題</span></button>
   <button class="tab" role="tab" data-v="review" type="button"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M17 10l4-2.5v9L17 14"/></svg><span class="badge" id="bReview" hidden></span></span>審片</button>
 </div></nav>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="shTitle" hidden>
@@ -420,6 +424,7 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
     return Object.keys(v).filter(function(e){return v[e].status==='review'&&!p.some(function(a){return (a.ch||DEF)===cid&&a.type==='review'&&a.ep===e;});});}
   function todo(){
     var np=needPick(),nr=reviewList().length,w=S.work&&S.work.week,txt,go='',v='',hot=false;
+    $('tTopics').textContent=chan().schedule?'日程':'選題';   /* 10-07i：買了啦沒有選題，這格改放發片日程 */
     $('bTopics').hidden=!np;$('bTopics').textContent=np?'!':'';$('bReview').hidden=!nr;$('bReview').textContent=nr||'';   /* 徽章要在「沒事 return」之前更新（10-07f 品管：切頻道徽章沒換） */
     if(np){txt='本週題目等你挑 '+(w.pickCount||3)+' 個'+(w.deadline?'（'+slot(w.deadline)+' 前，沒選就代挑）':'');go='去挑 ›';v='topics';hot=true;}
     else if(nr){txt='有 '+nr+' 支片等你看，說「好」才會排程';go='去看 ›';v='review';hot=true;}
@@ -584,7 +589,7 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
       h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝YouTube 觀看（公開數與後台數取大的；會賺錢的平台）。<br><b>開頭</b>＝在 YouTube 滑到這支片的人，幾成停下來看（YouTube 還沒出來時用 IG 前 3 秒，標 (IG)）。<b>看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<b>同時間</b>＝發布一樣久，比其他片多或少幾 %。<br>'+
         '<span class="up">▲</span><span class="dn">▼</span>＝比其他片的中間值高／低 5 點以上（同時間是 30%）；不到 6 支片都只供參考。<b>還在推／變慢／停了</b>：YouTube 最近還有沒有在送觀看；公開數常卡好幾小時，卡住時不判。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
     var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
-    return h+'<p class="note">版本 10-07h・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+    return h+'<p class="note">版本 10-07i・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
   /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
@@ -712,8 +717,19 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
   $('app').addEventListener('toggle',function(ev){if(ev.target&&ev.target.id==='more')S.moreOpen=ev.target.open;},true);
 
   /* ── 選題 ── */
+  /* 10-07i：發片日程（channels.json 的 schedule）。next 的 ok＝看過官方 DM 確認；沒確認的標「推算」 */
+  function scheduleView(){var sc=chan().schedule,wd='日一二三四五六',today=new Date();today.setHours(0,0,0,0);
+    var nx=(sc.next||[]).filter(function(x){return new Date(x.d+'T00:00:00')>=today;});
+    var h='<h2>發片規則</h2><div class="sched">'+(sc.rules||[]).map(function(r,i){return '<p><b>'+(i+1)+'</b>'+esc(r)+'</p>';}).join('')+'</div>';
+    h+='<h2>接下來要發的</h2>'+(nx.length?nx.map(function(x){var d=new Date(x.d+'T00:00:00');
+      return '<div class="row"><div><b>'+(d.getMonth()+1)+'/'+d.getDate()+'（'+wd.charAt(d.getDay())+'）</b>　'+esc(x.s)+' 新檔<small>18:00 發'+(x.t?'・'+esc(x.t):'')+'</small></div>'+
+        '<span class="pill'+(x.ok?' ok':'')+'">'+(x.ok?'DM 已確認':'推算')+'</span></div>';}).join(''):'<div class="empty">還沒排。</div>');
+    h+='<h2>各家檔期</h2>'+(sc.stores||[]).map(function(s){return '<div class="row"><div><b>'+esc(s.s)+'</b><small>'+esc(s.cycle)+'</small></div><div class="pnote" style="margin:0">這檔 '+esc(s.now)+'</div></div>';}).join('');
+    if(sc.note)h+='<p class="pnote">'+esc(sc.note)+'</p>';
+    return h;}
   function topicsView(){
     var w=S.work&&S.work.week;
+    if(chan().schedule&&!(w&&w.topics&&w.topics.length))return scheduleView();
     if(!w||!w.topics||!w.topics.length)return '<h2>本週選題</h2><div class="empty">'+(chan().active===false?esc(chan().name)+' 還在籌備中。<br>頻道風格定好、正式開工後，每週的題目會出現在這裡。':'這週的題目還沒出來。<br>每週五 09:00 企劃會提下週的 5 個題目，到時候這裡會通知你。')+'</div>';
     var p=pending().filter(function(a){return a.type==='pick'&&a.week===w.id;})[0],pk=ck(LS_PICK)+w.id;
     var open=w.status==='picking'&&!p;
