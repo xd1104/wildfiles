@@ -146,6 +146,12 @@ details.more>summary::after{content:"＋";flex:none} details.more[open]>summary:
 .ret svg{display:block;width:100%;height:auto}
 .ret .say{font-size:14px;margin:6px 0 0}
 .dph{font-size:13px;color:var(--muted);margin:0}
+.trf{font-size:13px;color:var(--muted);margin:8px 2px 0;line-height:1.6}
+.trf b{color:var(--text);font-family:var(--num);font-weight:600}
+details.fbret{margin-top:10px;border-top:1px solid var(--line)}
+details.fbret>summary{cursor:pointer;list-style:none;font-size:13px;color:var(--muted);padding:10px 0 4px}
+details.fbret>summary::-webkit-details-marker{display:none}
+details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::before{content:"－ "}
 .vgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
 .vcell{background:var(--surface);border-radius:10px;padding:8px 8px 7px;min-width:0}
 .vcell .pn{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden}
@@ -552,7 +558,8 @@ details.more>summary::after{content:"＋";flex:none} details.more[open]>summary:
     if(e!=null){var ms=[[1e4,'1 萬'],[1e5,'10 萬'],[1e6,'100 萬'],[1e7,'1000 萬'],[2e7,'2000 萬']],prev=0,done=false;
       bar='<div class="mile" aria-hidden="true">'+ms.map(function(m){var cls='',st='';if(e>=m[0])cls='done';else if(!done){done=true;cls='doing';st=' style="--p:'+Math.max(2,(e-prev)/(m[0]-prev)*100).toFixed(1)+'%"';}
         prev=m[0];return '<span class="'+cls+'"'+st+'>'+m[1]+'</span>';}).join('')+'</div>';}
-    return h+'<div class="sumx">營利進度：'+(e!=null?'有效觀看（近 90 天）<b>'+fmt(e)+'</b>／2,000 萬'+bar:'<b>還沒接上 YouTube 授權</b>，接上後這裡會出現進度條。')+
+    var thr=y.ytaThrough?'（資料到 '+esc(md(y.ytaThrough))+'，YouTube 報表慢 2～3 天）':'';
+    return h+'<div class="sumx">營利進度：'+(e!=null?'有效觀看（近 90 天）<b>'+fmt(e)+'</b>／2,000 萬'+thr+bar:y.ytaAt?'已接上 YouTube 授權，<b>報表還沒有資料</b>（新頻道要等 2～3 天）。':'<b>還沒接上 YouTube 授權</b>，接上後這裡會出現進度條。')+
       '<br>照一週 '+pw+' 支算，每支平均要約 '+per+' 萬有效觀看才達標，重點是找出「哪一支開始爆」。'+(X.target?'<br>實驗目標：任一支破 '+(X.target>=1e4?fmt(X.target/1e4)+' 萬':fmt(X.target))+'。':'')+'</div>';}
   /* 片卡三行：①（新）#NN 片名＋YouTube 觀看 › ② 一句結論 ③ 小字：同時間・開頭・看完・推不推（沒資料就省略） */
   function vcard(e){
@@ -572,10 +579,10 @@ details.more>summary::after{content:"＋";flex:none} details.more[open]>summary:
   function moreBox(d){
     var h='<details class="more" id="more"'+(S.moreOpen?' open':'')+'><summary>更多：每小時觀看、四平台合計、怎麼看'+(pushOn()?'':'、手機提醒')+'</summary>';
     if(d){h+='<div class="mh">最近 3 天每小時新增觀看</div>'+chart(d.hist||[])+'<div class="mh">四平台合計（各平台算法不同，只看大概）</div>'+totals(d);
-      h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝YouTube 觀看（公開數與後台數取大的；會賺錢的平台）。<br><b>開頭</b>＝在 YouTube 滑到這支片的人，幾成停下來看（YouTube 還沒出來時用 IG 前 3 秒，標 (IG)）。<b>看完</b>＝平均看了片長的幾成。<b>同時間</b>＝發布一樣久，比其他片多或少幾 %。<br>'+
+      h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝YouTube 觀看（公開數與後台數取大的；會賺錢的平台）。<br><b>開頭</b>＝在 YouTube 滑到這支片的人，幾成停下來看（YouTube 還沒出來時用 IG 前 3 秒，標 (IG)）。<b>看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<b>同時間</b>＝發布一樣久，比其他片多或少幾 %。<br>'+
         '<span class="up">▲</span><span class="dn">▼</span>＝比其他片的中間值高／低 5 點以上（同時間是 30%）；不到 6 支片都只供參考。<b>還在推／變慢／停了</b>：YouTube 最近還有沒有在送觀看；公開數常卡好幾小時，卡住時不判。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
     var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
-    return h+'<p class="note">版本 10-07f・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+    return h+'<p class="note">版本 10-07g・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
   /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
@@ -594,35 +601,55 @@ details.more>summary::after{content:"＋";flex:none} details.more[open]>summary:
   var DT={ep:null,cf:'all'};
   function curEp(){if(!DT.ep||!S.stats)return null;return epList(S.stats).filter(function(x){return x.id===DT.ep;})[0]||null;}
   function retAt(r,s){var x=s/r.step,i=Math.floor(x),p=r.pct;if(i>=p.length-1)return p[p.length-1];return p[i]+(p[i+1]-p[i])*(x-i);}
-  function retView(e,all){
-    var fb=e.v.fb||{},r=fb.retention;
-    if(e.bad.fb)return '<p class="dph">FB 這支發布流程出錯，不算。</p>';
-    if(!r||!r.pct||r.pct.length<3||!r.step)return '<p class="dph">FB 播放還太少，畫不出曲線。</p>';
-    var dur=r.step*(r.pct.length-1),W=340,H=170,l=32,rr=12,t=12,b=24,iw=W-l-rr,ih=H-t-b;
+  /* 留存曲線（10-07g：YouTube Analytics 為主、FB 為輔）。pts＝[[秒, 還剩 %], …]；others＝其他片的 pts（畫「平常」虛線＝同一秒的中間值） */
+  function md(iso){var x=String(iso||'').split('-');return x.length===3?(+x[1])+'/'+(+x[2]):String(iso||'');}
+  function ptsAt(pts,s){if(s<=pts[0][0])return pts[0][1];for(var i=1;i<pts.length;i++){if(s<=pts[i][0]){var a=pts[i-1],b=pts[i];return a[1]+(b[1]-a[1])*(s-a[0])/((b[0]-a[0])||1);}}return pts[pts.length-1][1];}
+  function curveView(pts,others,color,label,extra){
+    var dur=pts[pts.length-1][0],W=340,H=170,l=32,rr=12,t=12,b=24,iw=W-l-rr,ih=H-t-b;
     var X=function(s){return l+s/dur*iw;},Y=function(p){return t+(100-Math.min(100,Math.max(0,p)))/100*ih;};
-    var others=all.filter(function(o){return o.id!==e.id&&!o.bad.fb&&o.v.fb&&o.v.fb.retention&&o.v.fb.retention.pct&&o.v.fb.retention.pct.length>2;}).map(function(o){return o.v.fb.retention;});
     var g='';
     [0,50,100].forEach(function(p){g+='<line x1="'+l+'" x2="'+(W-rr)+'" y1="'+Y(p).toFixed(1)+'" y2="'+Y(p).toFixed(1)+'" stroke="var(--line)"/><text x="'+(l-5)+'" y="'+(Y(p)+3.5).toFixed(1)+'" text-anchor="end" font-size="10" fill="var(--muted)">'+p+'%</text>';});
     var stepS=dur>90?30:dur>45?20:10;
     for(var s=0;s<=dur+0.01;s+=stepS)g+='<text x="'+X(s).toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle" font-size="10" fill="var(--muted)">'+s+' 秒</text>';
     var oth10=null;
-    if(others.length){ /* 平常＝其他片同一秒的中間值；短的片到片尾就停 */
-      var maxS=Math.min(dur,Math.min.apply(null,others.map(function(o){return o.step*(o.pct.length-1);}))),path='';
-      var medAt=function(ss){var a=others.map(function(o){return retAt(o,ss);}).sort(function(x,y){return x-y;}),m=a.length>>1;return a.length%2?a[m]:(a[m-1]+a[m])/2;};
+    if(others.length){
+      var maxS=Math.min(dur,Math.min.apply(null,others.map(function(o){return o[o.length-1][0];}))),path='';
+      var medAt=function(ss){var a=others.map(function(o){return ptsAt(o,ss);}).sort(function(x,y){return x-y;}),m=a.length>>1;return a.length%2?a[m]:(a[m-1]+a[m])/2;};
       for(var i=0;i<=40;i++){var ss=maxS*i/40;path+=(i?'L':'M')+X(ss).toFixed(1)+' '+Y(medAt(ss)).toFixed(1);}
       g+='<path d="'+path+'" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 4"/>';
       if(maxS>=10)oth10=medAt(10);}
-    g+='<path d="'+r.pct.map(function(p,i){return (i?'L':'M')+X(i*r.step).toFixed(1)+' '+Y(p).toFixed(1);}).join('')+'" fill="none" stroke="var(--fb)" stroke-width="2.5" stroke-linejoin="round"/>';
-    function mark(sx,val,lab){var x=X(sx),y=Y(val);return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="4.5" fill="var(--accent)" stroke="var(--ground)" stroke-width="2"/>'+
-      '<text x="'+(x+8).toFixed(1)+'" y="'+(y+15).toFixed(1)+'" font-size="12" font-weight="700" fill="var(--text)">'+lab+'</text>';}
-    var r3=retAt(r,3);g+=mark(3,r3,'第 3 秒 '+Math.round(r3)+'%');
-    var svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="FB 留存曲線">';
+    g+='<path d="'+pts.map(function(p,i){return (i?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1);}).join('')+'" fill="none" stroke="'+color+'" stroke-width="2.5" stroke-linejoin="round"/>';
+    /* 超過 100%＝有人重播，畫到 100 為止，標籤也寫「100%+」 */
+    function lab(v){return v>100?'100%+':Math.round(v)+'%';}
+    function mark(sx,val,txt){var x=X(sx),y=Y(val);return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="4.5" fill="var(--accent)" stroke="var(--ground)" stroke-width="2"/>'+
+      '<text x="'+(x+8).toFixed(1)+'" y="'+(y+15).toFixed(1)+'" font-size="12" font-weight="700" fill="var(--text)">'+txt+'</text>';}
+    var r3=ptsAt(pts,3);g+=mark(3,r3,'第 3 秒 '+lab(r3));
+    var svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(label)+'">';
     if(dur<=12)return '<div class="ret">'+svg+g+'</svg></div>';
-    var r10=retAt(r,10),end=r.pct[r.pct.length-1],early=(r3-r10)/7,late=(r10-end)/(dur-10),isEarly=early>=late*2;
-    g+=mark(10,r10,'第 10 秒 '+Math.round(r10)+'%');
+    var r10=ptsAt(pts,10),end=pts[pts.length-1][1],early=(Math.min(100,r3)-Math.min(100,r10))/7,late=(Math.min(100,r10)-end)/(dur-10),isEarly=early>=late*2;
+    g+=mark(10,r10,'第 10 秒 '+lab(r10));
     var cmp=oth10==null?null:Math.round(r10-oth10);
     return '<span class="where'+(isEarly?'':' mid')+'">'+(isEarly?'主要在開頭跑掉':'主要在中間跑掉')+'</span>'+
-      '<div class="ret">'+svg+g+'</svg>'+(cmp==null?'':'<p class="say">第 10 秒剩 '+Math.round(r10)+'%，'+(Math.abs(cmp)<5?'跟平常差不多':cmp>0?'<span class="up">比平常多 '+cmp+' 點</span>':'<span class="dn">比平常少 '+(-cmp)+' 點</span>')+'（虛線＝平常）</p>')+'</div>';}
+      '<div class="ret">'+svg+g+'</svg><p class="say">第 10 秒剩 '+lab(r10)+(cmp==null?'':'，'+(Math.abs(cmp)<5?'跟平常差不多':cmp>0?'<span class="up">比平常多 '+cmp+' 點</span>':'<span class="dn">比平常少 '+(-cmp)+' 點</span>')+'（虛線＝平常）')+'。'+(extra||'')+'</p></div>';}
+  function ytPts(e){var y=e.v.yt||{},r=y.ytaRet;if(!r||!r.pct||r.pct.length<3)return null;
+    var dur=e.E.dur||(y.ytaAvgSec&&y.ytaAvgPct?y.ytaAvgSec/(y.ytaAvgPct/100):null);if(!dur)return null;
+    var n=r.pct.length;return [[0,r.pct[0]]].concat(r.pct.map(function(p,i){return [dur*(i+1)/n,p];}));}
+  function fbPts(e){var r=(e.v.fb||{}).retention;if(e.bad.fb||!r||!r.pct||r.pct.length<3||!r.step)return null;return r.pct.map(function(p,i){return [i*r.step,p];});}
+  function retView(e,all){
+    var yp=ytPts(e),fp=fbPts(e),h='';
+    if(yp){var y=e.v.yt,rel=(y.ytaRet||{}).rel,ri=rel&&e.E.dur?Math.min(rel.length-1,Math.max(0,Math.round(10/e.E.dur*rel.length)-1)):null;
+      var extra=ri!=null&&rel[ri]!=null?'<br>跟 YouTube 上長度差不多的片比，第 10 秒的留人贏過約 '+Math.round(rel[ri]*100)+'%。':'';
+      h+=curveView(yp,all.filter(function(o){return o.id!==e.id;}).map(ytPts).filter(Boolean),'var(--yt)','YouTube 留存曲線',extra);}
+    else h+='<p class="dph">YouTube 曲線還沒出來（YouTube 報表慢 2～3 天'+(S.stats&&S.stats.platforms.yt&&S.stats.platforms.yt.ytaThrough?'，目前資料到 '+esc(md(S.stats.platforms.yt.ytaThrough))+'':'')+'）。</p>';
+    if(fp){var fv=curveView(fp,all.filter(function(o){return o.id!==e.id;}).map(fbPts).filter(Boolean),'var(--fb)','FB 留存曲線');
+      h+=yp?'<details class="fbret"><summary>也看 FB 的曲線</summary>'+fv+'</details>':'<p class="dph" style="margin-bottom:6px">先看 FB 的：</p>'+fv;}
+    else if(!yp)h+='<p class="dph">FB 播放還太少，也畫不出來。</p>';
+    return h;}
+  /* YouTube 觀看從哪裡來（Analytics insightTrafficSourceType） */
+  var TRAFFIC={SHORTS:'Shorts 動態',YT_SEARCH:'搜尋',SUBSCRIBER:'訂閱者',YT_CHANNEL:'頻道頁',YT_OTHER_PAGE:'YouTube 其他頁',EXT_URL:'外部連結',NO_LINK_OTHER:'直接／其他',RELATED_VIDEO:'推薦影片',PLAYLIST:'播放清單',NOTIFICATION:'通知',HASHTAGS:'主題標籤',SOUND_PAGE:'音樂頁',YT_PLAYLIST_PAGE:'播放清單'};
+  function trafficRow(e){var tr=(e.v.yt||{}).ytaTraffic;if(!tr)return '';var tot=0,k;for(k in tr)tot+=tr[k];if(!tot)return '';
+    var a=Object.keys(tr).sort(function(x,y){return tr[y]-tr[x];}),top=a.slice(0,3),rest=a.slice(3).reduce(function(s,k2){return s+tr[k2];},0);
+    return '<p class="trf">YouTube 從哪來：'+top.map(function(k2){return esc(TRAFFIC[k2]||k2)+' <b>'+Math.round(tr[k2]/tot*100)+'%</b>';}).join('・')+(Math.round(rest/tot*100)?'・其他 <b>'+Math.round(rest/tot*100)+'%</b>':'')+'</p>';}
   function hookBars(e){
     var E=e.E,studio=epList(S.stats).some(function(o){return o.v.yt&&o.v.yt.stayedPct!=null;});
     var ytOff=!studio?'這個頻道沒讀後台':(Date.now()-new Date(e.slot).getTime())/3600e3<48?'最多 2 天才出來':'後台沒有這支';
@@ -651,9 +678,10 @@ details.more>summary::after{content:"＋";flex:none} details.more[open]>summary:
     var V=e.E.verdict,h='';
     h+=V?'<div class="verd '+esc(V.tone)+'"><div class="t">'+esc(V.t)+'</div><div class="nx"><b>該做什麼</b>'+esc(V.next)+'</div></div>':
       '<div class="verd"><div class="t">電腦還沒算結論</div></div>';
-    h+='<div class="dh"><span>開頭 3 秒留住幾成</span>'+qb('q1','滑到這支片的人，有幾成停下來看（沒滑走）。白線＝其他片的中間值。'+(V&&V.conf?'<br>'+esc(V.conf):''))+'<div class="dcard">'+hookBars(e)+'</div>';
-    h+='<div class="dh"><span>整支片哪裡跑掉（FB）</span>'+qb('q2','FB 每一秒還剩幾 % 的人。FB 第 3 秒幾乎都還有 9 成以上，開頭好壞看上面那塊。YouTube 的曲線比較準，要你授權一次才拿得到，之後另外問。')+'<div class="dcard">'+retView(e,epList(S.stats))+'</div>';
-    h+='<div class="dh"><span>四平台</span>'+qb('q3','觀看、平均看完幾成、最近 3 小時有沒有在漲。YouTube 觀看是公開數與後台數取大的。TikTok 官方不給看完率和留言。')+grid(e);
+    var ya=e.v.yt||{},apx=ya.ytaEngagedPct!=null?'<br>YouTube 報表沒有一模一樣的數字；近似值（有效觀看÷觀看）＝'+ya.ytaEngagedPct+'%，跟後台對照中，先不拿來比。':'';
+    h+='<div class="dh"><span>開頭 3 秒留住幾成</span>'+qb('q1','滑到這支片的人，有幾成停下來看（沒滑走）。YouTube 這條是後台的「選擇看下去」，每天早上讀一次。白線＝其他片的中間值。'+apx+(V&&V.conf?'<br>'+esc(V.conf):''))+'<div class="dcard">'+hookBars(e)+'</div>';
+    h+='<div class="dh"><span>整支片哪裡跑掉</span>'+qb('q2','YouTube 每一秒還剩幾 % 的人（YouTube 報表，慢 2～3 天）。超過 100% 是有人重播，畫到 100 為止。虛線＝其他片同一秒的中間值。FB 的曲線放在下面當輔助：FB 第 3 秒幾乎都還有 9 成以上，開頭好壞看上面那塊。')+'<div class="dcard">'+retView(e,epList(S.stats))+'</div>';
+    h+='<div class="dh"><span>四平台</span>'+qb('q3','觀看、平均看完幾成、最近 3 小時有沒有在漲。YouTube 觀看是公開數與後台數取大的；YouTube 看完 % 來自 YouTube 報表（慢 2～3 天）。Shorts 動態＝從別支 Shorts 滑過來的，越高代表演算法在推。TikTok 官方不給看完率和留言。')+grid(e)+trafficRow(e);
     h+='<div class="dh" id="s-cm"><span>留言 '+cmCount(e)+'</span></div><div id="cmBox">'+comments(e)+'</div>';
     return h;}
   function fillDetail(e,keep){var sc=$('dScroll'),top=sc.scrollTop;
