@@ -581,7 +581,11 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
       var s0=obj.status,at0=null,k0=null;
       if(type==='review'&&(s0==='approved'||s0==='revise')&&obj.reviewedAt){k0=s0==='approved'?'approve':'revise';at0=T(obj.reviewedAt);}
       else if((type==='pick'||type==='items')&&s0==='producing'&&!obj.startedAt&&obj.pickedAt&&obj.pickedBy!=='producer'){k0=type;at0=T(obj.pickedAt);}
-      if(k0&&at0)return {kind:k0,sent:at0,got:Math.min(nextRecv(at0),Date.now()),start:null,done:null,backfill:true};}
+      if(k0&&at0){   /* 10-08f：有 acks（電腦收到的回條）就用真實收到時間，沒有才推估（畫面寫「約」）；製作人正在處理的就是這支 ⇒ working.since 當開始時間 */
+        var W0=(S.all[cid]||{}).work||{},ak=W0.acks||{},want=type==='review'?val+' → '+s0:type==='pick'?'個題目':'樣商品',gotA=null;
+        for(var id in ak){var x=ak[id];if(x&&x.ok&&String(x.why||'').indexOf(want)>=0){var ta=T(x.at);if(ta&&ta>=at0-60e3&&(!gotA||ta<gotA))gotA=ta;}}
+        var wk0=W0.working,st0=lockOf(cid)&&wk0&&wk0.since&&(wk0.ep===val||(type==='pick'&&wk0.ep==='week')||(type==='items'&&wk0.ep==='items'))?T(wk0.since):null;
+        return {kind:k0,sent:at0,got:gotA||Math.min(nextRecv(at0),Date.now()),gotEst:!gotA,start:st0,done:null,backfill:true};}}
     if(!tr||tr.undone)return null;
     var o={kind:tr.kind,sent:T(tr.sentAt),got:T(tr.gotAt),start:T(tr.startAt),done:T(tr.doneAt)},s=obj.status;
     if(!o.done){   /* 排程忘了寫結案時間：照舊欄位判斷（spec §0） */
@@ -797,7 +801,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
       h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝各平台觀看合計（YouTube 取公開數與後台數大的那個）；<b>同時間、開頭、看完</b>還是看 YouTube（會賺錢的平台）。<br><b>開頭</b>＝在 YouTube 滑到這支片的人，幾成停下來看（YouTube 還沒出來時用 IG 前 3 秒，標 (IG)）。<b>看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<b>YT 同時間</b>＝發布一樣久，YouTube 觀看比其他片多或少幾 %。<br>'+
         '<span class="up">▲</span><span class="dn">▼</span>＝比其他片的中間值高／低 5 點以上（同時間是 30%）；不到 6 支片都只供參考。<b>還在推／變慢／停了</b>：YouTube 最近還有沒有在送觀看；公開數常卡好幾小時，卡住時不判。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
     var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
-    return h+'<p class="note">版本 10-08e・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+    return h+'<p class="note">版本 10-08f・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
   /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
@@ -1064,7 +1068,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
   function trackBox(tr,cid,v){
     var L=tline(tr,cid),k=tr.kind,rows=[],done=!!tr.done,w=(S.all[cid]||{}).work||{};
     rows.push({s:'ok',t:'你送出'+(k==='revise'?'修改意見':k==='approve'?'「好，照排」':k==='items'?' '+(((w.itemPick||{}).need)||10)+' 樣商品':'題目'),tm:when(tr.sent)});
-    rows.push(L.gotOk?{s:'ok',t:'電腦收到',tm:when(L.got)}:{s:'now',t:'電腦收到',tm:Date.now()>L.got+3*MIN?'稍等':'約 '+hhmm(L.got),sub:'電腦每 10 分鐘收一次手機按的'});
+    rows.push(L.gotOk?{s:'ok',t:'電腦收到',tm:(tr.gotEst?'約 ':'')+when(L.got)}:{s:'now',t:'電腦收到',tm:Date.now()>L.got+3*MIN?'稍等':'約 '+hhmm(L.got),sub:'電腦每 10 分鐘收一次手機按的'});
     var lbl=k==='approve'?'排程上架':k==='revise'?'開始照你的意見改':'開工';
     if(L.started||done)rows.push({s:'ok',t:k==='approve'?'開始排程上架':'開始處理',tm:L.started?when(L.start):''});
     else if(L.locked)rows.push({s:L.gotOk?'now':'tdo',t:'預計'+lbl,tm:'',sub:workingTxt(cid)});
