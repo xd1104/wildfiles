@@ -594,9 +594,12 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
       else if(o.kind==='revise'&&(s==='scheduled'||s==='published'||s==='approved'||(s==='review'&&obj.preview&&obj.preview.v*1000>=(o.got||o.sent))))o.done=true;
       else if((o.kind==='pick'||o.kind==='items')&&obj.startedAt&&s!=='picking')o.done=T(obj.startedAt);}
     return o;}
-  function lockOf(cid){var w=(S.all[cid]||{}).work||{},l=T(w.lockUntil);return l&&l>Date.now()?l:0;}
+  /* 10-08g（Benson：#06 早發完了，鎖還沒過就一直寫「正在處理」）：只有鎖、沒有 working 時，狀態最後更新（updatedAt）超過 15 分鐘＝閒置，當沒鎖 */
+  function lockOf(cid){var w=(S.all[cid]||{}).work||{},l=T(w.lockUntil),now=Date.now();if(!l||l<=now)return 0;
+    if(!w.working){var u=T(w.updatedAt);if(!u||now-u>15*MIN)return 0;}
+    return l;}
   /* 預計開始＝max(送出, 鎖到期) 之後的下一班；那班過了 5 分鐘還沒開始 ⇒ 改成下一班、標「排程晚了」；頻道被鎖 ⇒ 不寫時間 */
-  function tline(tr,cid){var now=Date.now(),w=(S.all[cid]||{}).work||{},lu=T(w.lockUntil)||0;
+  function tline(tr,cid){var now=Date.now(),w=(S.all[cid]||{}).work||{},lu=T(w.lockUntil)||0;if(lu>now&&!lockOf(cid))lu=0;   /* 鎖著但閒置＝當沒鎖 */
     var start=tr.start||nextRun(lu>tr.sent?lu:tr.sent),late=false,locked=!tr.start&&lu>now;
     if(!tr.start&&!locked&&now>start+5*MIN){start=nextRun(now);late=true;}
     return {got:tr.got||nextRecv(tr.sent),gotOk:!!tr.got,start:start,started:!!tr.start,late:late,locked:locked};}
@@ -801,7 +804,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
       h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝各平台觀看合計（YouTube 取公開數與後台數大的那個）；<b>同時間、開頭、看完</b>還是看 YouTube（會賺錢的平台）。<br><b>開頭</b>＝在 YouTube 滑到這支片的人，幾成停下來看（YouTube 還沒出來時用 IG 前 3 秒，標 (IG)）。<b>看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<b>YT 同時間</b>＝發布一樣久，YouTube 觀看比其他片多或少幾 %。<br>'+
         '<span class="up">▲</span><span class="dn">▼</span>＝比其他片的中間值高／低 5 點以上（同時間是 30%）；不到 6 支片都只供參考。<b>還在推／變慢／停了</b>：YouTube 最近還有沒有在送觀看；公開數常卡好幾小時，卡住時不判。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
     var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
-    return h+'<p class="note">版本 10-08f・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+    return h+'<p class="note">版本 10-08g・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
   /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
