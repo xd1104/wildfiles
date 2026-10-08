@@ -605,7 +605,7 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
       h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝YouTube 觀看（公開數與後台數取大的；會賺錢的平台）。<br><b>開頭</b>＝在 YouTube 滑到這支片的人，幾成停下來看（YouTube 還沒出來時用 IG 前 3 秒，標 (IG)）。<b>看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<b>同時間</b>＝發布一樣久，比其他片多或少幾 %。<br>'+
         '<span class="up">▲</span><span class="dn">▼</span>＝比其他片的中間值高／低 5 點以上（同時間是 30%）；不到 6 支片都只供參考。<b>還在推／變慢／停了</b>：YouTube 最近還有沒有在送觀看；公開數常卡好幾小時，卡住時不判。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
     var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
-    return h+'<p class="note">版本 10-08a・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+    return h+'<p class="note">版本 10-08b・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
   /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
@@ -752,7 +752,7 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
     var sel={};if(open)sel=S.picks[pk];else (p?p.items:(ip.picks||[])).forEach(function(id){sel[id]=1;});
     var n=Object.keys(sel).length,st=p?'已送出，等電腦收':open?'已選 '+n+' / '+need:ip.pickedBy==='producer'?'沒挑，製作人代挑了':'已挑好，製作中';
     var h='<h2>挑商品・'+esc(ip.title||'')+'</h2><div class="wk"><b>從 '+ip.items.length+' 樣裡挑 '+need+' 樣</b><span class="pill '+(open?'warn':'ok')+'">'+st+'</span></div>'+
-      (open&&ip.reopen?'<p class="pnote">'+esc(ip.reopen)+'</p>':'')+(open&&ip.deadline?'<p class="pnote">'+esc(slot(ip.deadline))+' 前沒挑，製作人會先用排前面的。標「試片用過」的是上一支試片放過的。</p>':'');
+      (open&&ip.reopen?'<p class="pnote">'+esc(ip.reopen)+'</p>':'')+(open&&ip.deadline?'<p class="pnote">'+esc(slot(ip.deadline))+' 前沒挑，製作人會先用排前面的。標「上一支用過」的是上一支已經放過的。</p>':'');
     h+='<div class="ip">'+ip.items.map(function(x){var on=x.id in sel;
       return '<button type="button" data-ip="'+esc(x.id)+'" class="'+(on?'on':'')+'" '+(open?'':'disabled')+' aria-pressed="'+on+'">'+
         (x.tag?'<span class="tg">'+esc(x.tag)+'</span>':'')+'<span class="tk">'+(on?'✓':'')+'</span>'+
