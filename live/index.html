@@ -779,7 +779,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
       h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝各平台觀看合計（YouTube 取公開數與後台數大的那個）；<b>同時間、開頭、看完</b>還是看 YouTube（會賺錢的平台）。<br><b>開頭</b>＝在 YouTube 滑到這支片的人，幾成停下來看（YouTube 還沒出來時用 IG 前 3 秒，標 (IG)）。<b>看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<b>YT 同時間</b>＝發布一樣久，YouTube 觀看比其他片多或少幾 %。<br>'+
         '<span class="up">▲</span><span class="dn">▼</span>＝比其他片的中間值高／低 5 點以上（同時間是 30%）；不到 6 支片都只供參考。<b>還在推／變慢／停了</b>：YouTube 最近還有沒有在送觀看；公開數常卡好幾小時，卡住時不判。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
     var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
-    return h+'<p class="note">版本 10-08c・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+    return h+'<p class="note">版本 10-08d・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
   /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
@@ -1071,6 +1071,9 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
       else if(k==='fb'&&mt.fb&&mt.fb.state)p={s:mt.fb.state==='published'||live?'published':'scheduled'};
       else if(sc[k]||((k==='ig'||k==='fb')&&sc.meta))p={s:live?'published':'scheduled'};
       else p={s:v.status==='published'&&k!=='th'?'published':'todo'};
+      /* 10-08d：片子已發布或時間已到 ⇒「已排程」一律算已發布；手動發的有 igDirectDone／threadsDone 就算已發布（手動） */
+      if(p.s==='scheduled'&&live)p=Object.assign({},p,{s:'published',at:p.at||v.slot});
+      if((k==='ig'&&v.igDirectDone)||(k==='th'&&v.threadsDone)){if(p.s!=='published')p=Object.assign({},p,{s:'published',how:'manual',at:p.at||v.slot});}
       if(lk&&!p.url)p=Object.assign({},p,{url:lk});
       o[k]=p;});
     return o;}
