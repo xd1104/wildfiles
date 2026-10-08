@@ -389,6 +389,17 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
 .vgrid.g5{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
 .vgrid.g5 .vcell{padding:8px 5px 7px}
 .vgrid.g5 .vcell .pv{font-size:18px}
+.vc details.cap summary{list-style:none;color:var(--muted)}
+.vc details.cap summary::-webkit-details-marker{display:none}
+.vc details.cap summary::before{content:"＋ "} .vc details.cap[open] summary::before{content:"－ "}
+/* 10-08e 品管：手動發標籤同一高度、已發布片名兩行內換行、挑好的商品價錢對齊、特價清單卡下方間距 */
+.vgrid .vcell{display:flex;flex-direction:column}
+.vgrid .vcell .manl{margin-top:auto;padding-top:2px}
+.row .rt div.rtt{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.45}
+.sched p.ipk{align-items:baseline}
+.sched p.ipk .nm{flex:1;min-width:0}
+.sched p.ipk .pr{flex:none;color:var(--accent);margin-left:8px;text-align:right;min-width:58px}
+.qlink{margin:0 0 8px}
 @media (prefers-reduced-motion:reduce){.toast,.detail{transition:none}.working i,.tl li.now .d::after{animation:none}}
 </style>
 </head>
@@ -565,7 +576,13 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
     var a=pendFor(cid,type,key,val);
     if(a){var k=type==='review'?(a.decision==='approved'?'approve':a.decision==='revise'?'revise':null):type;
       return k?{kind:k,sent:T(a.at),got:null,local:true,note:a.note||''}:null;}
-    var tr=obj&&obj.track;if(!tr||tr.undone)return null;
+    var tr=obj&&obj.track;
+    if(!tr&&obj){   /* 10-08e 備援（spec §0）：舊片沒有 track ⇒ 用電腦已收到的回條（status 已變、reviewedAt／pickedAt）補一條；收到時間取送出後下一個整 10 分 */
+      var s0=obj.status,at0=null,k0=null;
+      if(type==='review'&&(s0==='approved'||s0==='revise')&&obj.reviewedAt){k0=s0==='approved'?'approve':'revise';at0=T(obj.reviewedAt);}
+      else if((type==='pick'||type==='items')&&s0==='producing'&&!obj.startedAt&&obj.pickedAt&&obj.pickedBy!=='producer'){k0=type;at0=T(obj.pickedAt);}
+      if(k0&&at0)return {kind:k0,sent:at0,got:Math.min(nextRecv(at0),Date.now()),start:null,done:null,backfill:true};}
+    if(!tr||tr.undone)return null;
     var o={kind:tr.kind,sent:T(tr.sentAt),got:T(tr.gotAt),start:T(tr.startAt),done:T(tr.doneAt)},s=obj.status;
     if(!o.done){   /* 排程忘了寫結案時間：照舊欄位判斷（spec §0） */
       if(o.kind==='approve'&&(s==='scheduled'||s==='published'))o.done=true;
@@ -713,7 +730,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
         var yt=v.yt||{},yv=[yt.views,yt.studioViews].filter(function(x){return x!=null;});
         var views=e.views!=null?e.views:(yv.length?Math.max.apply(null,yv):null),tot=0,any=false;
         /* 10-08c：片卡大數字＝各平台觀看合計（YouTube 取公開數與後台數的大者；沒數字的平台不加） */
-        plats().forEach(function(k){var x=k==='yt'?views:(v[k]?v[k].views:null);if(x!=null){tot+=x;any=true;}});
+        plats().forEach(function(k){var x=k==='yt'?views:(v[k]?v[k].views:null);if(x!=null&&!bad[k]){tot+=x;any=true;}});   /* 10-08e：標「流程出錯」的平台不加進合計 */
         return {id:ep,no:e.no,title:e.title||'',slot:e.slot,E:e,v:v,bad:bad,views:views,total:any?tot:null,
           cm:(d.comments&&d.comments[ep])||{}};})
       .sort(function(a,b){return new Date(b.slot)-new Date(a.slot);});}
@@ -765,6 +782,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
     var isNew=(Date.now()-new Date(e.slot).getTime())/3600e3<24;
     /* 10-08c：片名下多一行各平台小字；Threads 還沒接數據前片卡不列 */
     var split=plats().filter(function(k){return k!=='th'||(e.v.th&&e.v.th.views!=null);}).map(function(k){var x=k==='yt'?e.views:(e.v[k]?e.v[k].views:null),P=PFN[k];
+      if(x!=null&&e.bad[k])return '<span class="off"><i style="background:var(--faint)"></i>'+P.s+' <s>'+fmt(x)+'</s> 不算</span>';
       return x!=null?'<span><i style="background:'+P.c+'"></i>'+P.s+' <b>'+fmt(x)+'</b></span>':'<span class="off"><i style="background:var(--faint)"></i>'+P.s+' —</span>';}).join('');
     return '<button class="vid" type="button" data-ep="'+esc(e.id)+'">'+
       '<span class="tt">'+(isNew?'<span class="new">新</span>':'')+'<span class="no">'+no2(e.no)+'</span>'+esc(cleanTitle(e.title))+'</span>'+
@@ -779,7 +797,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
       h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝各平台觀看合計（YouTube 取公開數與後台數大的那個）；<b>同時間、開頭、看完</b>還是看 YouTube（會賺錢的平台）。<br><b>開頭</b>＝在 YouTube 滑到這支片的人，幾成停下來看（YouTube 還沒出來時用 IG 前 3 秒，標 (IG)）。<b>看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<b>YT 同時間</b>＝發布一樣久，YouTube 觀看比其他片多或少幾 %。<br>'+
         '<span class="up">▲</span><span class="dn">▼</span>＝比其他片的中間值高／低 5 點以上（同時間是 30%）；不到 6 支片都只供參考。<b>還在推／變慢／停了</b>：YouTube 最近還有沒有在送觀看；公開數常卡好幾小時，卡住時不判。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
     var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
-    return h+'<p class="note">版本 10-08d・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+    return h+'<p class="note">版本 10-08e・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
   /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
@@ -854,12 +872,14 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
       var v=Math.max(0,Math.min(100,o.v));
       return '<div class="bar"><div class="l"><span>'+name+'</span><span>留住 <b class="n" style="font-size:16px">'+Math.round(o.v)+'%</b>'+(o.base!=null?'・平常 '+Math.round(o.base)+'%':'')+'</span></div><div class="tr"><i style="width:'+v+'%"></i>'+(o.base!=null?'<u style="left:calc('+Math.max(0,Math.min(100,o.base))+'% - 1px)"></u>':'')+'</div></div>';}
     return '<div class="bars">'+bar('YouTube',E.hookYt,ytOff)+bar('IG（前 3 秒）',E.hookIg,e.bad.ig?'流程出錯，不算':'播放太少')+'</div>';}
+  function badNote(e){var b=plats().filter(function(k){return e.bad[k]&&e.v[k];}).map(function(k){return PFN[k].s;});return b.length?'<small style="display:block;font-size:11px;color:var(--faint)">不含 '+b.join('、')+'（流程出錯）</small>':'';}
   /* 10-08c：格子數照這個頻道的平台數（計謀 5 格、縮寫）；上面一條合計；手動發的平台最下面寫「手動發」 */
   function grid(e){var hist=(S.stats&&S.stats.hist)||[],slotT=new Date(e.slot).getTime(),P=plats(),five=P.length>4;
     var wv=((S.work&&S.work.videos)||{})[e.id],pb=wv?pubOf(wv,e.id):{};
-    var man=function(k){return pb[k]&&pb[k].s==='published'&&pb[k].how==='manual'?'<div class="ps">手動發</div>':'';};
-    return '<div class="vsum"><span>合計觀看</span><span class="n">'+fmt(e.total)+'</span></div><div class="vgrid'+(five?' g5':'')+'">'+P.map(function(k){var x=e.v[k],bad=e.bad[k],c=PFN[k].c,nm=five?PFN[k].s:pname(k);
-      if(!x)return '<div class="vcell off"><div class="pn"><span class="sw" style="background:'+c+'"></span>'+nm+'</div><div class="pv n">—</div><div class="ps">'+(k==='th'?'沒數據':'沒有這支')+'</div>'+man(k)+'</div>';
+    var anyMan=P.some(function(k){return pb[k]&&pb[k].s==='published'&&pb[k].how==='manual';});
+    var man=function(k){return anyMan?'<div class="ps manl">'+(pb[k]&&pb[k].s==='published'&&pb[k].how==='manual'?'手動發':'&nbsp;')+'</div>':'';};
+    return '<div class="vsum"><span>合計觀看'+badNote(e)+'</span><span class="n">'+fmt(e.total)+'</span></div><div class="vgrid'+(five?' g5':'')+'">'+P.map(function(k){var x=e.v[k],bad=e.bad[k],c=PFN[k].c,nm=five?PFN[k].s:pname(k);
+      if(!x)return '<div class="vcell off"><div class="pn"><span class="sw" style="background:'+c+'"></span>'+nm+'</div><div class="pv n">—</div><div class="ps">'+(k==='th'?'沒數據':'沒有這支')+'</div>'+(k==='th'?'<div class="ps">API 還沒接</div>':'')+man(k)+'</div>';
       var s=k==='tt'?(five?'不提供':'官方不提供'):x.avgPct!=null?'看完 '+x.avgPct+'%':'&nbsp;';
       var sp=spark(hist,e.id,k,slotT,c),lb3=five?'3時 ':'近3時 ',grow=sp.d3==null?'&nbsp;':(sp.d3>0?'<span class="up">'+lb3+'+'+fmt(sp.d3)+'</span>':'<span class="stop">'+lb3+'停了</span>');
       return '<div class="vcell'+(bad?' badc':'')+'"><div class="pn"><span class="sw" style="background:'+c+'"></span>'+nm+'</div><div class="pv n">'+fmt(k==='yt'?e.views:x.views)+'</div>'+
@@ -932,8 +952,8 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
       var tr=trackOf(S.ch,ip,'items','pick',ip.id),openTr=tr&&!tr.done;
       var hh='<h2>挑商品・'+esc(ip.title||'')+'</h2><div class="wk"><b>挑好 '+picked.length+' 樣</b><span class="pill '+(openTr?'acc':'ok')+'">'+(openTr?'已送出':ip.pickedBy==='producer'?'沒挑，製作人代挑了':'已挑好・製作中')+'</span></div>';
       if(openTr)hh+=trackBox(tr,S.ch,null);
-      if(picked.length)hh+='<div class="sched" style="margin-top:10px">'+picked.map(function(x,i){return '<p><b>'+(i+1)+'</b><span>'+esc(x.name)+'　<span class="n" style="color:var(--accent)">$'+esc(x.price)+'</span></span></p>';}).join('')+'</div>';
-      if(rest.length)hh+='<details class="fold"><summary>沒挑的 '+rest.length+' 樣</summary>'+rest.map(function(x){return '<div class="dimrow">'+esc(x.name)+'<small>$'+esc(x.price)+'</small></div>';}).join('')+'</details>';
+      if(picked.length)hh+='<div class="sched" style="margin-top:10px">'+picked.map(function(x,i){return '<p class="ipk"><b>'+(i+1)+'</b><span class="nm">'+esc(x.name)+'</span><span class="n pr">$'+fmt(x.price)+'</span></p>';}).join('')+'</div>';
+      if(rest.length)hh+='<details class="fold"><summary>沒挑的 '+rest.length+' 樣</summary>'+rest.map(function(x){return '<div class="dimrow">'+esc(x.name)+'<small>$'+fmt(x.price)+'</small></div>';}).join('')+'</details>';
       return hh;}
     var n=Object.keys(sel).length,st=p?'已送出，等電腦收':open?'已選 '+n+' / '+need:ip.pickedBy==='producer'?'沒挑，製作人代挑了':'已挑好，製作中';
     var h='<h2>挑商品・'+esc(ip.title||'')+'</h2><div class="wk"><b>從 '+ip.items.length+' 樣裡挑 '+need+' 樣</b><span class="pill '+(open?'warn':'ok')+'">'+st+'</span></div>'+
@@ -1083,7 +1103,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
       if(p.s==='scheduled'&&sl&&now>=sl+MIN&&!p.why)p={s:'published',at:v.slot,how:p.how};   /* 平台自己排的，時間到就算發了 */
       if(p.s==='published'){var at=T(p.at)||sl;cl='pub';ps='已發布';pt=(p.how==='manual'?'手動 ':'')+(at?(dayNo(at)===dayNo(now)?hhmm(at):mdT(at)):'');}
       else if(p.s==='scheduled'){cl='sch';ps=p.why?(sl&&now>=sl?'發布中':'到點自動'):'已排程';pt=sl?(dayNo(sl)===dayNo(now)?hhmm(sl):mdT(sl)):'';}
-      else if(p.s==='manual'){var due=sl&&now>=sl;cl=due?'due':'man';ps=due?'該發了':'到點手動';pt=due?'製作人發中':sl?(dayNo(sl)===dayNo(now)?hhmm(sl):mdT(sl)):'';man.push(PFN[k].n+(p.why?'（'+p.why+'）':''));}
+      else if(p.s==='manual'){var due=sl&&now>=sl;cl=due?'due':'man';ps=due?'該發了':'到點手動';pt=due?'製作人發中':sl?(dayNo(sl)===dayNo(now)?hhmm(sl):mdT(sl)):'';man.push(PFN[k].n+(p.why?'（'+String(p.why).replace(/（/g,'・').replace(/[）)]/g,'').replace(/[(]/g,'・')+'）':''));}
       else if(p.s==='failed'){cl='bad';ps='沒發成功';}
       else{cl='none';ps='還沒排';pt=p.why?'處理中':'';}
       return '<div class="pubc '+cl+'"'+(p.why?' title="'+esc(p.why)+'"':'')+'><div class="pn"><i style="background:'+PFN[k].c+'"></i>'+(five?PFN[k].s:PFN[k].n)+'</div><div class="ps">'+ps+'</div><div class="pt">'+(pt?esc(pt):'&nbsp;')+'</div></div>';});
@@ -1166,7 +1186,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
     var L=plats().map(function(k){var p=pb[k],nm=PFN[k].n;
       if(p&&p.s==='published')return p.url?'<a href="'+esc(p.url)+'" target="_blank" rel="noopener">'+nm+'</a>':'<span>'+nm+'</span>';
       return '<span class="off">'+nm+' —</span>';}).join('');
-    return '<div class="row"><div class="rt"><div><span class="no">'+no2(v.no)+'</span>'+esc(cleanTitle(v.title))+'</div><small>'+esc(slot(v.slot))+'</small>'+(skip?'':'<div class="links">'+L+'</div>')+'</div>'+
+    return '<div class="row"><div class="rt"><div class="rtt"><span class="no">'+no2(v.no)+'</span>'+esc(cleanTitle(v.title))+'</div><small>'+esc(slot(v.slot))+'</small>'+(skip?'':'<div class="links">'+L+'</div>')+'</div>'+
       '<span class="pill'+(skip?'':' ok')+'">'+(skip?'沒發':'已發布')+'</span></div>';}
   function bindReview(){
     document.querySelectorAll('[data-play]').forEach(function(b){b.addEventListener('click',function(){play(b.dataset.play,b);});});
