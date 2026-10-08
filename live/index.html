@@ -286,7 +286,110 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
 .lock button:disabled{opacity:.5}
 .lock .msg{min-height:22px;margin-top:10px;font-size:14px;color:var(--bad)}
 .lock label{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:12px;font-size:13px;color:var(--muted)}
-@media (prefers-reduced-motion:reduce){.toast,.detail{transition:none}}
+/* ── 10-08c 改版（照 work/app-redesign/demo.html＋spec.md；Benson 10-08 試玩同意）：進度步驟、追蹤條、各平台發布狀態、修改意見、正在做 ── */
+:root{--th:#C9CDD2}
+.todo{margin-bottom:8px;line-height:1.45}
+.todo i{background:var(--muted)}
+.todo .tx{min-width:0;flex:1}
+.todo span.go{flex:none;white-space:nowrap}
+.working{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;border:1px solid rgba(255,210,63,.45);background:rgba(255,210,63,.06);margin-bottom:8px;font-size:14px;line-height:1.45}
+.working i{width:8px;height:8px;border-radius:50%;background:var(--accent);flex:none;animation:breathe 1.6s ease-in-out infinite}
+.working b{font-weight:700}
+.working span.w{color:var(--muted)}
+@keyframes breathe{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.7)}}
+.pill.acc{color:var(--accent);border-color:var(--accent)}
+.vid .split{grid-column:1/3;display:flex;flex-wrap:wrap;gap:2px 10px;font-size:12.5px;color:var(--muted);line-height:1.5}
+.vid .split span{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.vid .split i{width:6px;height:6px;border-radius:50%}
+.vid .split b{color:var(--text);font-family:var(--num);font-weight:600;font-size:13.5px}
+.vid .split .off{color:var(--faint)}
+.vc{background:var(--surface);border-radius:14px;padding:12px 14px 13px;margin-top:10px}
+.vc .hd{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.vc .hd b{font-size:15px;line-height:1.4;min-width:0}
+.vc .hd small{flex:none;font-size:12.5px;color:var(--accent);white-space:nowrap}
+.vc .sub{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px}
+.vc .sub .pnote{margin:0}
+.vc .player{aspect-ratio:9/16;max-height:52vh;width:100%;margin:10px auto 0;background:#000;border-radius:10px;display:grid;place-items:center;overflow:hidden}
+.vc video{width:100%;height:100%;object-fit:contain;display:block}
+.vc .qa{font-size:13px;color:var(--muted);margin:8px 2px 0;line-height:1.55}
+.vc details.cap{margin:8px 2px 0;font-size:13px;color:var(--muted)}
+.vc details.cap summary{cursor:pointer;color:var(--text)}
+.vc details.cap pre{white-space:pre-wrap;font-family:inherit;margin:8px 0 0}
+.btn.sm{padding:6px 12px;font-size:13px;font-weight:500}
+.stp{display:flex;gap:3px;margin-top:10px}
+.stp span{flex-basis:0;min-width:0;font-size:10.5px;text-align:center;color:var(--faint);padding-top:8px;position:relative;white-space:nowrap;overflow:hidden;letter-spacing:-.01em}
+.stp span::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;border-radius:2px;background:var(--line)}
+.stp span.done{color:var(--muted)} .stp span.done::before{background:var(--ok)}
+.stp span.doing{color:var(--text);font-weight:700} .stp span.doing::before{background:var(--accent)}
+.stp span.wait{color:var(--accent)} .stp span.wait::before{background:repeating-linear-gradient(90deg,var(--accent) 0 4px,transparent 4px 7px)}
+.trk{margin-top:10px;padding:10px 12px 8px;border-radius:10px;background:var(--ground);border:1px solid var(--line)}
+.trk .th{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12px;color:var(--muted);margin-bottom:4px}
+.tl{list-style:none;margin:0;padding:0}
+.tl li{display:grid;grid-template-columns:16px minmax(0,1fr) auto;column-gap:9px;align-items:start;font-size:13.5px;line-height:1.45;padding:3px 0 5px;position:relative}
+.tl li:not(:last-child)::after{content:"";position:absolute;left:7px;top:21px;bottom:-3px;width:2px;border-radius:1px;background:var(--line)}
+.tl li.ok:not(:last-child)::after{background:var(--ok)}
+.tl .d{width:16px;height:16px;border-radius:50%;margin-top:2px;border:2px solid var(--faint);display:grid;place-items:center;font-size:10px;font-weight:800;line-height:1}
+.tl li.ok .d{background:var(--ok);border-color:var(--ok);color:#06210f}
+.tl li.now .d{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,210,63,.16)}
+.tl li.now .d::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);animation:breathe 1.6s ease-in-out infinite}
+.tl li.tdo{color:var(--faint)}
+.tl .tm{font-family:var(--num);font-size:14px;color:var(--muted);white-space:nowrap;text-align:right}
+.tl li.now .tm{color:var(--accent);font-weight:700}
+.tl small{display:block;color:var(--muted);font-size:12px;line-height:1.45}
+.tl li.tdo small{color:var(--faint)}
+.pubg{display:grid;gap:4px;margin-top:10px}
+.pubc{background:var(--ground);border:1px solid var(--line);border-radius:9px;padding:6px 4px 5px;text-align:center;min-width:0}
+.pubc .pn{display:flex;align-items:center;justify-content:center;gap:4px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden}
+.pubc .pn i{width:6px;height:6px;border-radius:50%;flex:none}
+.pubc .ps{font-size:12px;font-weight:700;line-height:1.35;margin-top:2px;white-space:nowrap}
+.pubc .pt{font-family:var(--num);font-size:13px;color:var(--muted);line-height:1.3;white-space:nowrap}
+.pubc.pub .ps{color:var(--ok)} .pubc.sch .ps{color:var(--text)}
+.pubc.man{border-color:rgba(255,159,67,.55)} .pubc.man .ps,.pubc.due .ps{color:var(--warn)}
+.pubc.due{border-color:var(--warn);background:rgba(255,159,67,.08)}
+.pubc.none .ps{color:var(--faint);font-weight:500} .pubc.bad .ps{color:var(--bad)}
+.pubk{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5}
+.pubk b{color:var(--warn);font-weight:600}
+.chg{margin-top:10px;border-left:3px solid var(--accent);background:rgba(255,210,63,.06);border-radius:0 10px 10px 0;padding:8px 12px}
+.chg .ct{font-size:13px;font-weight:700;color:var(--accent)}
+.chg ul{margin:4px 0 0;padding-left:18px;font-size:14px;line-height:1.55}
+.chg li+li{margin-top:2px}
+.fbk{margin-top:10px}
+.fbk .ft{font-size:12px;color:var(--muted);margin-bottom:2px}
+.fbi{padding:8px 0;border-top:1px solid var(--line)}
+.fbi .fh{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.fbi .fh .pill{font-size:11px;padding:0 8px}
+.fbi p{margin:3px 0 0;font-size:14px;line-height:1.5;overflow-wrap:anywhere;white-space:pre-line}
+.fbi p.clip{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.fbi .rp{font-size:13px;color:var(--muted);margin-top:4px;padding-left:10px;border-left:2px solid var(--ok)}
+.fbi .rp b{color:var(--ok);font-weight:600}
+.row .rt{min-width:0}
+.row .rt div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.links{flex-wrap:wrap}
+.links span.off{color:var(--faint)}
+details.fold{margin-top:10px;border-top:1px solid var(--line)}
+details.fold>summary{cursor:pointer;list-style:none;padding:11px 2px;font-size:14px;color:var(--muted);display:flex;justify-content:space-between;gap:10px}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary::after{content:"－"}
+.wk{margin-top:8px}
+.pk{background:var(--surface);border-radius:12px;padding:11px 14px;margin-top:8px}
+.pk .pt{display:flex;gap:8px;align-items:baseline}
+.pk .pt b{font-size:15px;line-height:1.4;min-width:0}
+.pk .pt .no{flex:none}
+.pk .op{font-size:13px;color:var(--muted);margin-top:3px}
+.pk .op q{color:var(--text);quotes:"「" "」"}
+.pk details{margin-top:4px}
+.pk details>summary{cursor:pointer;list-style:none;font-size:12.5px;color:var(--muted);padding:4px 0}
+.pk details>summary::-webkit-details-marker{display:none}
+.pk details>summary::before{content:"＋ "} .pk details[open]>summary::before{content:"－ "}
+.pk details p{font-size:13px;color:var(--muted);margin:4px 0 0;line-height:1.6;overflow-wrap:anywhere}
+.dimrow{padding:9px 2px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+.dimrow small{display:block;font-size:12px;color:var(--faint)}
+.vsum{display:flex;justify-content:space-between;align-items:baseline;background:var(--surface);border-radius:10px;padding:9px 12px;margin-bottom:6px;font-size:13px;color:var(--muted)}
+.vsum .n{font-size:22px;color:var(--text)}
+.vgrid.g5{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.vgrid.g5 .vcell{padding:8px 5px 7px}
+.vgrid.g5 .vcell .pv{font-size:18px}
+@media (prefers-reduced-motion:reduce){.toast,.detail{transition:none}.working i,.tl li.now .d::after{animation:none}}
 </style>
 </head>
 <body>
@@ -295,7 +398,7 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
 <nav class="tabs" id="tabs" role="tablist" hidden><div class="wrap">
   <button class="tab" role="tab" data-v="data" type="button"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>數據</button>
   <button class="tab" role="tab" data-v="topics" type="button"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg><span class="badge" id="bTopics" hidden></span></span><span id="tTopics">選題</span></button>
-  <button class="tab" role="tab" data-v="review" type="button"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M17 10l4-2.5v9L17 14"/></svg><span class="badge" id="bReview" hidden></span></span>審片</button>
+  <button class="tab" role="tab" data-v="review" type="button"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M17 10l4-2.5v9L17 14"/></svg><span class="badge" id="bReview" hidden></span></span>進度</button>
 </div></nav>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="shTitle" hidden>
   <div class="sh-top"><button class="btn" id="shCancel" type="button">取消</button><b id="shTitle"></b><button class="btn primary" id="shSend" type="button">送出</button></div>
@@ -328,6 +431,8 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
   var LS = 'wfl.key.v1', LS_SHARED = 'tlmon.key.v1', LS_TAB = 'wfl.tab', LS_PEND = 'wfl.pending', LS_PICK = 'wfl.picks.';
   var MAGIC = new TextEncoder().encode('tlmon1');
   var PF = [{k:'yt',n:'YouTube',c:'var(--yt)'},{k:'tt',n:'TikTok',c:'var(--tt)'},{k:'ig',n:'Instagram',c:'var(--ig)'},{k:'fb',n:'Facebook',c:'var(--fb)'}];
+  /* 10-08c：顯示用的平台（含計謀的 Threads）；PF 只放有數據 API 的四個 */
+  var PFN={yt:{n:'YouTube',s:'YT',c:'var(--yt)'},tt:{n:'TikTok',s:'TT',c:'var(--tt)'},ig:{n:'IG',s:'IG',c:'var(--ig)'},fb:{n:'FB',s:'FB',c:'var(--fb)'},th:{n:'Threads',s:'Threads',c:'var(--th)'}};
   var $ = function (id) { return document.getElementById(id); };
   var LS_CH='wfl.ch',DEF='wildfiles';
   var S = { keys:null, stats:null, statsT:0, work:null, token:null, tokenState:'?', tab:'data', picks:{}, videoUrl:{}, busy:false, ch:DEF, chans:[], all:{} };
@@ -379,6 +484,8 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
       .then(function(){if(!S.all[S.ch])S.ch=DEF;useCh();});}
   function useCh(){var a=S.all[S.ch]||{};S.stats=a.stats||null;S.statsT=a.statsT||0;S.work=a.work||{videos:{}};}
   function chan(id){id=id||S.ch;return S.chans.filter(function(c){return c.id===id;})[0]||{id:id,name:id};}
+  /* 這個頻道發哪些平台（channels.json；計謀研究所多 Threads） */
+  function plats(id){var c=chan(id);return c.plats&&c.plats.length?c.plats:['yt','tt','ig','fb'].concat(c.threads?['th']:[]);}
   function setCh(id){if(!S.all[id]||id===S.ch)return;S.ch=id;lsSet(LS_CH,id);useCh();render();$('scroller').scrollTop=0;}
   /* 各頻道的 localStorage key：荒野檔案沿用舊 key（手機上已存的挑題草稿不會不見） */
   function ck(k){return S.ch===DEF?k:k+S.ch+':';}
@@ -409,7 +516,21 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
   function plus(n){return n==null?'':(n>0?'<span class="up">+'+fmt(n)+'</span>':n<0?fmt(n):'±0');}
   function ago(sec){sec=Math.max(0,Math.round(sec));if(sec<90)return '剛剛';if(sec<3600)return Math.round(sec/60)+' 分鐘前';var h=Math.floor(sec/3600);return h<48?h+' 小時前':Math.floor(h/24)+' 天前';}
   var WD='日一二三四五六';
-  function slot(iso){if(!iso)return '';var d=new Date(iso);return (d.getMonth()+1)+'/'+d.getDate()+'（'+WD[d.getDay()]+'）'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+  /* 10-08c：時間一律用台灣時間算（不管手機在哪個時區） */
+  var MIN=60e3,HR=3600e3,DAY=864e5,TZ=8*HR;
+  function T(x){return x==null||x===''?null:typeof x==='number'?x:new Date(x).getTime();}
+  function tw(t){return new Date(t+TZ);}
+  function p2(n){return String(n).padStart(2,'0');}
+  function hhmm(t){var d=tw(t);return p2(d.getUTCHours())+':'+p2(d.getUTCMinutes());}
+  function dayNo(t){return Math.floor((t+TZ)/DAY);}
+  function mdT(t){var d=tw(t);return (d.getUTCMonth()+1)+'/'+d.getUTCDate();}
+  function mdw(t){return mdT(t)+'（'+WD[tw(t).getUTCDay()]+'）';}
+  /* 相對今天：今天只寫時間、明天寫「明天」、其他寫日期 */
+  function when(t){var dd=dayNo(t)-dayNo(Date.now());return (dd===0?'':dd===1?'明天 ':dd===-1?'昨天 ':mdw(t))+hhmm(t);}
+  /* 電腦每 10 分鐘收一次手機按的（live_stats，:00 :10 :20…，全天）；製作排程 09:00～23:30 每 30 分鐘醒來，23:30 後等隔天 09:00 */
+  function nextRecv(t){return Math.floor(t/(10*MIN))*10*MIN+10*MIN;}
+  function nextRun(t){var s=Math.ceil(t/(30*MIN))*30*MIN;if(tw(s).getUTCHours()<9)s=dayNo(s)*DAY-TZ+9*HR;return s;}
+  function slot(iso){if(!iso)return '';var t=T(iso);return mdw(t)+hhmm(t);}
   function toast(t){var el=$('toast');el.textContent=t;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(function(){el.classList.remove('on');},2600);}
   function no2(n){return '#'+String(n).padStart(2,'0');}
 
@@ -437,16 +558,60 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
     return !!(w&&w.status==='picking'&&!pending(1).some(function(a){return (a.ch||DEF)===cid&&a.type==='pick'&&a.week===w.id;}));}
   function reviewList(cid){cid=cid||S.ch;var wk=S.all[cid]&&S.all[cid].work,v=(wk&&wk.videos)||{},p=pending(1);
     return Object.keys(v).filter(function(e){return v[e].status==='review'&&!p.some(function(a){return (a.ch||DEF)===cid&&a.type==='review'&&a.ep===e;});});}
+  /* ── 10-08c 追蹤條：你送出 → 電腦收到 → 預計開始 → 處理中 → 結果（spec §10） ──
+     來源：電腦收到後寫在狀態裡的 track（work.py apply()）；還沒收到的用手機自己記的 pending 動作。舊狀態沒有 track 就不畫。 */
+  function pendFor(cid,type,key,val){return pending(1).filter(function(a){return (a.ch||DEF)===cid&&a.type===type&&a[key]===val;})[0];}
+  function trackOf(cid,obj,type,key,val){
+    var a=pendFor(cid,type,key,val);
+    if(a){var k=type==='review'?(a.decision==='approved'?'approve':a.decision==='revise'?'revise':null):type;
+      return k?{kind:k,sent:T(a.at),got:null,local:true,note:a.note||''}:null;}
+    var tr=obj&&obj.track;if(!tr||tr.undone)return null;
+    var o={kind:tr.kind,sent:T(tr.sentAt),got:T(tr.gotAt),start:T(tr.startAt),done:T(tr.doneAt)},s=obj.status;
+    if(!o.done){   /* 排程忘了寫結案時間：照舊欄位判斷（spec §0） */
+      if(o.kind==='approve'&&(s==='scheduled'||s==='published'))o.done=true;
+      else if(o.kind==='approve'&&s==='review')return null;
+      else if(o.kind==='revise'&&(s==='scheduled'||s==='published'||s==='approved'||(s==='review'&&obj.preview&&obj.preview.v*1000>=(o.got||o.sent))))o.done=true;
+      else if((o.kind==='pick'||o.kind==='items')&&obj.startedAt&&s!=='picking')o.done=T(obj.startedAt);}
+    return o;}
+  function lockOf(cid){var w=(S.all[cid]||{}).work||{},l=T(w.lockUntil);return l&&l>Date.now()?l:0;}
+  /* 預計開始＝max(送出, 鎖到期) 之後的下一班；那班過了 5 分鐘還沒開始 ⇒ 改成下一班、標「排程晚了」；頻道被鎖 ⇒ 不寫時間 */
+  function tline(tr,cid){var now=Date.now(),w=(S.all[cid]||{}).work||{},lu=T(w.lockUntil)||0;
+    var start=tr.start||nextRun(lu>tr.sent?lu:tr.sent),late=false,locked=!tr.start&&lu>now;
+    if(!tr.start&&!locked&&now>start+5*MIN){start=nextRun(now);late=true;}
+    return {got:tr.got||nextRecv(tr.sent),gotOk:!!tr.got,start:start,started:!!tr.start,late:late,locked:locked};}
+  function short(t){return String(t||'').replace(/\s*[\u{1F300}-\u{1FAFF}☀-➿][‍️⬛]*.*$/u,'').replace(/[，｜：？].*$/,'').slice(0,10);}
+  function cleanTitle(t){return String(t||'').replace(/\s*[\u{1F300}-\u{1FAFF}☀-➿][‍️⬛\u{1F300}-\u{1FAFF}]*\s*$/u,'');}
+  var PHASE={script:'照你的意見改稿',voice:'重新配音剪輯',qa:'品管',make:'重新出片'};
+  function phaseName(tr,v){return tr.kind==='revise'?(PHASE[v&&v.stage]||'照你的意見修改'):tr.kind==='approve'?'排程上架':tr.kind==='items'?'開工：出片':'開工';}
+  /* 正在做（spec §2）：頻道被鎖＝製作人手動處理中；或排程正在處理某支片 */
+  function workingOf(cid){var w=(S.all[cid]||{}).work||{},V=w.videos||{};
+    if(lockOf(cid)){var wk=w.working,x=wk&&wk.ep&&V[wk.ep];
+      if(!wk)return {label:'',what:'',any:true};
+      return {label:x?no2(x.no)+' '+short(x.title):wk.ep==='week'?'本週題目':wk.ep==='items'?'挑好的商品':'',what:wk.what||''};}
+    var out=null;
+    Object.keys(V).forEach(function(e){var t=trackOf(cid,V[e],'review','ep',e);if(t&&t.start&&!t.done)out={label:no2(V[e].no)+' '+short(V[e].title),what:phaseName(t,V[e])};});
+    if(!out&&w.week){var t2=trackOf(cid,w.week,'pick','week',w.week.id);if(t2&&t2.start&&!t2.done)out={label:'本週題目',what:'開工'};}
+    if(!out&&w.itemPick){var t3=trackOf(cid,w.itemPick,'items','pick',w.itemPick.id);if(t3&&t3.start&&!t3.done)out={label:'挑好的商品',what:'開工：出片'};}
+    return out;}
+  function workingTxt(cid){var w=(S.all[cid]||{}).work||{},wk=w.working,V=w.videos||{},x=wk&&wk.ep&&V[wk.ep];
+    return '製作人正在處理'+(x?' '+no2(x.no)+(wk.what?' 的'+wk.what:''):wk&&wk.what?'「'+wk.what+'」':'別的事')+'，弄完就輪到這支';}
+  /* 上方的條（spec §5）：黃＝要你做的事；灰＝你送出、還沒開始處理的；最後是「正在做」 */
   function todo(){
-    var ni=needItems(),np=needPick()||ni,nr=reviewList().length,w=S.work&&S.work.week,ip=S.work&&S.work.itemPick,txt,go='',v='',hot=false;
+    var ni=needItems(),np=needPick(),rv=reviewList(),w=S.work&&S.work.week,ip=S.work&&S.work.itemPick,V=(S.work&&S.work.videos)||{},cid=S.ch,bars=[];
     $('tTopics').textContent=chan().schedule?'日程':'選題';   /* 10-07i：買了啦沒有選題，這格改放發片日程 */
-    $('bTopics').hidden=!np;$('bTopics').textContent=np?'!':'';$('bReview').hidden=!nr;$('bReview').textContent=nr||'';   /* 徽章要在「沒事 return」之前更新（10-07f 品管：切頻道徽章沒換） */
-    if(ni){txt=(ip.title||'下一支')+'：挑 '+(ip.need||10)+' 樣商品'+(ip.deadline?'（'+slot(ip.deadline)+' 前，沒挑就代挑）':'');go='去挑 ›';v='topics';hot=true;}
-    else if(np){txt='本週題目等你挑 '+(w.pickCount||3)+' 個'+(w.deadline?'（'+slot(w.deadline)+' 前，沒選就代挑）':'');go='去挑 ›';v='topics';hot=true;}
-    else if(nr){txt='有 '+nr+' 支片等你看，說「好」才會排程';go='去看 ›';v='review';hot=true;}
-    else if(pending().length)txt='你送出的 '+pending().length+' 個動作，電腦最慢 10 分鐘內收';
-    else return '';   /* 10-07f：沒事不顯示（Benson 嫌亂） */
-    return '<button class="todo'+(hot?' hot':'')+'" id="todo" type="button" data-v="'+v+'"><i></i><span>'+esc(txt)+'</span><span class="go">'+go+'</span></button>';
+    $('bTopics').hidden=!(np||ni);$('bTopics').textContent=(np||ni)?'!':'';$('bReview').hidden=!rv.length;$('bReview').textContent=rv.length||'';   /* 徽章要在「沒事 return」之前更新（10-07f 品管：切頻道徽章沒換） */
+    if(ni)bars.push({hot:1,t:(ip.title||'下一支')+'：挑 '+(ip.need||10)+' 樣商品'+(ip.deadline?'（'+slot(ip.deadline)+' 前，沒挑就代挑）':''),go:'去挑',v:'topics'});
+    if(np)bars.push({hot:1,t:'本週題目等你挑 '+(w.pickCount||3)+' 個'+(w.deadline?'（'+slot(w.deadline)+' 前，沒選就代挑）':''),go:'去挑',v:'topics'});
+    if(rv.length)bars.push({hot:1,t:rv.length===1?no2(V[rv[0]].no)+' '+short(V[rv[0]].title)+' 等你看，說「好」才會排程':'有 '+rv.length+' 支片等你看，說「好」才會排程',go:'去看',v:'review'});
+    var wt=function(L,vb){return L.locked?'等製作人忙完':'預計 '+when(L.start)+' '+vb+(L.late?'（排程晚了）':'');};
+    if(w){var tw1=trackOf(cid,w,'pick','week',w.id);if(tw1&&!tw1.done&&!tw1.start){var L1=tline(tw1,cid);bars.push({t:'你挑的題目：'+wt(L1,'開工'),go:'看進度',v:'topics'});}}
+    if(ip){var ti=trackOf(cid,ip,'items','pick',ip.id);if(ti&&!ti.done&&!ti.start){var L2=tline(ti,cid);bars.push({t:'挑好的商品：'+wt(L2,'開工'),go:'看進度',v:'topics'});}}
+    Object.keys(V).sort(function(a,b){return (V[a].no||0)-(V[b].no||0);}).forEach(function(e){var t=trackOf(cid,V[e],'review','ep',e);
+      if(t&&!t.done&&!t.start){var L=tline(t,cid);bars.push({t:'你送出的'+(t.kind==='revise'?'修改':'「好」')+' '+no2(V[e].no)+'：'+wt(L,'開始'),go:'看進度',v:'review'});}});
+    var h=bars.map(function(b){return '<button class="todo'+(b.hot?' hot':'')+'" type="button" data-v="'+b.v+'"><i></i><span class="tx">'+esc(b.t)+'</span><span class="go">'+b.go+' ›</span></button>';}).join('');
+    var wk=workingOf(cid);
+    if(wk)h+='<div class="working" role="status"><i></i><span>'+(wk.any?'製作人正在處理這個頻道':'製作人正在處理'+(wk.label?' <b>'+esc(wk.label)+'</b>':'')+(wk.what?'<span class="w">・'+esc(wk.what)+'</span>':''))+'</span></div>';
+    return h;   /* 10-07f：沒事不顯示（Benson 嫌亂） */
   }
   /* 各頻道頭像（10-07：買了啦＝B2、計謀研究所＝A3；沒列的用頻道名第一個字） */
   var AVATAR={wildfiles:'../avatar.jpg',puff:'../avatar-puff.png',scheme:'../avatar-scheme.png'};
@@ -460,7 +625,7 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
     return L.map(function(x){return '<a class="qlink" href="'+esc(x.u)+'" target="_blank" rel="noopener"><span><b>'+esc(x.t)+'</b>'+(x.sub?'<small>'+esc(x.sub)+'</small>':'')+'</span><i aria-hidden="true">›</i></a>';}).join('');}
   /* 頻道切換（10-05c）：兩個以上頻道才出現；別的頻道有事要處理時亮橘點 */
   function chips(){if(S.chans.length<2)return '';
-    return '<div class="chs" role="group" aria-label="切換頻道">'+S.chans.map(function(c){var hot=c.id!==S.ch&&(needPick(c.id)||reviewList(c.id).length);
+    return '<div class="chs" role="group" aria-label="切換頻道">'+S.chans.map(function(c){var hot=c.id!==S.ch&&(needPick(c.id)||needItems(c.id)||reviewList(c.id).length);
       return '<button class="chip" type="button" data-ch="'+esc(c.id)+'" aria-pressed="'+(c.id===S.ch)+'">'+(hot?'<i class="dot" aria-label="有事要處理"></i>':'')+esc(c.name)+(c.active===false?' <small>籌備中</small>':'')+'</button>';}).join('')+'</div>';}
 
   /* ── 手機提醒（10-05）：題目出來了、有片可以審時，電腦的 work.py 推 Web Push 過來 ──
@@ -496,7 +661,7 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
     if(S.tab==='topics')h+=topicsView();else if(S.tab==='review')h+=reviewView();else h+=dataView();
     $('app').innerHTML=h;
     $('re').addEventListener('click',function(){refresh(true);});
-    var td=$('todo');if(td)td.addEventListener('click',function(){if(td.dataset.v)setTab(td.dataset.v);});
+    document.querySelectorAll('.todo[data-v]').forEach(function(td){td.addEventListener('click',function(){if(td.dataset.v)setTab(td.dataset.v);});});
     document.querySelectorAll('.chip[data-ch]').forEach(function(b){b.addEventListener('click',function(){setCh(b.dataset.ch);});});
     if(S.tab==='topics'){bindTopics();bindItems();}if(S.tab==='review')bindReview();
     pickBar();
@@ -546,7 +711,10 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
       .map(function(ep){var e=E[ep],v=by[ep],bad={};((e.badWatch)||[]).forEach(function(k){bad[k]=1;});
         PF.forEach(function(p){if(v[p.k]&&v[p.k].badWatch)bad[p.k]=1;});
         var yt=v.yt||{},yv=[yt.views,yt.studioViews].filter(function(x){return x!=null;});
-        return {id:ep,no:e.no,title:e.title||'',slot:e.slot,E:e,v:v,bad:bad,views:e.views!=null?e.views:(yv.length?Math.max.apply(null,yv):null),
+        var views=e.views!=null?e.views:(yv.length?Math.max.apply(null,yv):null),tot=0,any=false;
+        /* 10-08c：片卡大數字＝各平台觀看合計（YouTube 取公開數與後台數的大者；沒數字的平台不加） */
+        plats().forEach(function(k){var x=k==='yt'?views:(v[k]?v[k].views:null);if(x!=null){tot+=x;any=true;}});
+        return {id:ep,no:e.no,title:e.title||'',slot:e.slot,E:e,v:v,bad:bad,views:views,total:any?tot:null,
           cm:(d.comments&&d.comments[ep])||{}};})
       .sort(function(a,b){return new Date(b.slot)-new Date(a.slot);});}
   function cmCount(e){var n=0;for(var k in e.cm)n+=(e.cm[k]||[]).length;return n;}
@@ -560,30 +728,32 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
     var y=d.platforms.yt||{};if(y.ytaErr&&(!y.ytaAt||Date.now()-new Date(y.ytaAt).getTime()>36*3600e3))a.push('YouTube 分析讀不到（可能要重新授權）');
     return h+(a.length?'<div class="alert">⚠ '+a.map(esc).join('；')+'</div>':'');}
   function sameTxt(sa){if(!sa||!sa.n||sa.ratio==null||(sa.views||0)<50||(sa.med||0)<30)return '';
-    var p=Math.round((sa.ratio-1)*100);return '同時間 <b>'+(p>0?'+':'')+p+'%</b>'+(p>=30?' <span class="up">▲</span>':p<=-30?' <span class="dn">▼</span>':'');}
+    var p=Math.round((sa.ratio-1)*100);return 'YT 同時間 <b>'+(p>0?'+':'')+p+'%</b>'+(p>=30?' <span class="up">▲</span>':p<=-30?' <span class="dn">▼</span>':'');}
   function dataView(){
     if(!S.stats)return '<div class="empty">'+esc(chan().name)+' 還沒有數據。<br>開好帳號、接上各平台後，電腦每 10 分鐘會自動更新。</div>'+moreBox(null);
     var d=S.stats,eps=epList(d),few=eps.length<6;
     var h=summary(d,eps)+'<h2 class="sh">每支片'+(eps.length&&few?'<span class="pill warn">樣本少</span>':'')+'</h2>';
     h+=eps.length?eps.map(vcard).join(''):'<div class="empty">還沒有發出去的片。<br>第一支發布後約 10 分鐘，這裡就會出現。</div>';
     var lost=0;PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok)(x.videos||[]).forEach(function(v){if(!v.ep)lost++;});});
+    if(eps.length)h+='<p class="note">大數字＝各平台觀看合計；下面一行是各平台。「同時間、開頭、看完」還是看 YouTube（會賺錢的平台）。</p>';
     if(lost)h+='<p class="note">另有 '+lost+' 支片還沒對上集數。</p>';
     return h+moreBox(d);
   }
-  /* 一行摘要：第 N／12 支・最高 X・訂閱 Y／1,000；點開才看營利一句（有效觀看有值才畫進度條） */
+  /* 一行摘要（10-08c 三頻道統一）：已發 N 支・最高 X（各平台合計）・訂閱 Y／1,000；實驗檢查點搬進點開後 */
   function summary(d,eps){
-    var X=d.experiment||{},n=X.n!=null?X.n:eps.length,best=null,y=d.platforms.yt||{},subs=y.subscribers!=null?y.subscribers:y.followers;
-    eps.forEach(function(e){if(e.views!=null&&(best==null||e.views>best))best=e.views;});
-    var t=(X.total?'第 <b>'+n+'</b>／'+X.total+' 支':'已發 <b>'+n+'</b> 支')+(best!=null?'・最高 <b>'+fmt(best)+'</b>':'')+(y.ok?'・訂閱 <b>'+fmt(subs)+'</b>／1,000':'');
+    var X=d.experiment||{},n=eps.length,best=null,y=d.platforms.yt||{},subs=y.subscribers!=null?y.subscribers:y.followers;
+    eps.forEach(function(e){if(e.total!=null&&(!best||e.total>best.total))best=e;});
+    var t='已發 <b>'+n+'</b> 支'+(best?'・最高 <b>'+fmt(best.total)+'</b>':'')+(y.ok?'・訂閱 <b>'+fmt(subs)+'</b>／1,000':'');
     var h='<button class="sum" id="sum" type="button" aria-expanded="'+!!S.sumOpen+'"><span class="t">'+t+'</span><em aria-hidden="true">›</em></button>';
     if(!S.sumOpen)return h;
+    h+='<div class="sumx">'+(best?'最高是 <b>'+no2(best.no)+'</b>（各平台合計）。':'')+(X.total?'實驗檢查點：第 <b>'+(X.n!=null?X.n:n)+'</b>／'+X.total+' 支'+(X.target?'，目標任一支破 '+(X.target>=1e4?fmt(X.target/1e4)+' 萬':fmt(X.target)):'')+'。':'')+'訂閱＝YouTube 訂閱（營利門檻 1,000）。</div>';
     var e=y.engagedViews90d,pw=((chan().rhythm||{}).per_week)||3,per=Math.round(2e7/(pw*90/7)/1e4),bar='';
     if(e!=null){var ms=[[1e4,'1 萬'],[1e5,'10 萬'],[1e6,'100 萬'],[1e7,'1000 萬'],[2e7,'2000 萬']],prev=0,done=false;
       bar='<div class="mile" aria-hidden="true">'+ms.map(function(m){var cls='',st='';if(e>=m[0])cls='done';else if(!done){done=true;cls='doing';st=' style="--p:'+Math.max(2,(e-prev)/(m[0]-prev)*100).toFixed(1)+'%"';}
         prev=m[0];return '<span class="'+cls+'"'+st+'>'+m[1]+'</span>';}).join('')+'</div>';}
     var thr=y.ytaThrough?'（資料到 '+esc(md(y.ytaThrough))+'，YouTube 報表慢 2～3 天）':'';
     return h+'<div class="sumx">營利進度：'+(e!=null?'有效觀看（近 90 天）<b>'+fmt(e)+'</b>／2,000 萬'+thr+bar:y.ytaAt?'已接上 YouTube 授權，<b>報表還沒有資料</b>（新頻道要等 2～3 天）。':'<b>還沒接上 YouTube 授權</b>，接上後這裡會出現進度條。')+
-      '<br>照一週 '+pw+' 支算，每支平均要約 '+per+' 萬有效觀看才達標，重點是找出「哪一支開始爆」。'+(X.target?'<br>實驗目標：任一支破 '+(X.target>=1e4?fmt(X.target/1e4)+' 萬':fmt(X.target))+'。':'')+'</div>';}
+      '<br>照一週 '+pw+' 支算，每支平均要約 '+per+' 萬有效觀看才達標，重點是找出「哪一支開始爆」。'+(X.target&&!X.total?'<br>實驗目標：任一支破 '+(X.target>=1e4?fmt(X.target/1e4)+' 萬':fmt(X.target))+'。':'')+'</div>';}
   /* 片卡三行：①（新）#NN 片名＋YouTube 觀看 › ② 一句結論 ③ 小字：同時間・開頭・看完・推不推（沒資料就省略） */
   function vcard(e){
     var E=e.E,V=E.verdict,hk=E.hook,w=E.watch,ps=E.push||{},bits=[];
@@ -593,19 +763,23 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
     var lb=ps.label||(ps.on===true?'還在推':ps.on===false?'停了':'');
     if(lb==='還在推')bits.push('<span class="up">還在推</span>');else if(lb==='變慢')bits.push('<span class="sl">變慢</span>');else if(lb==='停了')bits.push('停了');
     var isNew=(Date.now()-new Date(e.slot).getTime())/3600e3<24;
+    /* 10-08c：片名下多一行各平台小字；Threads 還沒接數據前片卡不列 */
+    var split=plats().filter(function(k){return k!=='th'||(e.v.th&&e.v.th.views!=null);}).map(function(k){var x=k==='yt'?e.views:(e.v[k]?e.v[k].views:null),P=PFN[k];
+      return x!=null?'<span><i style="background:'+P.c+'"></i>'+P.s+' <b>'+fmt(x)+'</b></span>':'<span class="off"><i style="background:var(--faint)"></i>'+P.s+' —</span>';}).join('');
     return '<button class="vid" type="button" data-ep="'+esc(e.id)+'">'+
-      '<span class="tt">'+(isNew?'<span class="new">新</span>':'')+'<span class="no">'+no2(e.no)+'</span>'+esc(e.title)+'</span>'+
-      '<span class="vw"><span class="n">'+fmt(e.views)+'</span><em aria-hidden="true">›</em></span>'+
+      '<span class="tt">'+(isNew?'<span class="new">新</span>':'')+'<span class="no">'+no2(e.no)+'</span>'+esc(cleanTitle(e.title))+'</span>'+
+      '<span class="vw"><span class="n">'+fmt(e.total)+'</span><em aria-hidden="true">›</em></span>'+
+      '<span class="split">'+split+'</span>'+
       (V?'<span class="vd '+esc(V.tone)+'"><i></i><span>'+esc(V.t)+'</span></span>':'')+
       (bits.length?'<span class="ms">'+bits.join('・')+'</span>':'')+'</button>';}
-  /* 最底下「更多」：每小時觀看、四平台合計、怎麼看、手機提醒（提醒卡不放上面了，沒開過的人從這裡開） */
+  /* 最底下「更多」：每小時觀看、各平台合計、怎麼看、手機提醒（提醒卡不放上面了，沒開過的人從這裡開） */
   function moreBox(d){
-    var h='<details class="more" id="more"'+(S.moreOpen?' open':'')+'><summary>更多：每小時觀看、四平台合計、怎麼看'+(pushOn()?'':'、手機提醒')+'</summary>';
-    if(d){h+='<div class="mh">最近 3 天每小時新增觀看</div>'+chart(d.hist||[])+'<div class="mh">四平台合計（各平台算法不同，只看大概）</div>'+totals(d);
-      h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝YouTube 觀看（公開數與後台數取大的；會賺錢的平台）。<br><b>開頭</b>＝在 YouTube 滑到這支片的人，幾成停下來看（YouTube 還沒出來時用 IG 前 3 秒，標 (IG)）。<b>看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<b>同時間</b>＝發布一樣久，比其他片多或少幾 %。<br>'+
+    var h='<details class="more" id="more"'+(S.moreOpen?' open':'')+'><summary>更多：每小時觀看、各平台合計、怎麼看'+(pushOn()?'':'、手機提醒')+'</summary>';
+    if(d){h+='<div class="mh">最近 3 天每小時新增觀看</div>'+chart(d.hist||[])+'<div class="mh">各平台合計（各平台算法不同，只看大概）</div>'+totals(d);
+      h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝各平台觀看合計（YouTube 取公開數與後台數大的那個）；<b>同時間、開頭、看完</b>還是看 YouTube（會賺錢的平台）。<br><b>開頭</b>＝在 YouTube 滑到這支片的人，幾成停下來看（YouTube 還沒出來時用 IG 前 3 秒，標 (IG)）。<b>看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<b>YT 同時間</b>＝發布一樣久，YouTube 觀看比其他片多或少幾 %。<br>'+
         '<span class="up">▲</span><span class="dn">▼</span>＝比其他片的中間值高／低 5 點以上（同時間是 30%）；不到 6 支片都只供參考。<b>還在推／變慢／停了</b>：YouTube 最近還有沒有在送觀看；公開數常卡好幾小時，卡住時不判。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
     var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
-    return h+'<p class="note">版本 10-08b・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+    return h+'<p class="note">版本 10-08c・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
   /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
@@ -680,13 +854,16 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
       var v=Math.max(0,Math.min(100,o.v));
       return '<div class="bar"><div class="l"><span>'+name+'</span><span>留住 <b class="n" style="font-size:16px">'+Math.round(o.v)+'%</b>'+(o.base!=null?'・平常 '+Math.round(o.base)+'%':'')+'</span></div><div class="tr"><i style="width:'+v+'%"></i>'+(o.base!=null?'<u style="left:calc('+Math.max(0,Math.min(100,o.base))+'% - 1px)"></u>':'')+'</div></div>';}
     return '<div class="bars">'+bar('YouTube',E.hookYt,ytOff)+bar('IG（前 3 秒）',E.hookIg,e.bad.ig?'流程出錯，不算':'播放太少')+'</div>';}
-  function grid(e){var hist=(S.stats&&S.stats.hist)||[],slotT=new Date(e.slot).getTime();
-    return '<div class="vgrid">'+PF.map(function(p){var x=e.v[p.k],bad=e.bad[p.k];
-      if(!x)return '<div class="vcell off"><div class="pn"><span class="sw" style="background:'+p.c+'"></span>'+pname(p.k)+'</div><div class="pv n">—</div><div class="ps">沒有這支</div></div>';
-      var s=p.k==='tt'?'官方不提供':x.avgPct!=null?'看完 '+x.avgPct+'%':'&nbsp;';
-      var sp=spark(hist,e.id,p.k,slotT,p.c),grow=sp.d3==null?'&nbsp;':(sp.d3>0?'<span class="up">近3時 +'+fmt(sp.d3)+'</span>':'<span class="stop">近3時 停了</span>');
-      return '<div class="vcell'+(bad?' badc':'')+'"><div class="pn"><span class="sw" style="background:'+p.c+'"></span>'+pname(p.k)+'</div><div class="pv n">'+fmt(p.k==='yt'?e.views:x.views)+'</div>'+
-        (bad?'<div class="warnt">流程出錯<br>不算</div>':'<div class="ps">'+s+'</div>'+sp.svg+'<div class="ps g">'+grow+'</div>')+'</div>';}).join('')+'</div>';}
+  /* 10-08c：格子數照這個頻道的平台數（計謀 5 格、縮寫）；上面一條合計；手動發的平台最下面寫「手動發」 */
+  function grid(e){var hist=(S.stats&&S.stats.hist)||[],slotT=new Date(e.slot).getTime(),P=plats(),five=P.length>4;
+    var wv=((S.work&&S.work.videos)||{})[e.id],pb=wv?pubOf(wv,e.id):{};
+    var man=function(k){return pb[k]&&pb[k].s==='published'&&pb[k].how==='manual'?'<div class="ps">手動發</div>':'';};
+    return '<div class="vsum"><span>合計觀看</span><span class="n">'+fmt(e.total)+'</span></div><div class="vgrid'+(five?' g5':'')+'">'+P.map(function(k){var x=e.v[k],bad=e.bad[k],c=PFN[k].c,nm=five?PFN[k].s:pname(k);
+      if(!x)return '<div class="vcell off"><div class="pn"><span class="sw" style="background:'+c+'"></span>'+nm+'</div><div class="pv n">—</div><div class="ps">'+(k==='th'?'沒數據':'沒有這支')+'</div>'+man(k)+'</div>';
+      var s=k==='tt'?(five?'不提供':'官方不提供'):x.avgPct!=null?'看完 '+x.avgPct+'%':'&nbsp;';
+      var sp=spark(hist,e.id,k,slotT,c),lb3=five?'3時 ':'近3時 ',grow=sp.d3==null?'&nbsp;':(sp.d3>0?'<span class="up">'+lb3+'+'+fmt(sp.d3)+'</span>':'<span class="stop">'+lb3+'停了</span>');
+      return '<div class="vcell'+(bad?' badc':'')+'"><div class="pn"><span class="sw" style="background:'+c+'"></span>'+nm+'</div><div class="pv n">'+fmt(k==='yt'?e.views:x.views)+'</div>'+
+        (bad?'<div class="warnt">流程出錯<br>不算</div>':'<div class="ps">'+s+'</div>'+sp.svg+'<div class="ps g">'+grow+'</div>')+man(k)+'</div>';}).join('')+'</div>';}
   function comments(e){
     var all=[];['yt','ig','fb'].forEach(function(k){(e.cm[k]||[]).forEach(function(c){all.push(c);});});
     var cnt={all:all.length};['yt','ig','fb'].forEach(function(k){cnt[k]=(e.cm[k]||[]).length;});
@@ -704,7 +881,7 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
     var ya=e.v.yt||{},apx=ya.ytaEngagedPct!=null?'<br>YouTube 報表沒有一模一樣的數字；近似值（有效觀看÷觀看）＝'+ya.ytaEngagedPct+'%，跟後台對照中，先不拿來比。':'';
     h+='<div class="dh"><span>開頭 3 秒留住幾成</span>'+qb('q1','滑到這支片的人，有幾成停下來看（沒滑走）。YouTube 這條是後台的「選擇看下去」，每天早上讀一次。白線＝其他片的中間值。'+apx+(V&&V.conf?'<br>'+esc(V.conf):''))+'<div class="dcard">'+hookBars(e)+'</div>';
     h+='<div class="dh"><span>整支片哪裡跑掉</span>'+qb('q2','YouTube 每一秒還剩幾 % 的人（YouTube 報表，慢 2～3 天）。超過 100% 是有人重播，畫到 100 為止。虛線＝其他片同一秒的中間值。FB 的曲線放在下面當輔助：FB 第 3 秒幾乎都還有 9 成以上，開頭好壞看上面那塊。')+'<div class="dcard">'+retView(e,epList(S.stats))+'</div>';
-    h+='<div class="dh"><span>四平台</span>'+qb('q3','觀看、平均看完幾成、最近 3 小時有沒有在漲。YouTube 觀看是公開數與後台數取大的；YouTube 看完 % 來自 YouTube 報表（慢 2～3 天）。Shorts 動態＝從別支 Shorts 滑過來的，越高代表演算法在推。TikTok 官方不給看完率和留言。')+grid(e)+trafficRow(e);
+    h+='<div class="dh"><span>各平台'+(plats().length>4?'（含 Threads）':'')+'</span>'+qb('q3','觀看、平均看完幾成、最近 3 小時有沒有在漲。YouTube 觀看是公開數與後台數取大的；YouTube 看完 % 來自 YouTube 報表（慢 2～3 天）。Shorts 動態＝從別支 Shorts 滑過來的，越高代表演算法在推。TikTok 官方不給看完率和留言。')+grid(e)+trafficRow(e);
     h+='<div class="dh" id="s-cm"><span>留言 '+cmCount(e)+'</span></div><div id="cmBox">'+comments(e)+'</div>';
     return h;}
   function fillDetail(e,keep){var sc=$('dScroll'),top=sc.scrollTop;
@@ -750,6 +927,14 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
     /* 10-08m2：重開重挑時（ip.prev＝上次送出的），先幫她勾好上次那幾樣 */
     if(open&&!S.picks[pk]){S.picks[pk]=lsGet(pk,null);if(!S.picks[pk]){S.picks[pk]={};(ip.prev||[]).forEach(function(id){S.picks[pk][id]=1;});}}
     var sel={};if(open)sel=S.picks[pk];else (p?p.items:(ip.picks||[])).forEach(function(id){sel[id]=1;});
+    if(!open){   /* 10-08c 挑好之後：編號清單（名稱＋價錢），沒挑的折起來；送出後、開工前多一條追蹤條 */
+      var picked=ip.items.filter(function(x){return x.id in sel;}),rest=ip.items.filter(function(x){return !(x.id in sel);});
+      var tr=trackOf(S.ch,ip,'items','pick',ip.id),openTr=tr&&!tr.done;
+      var hh='<h2>挑商品・'+esc(ip.title||'')+'</h2><div class="wk"><b>挑好 '+picked.length+' 樣</b><span class="pill '+(openTr?'acc':'ok')+'">'+(openTr?'已送出':ip.pickedBy==='producer'?'沒挑，製作人代挑了':'已挑好・製作中')+'</span></div>';
+      if(openTr)hh+=trackBox(tr,S.ch,null);
+      if(picked.length)hh+='<div class="sched" style="margin-top:10px">'+picked.map(function(x,i){return '<p><b>'+(i+1)+'</b><span>'+esc(x.name)+'　<span class="n" style="color:var(--accent)">$'+esc(x.price)+'</span></span></p>';}).join('')+'</div>';
+      if(rest.length)hh+='<details class="fold"><summary>沒挑的 '+rest.length+' 樣</summary>'+rest.map(function(x){return '<div class="dimrow">'+esc(x.name)+'<small>$'+esc(x.price)+'</small></div>';}).join('')+'</details>';
+      return hh;}
     var n=Object.keys(sel).length,st=p?'已送出，等電腦收':open?'已選 '+n+' / '+need:ip.pickedBy==='producer'?'沒挑，製作人代挑了':'已挑好，製作中';
     var h='<h2>挑商品・'+esc(ip.title||'')+'</h2><div class="wk"><b>從 '+ip.items.length+' 樣裡挑 '+need+' 樣</b><span class="pill '+(open?'warn':'ok')+'">'+st+'</span></div>'+
       (open&&ip.reopen?'<p class="pnote">'+esc(ip.reopen)+'</p>':'')+(open&&ip.deadline?'<p class="pnote">'+esc(slot(ip.deadline))+' 前沒挑，製作人會先用排前面的。標「上一支用過」的是上一支已經放過的。</p>':'');
@@ -770,6 +955,7 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
     if(!w||!w.topics||!w.topics.length)return '<h2>本週選題</h2><div class="empty">'+(chan().active===false?esc(chan().name)+' 還在籌備中。<br>頻道風格定好、正式開工後，每週的題目會出現在這裡。':'這週的題目還沒出來。<br>每週五 09:00 企劃會提下週的 5 個題目，到時候這裡會通知你。')+'</div>';
     var p=pending().filter(function(a){return a.type==='pick'&&a.week===w.id;})[0],pk=ck(LS_PICK)+w.id;
     var open=w.status==='picking'&&!p;
+    if(!open)return pickedView(w,p);
     if(open&&!S.picks[pk])S.picks[pk]=lsGet(pk,{});
     var sel=open?S.picks[pk]:{};
     if(!open){(p?p.picks:(w.picks||[])).forEach(function(x){sel[x.id]=x.hook;});}
@@ -786,6 +972,24 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
         '<div class="facts">'+(tp.film==null?'':typeof tp.film==='number'?'<span class="'+(tp.film<4?'warnf':'')+'">4K 實拍素材 '+esc(tp.film)+' 支'+(tp.film<4?'（偏少）':'')+'</span>':'<span>畫面：'+esc(tp.film)+'</span>')+(tp.source?'<span>來源：'+esc(tp.source)+'</span>':'')+'</div></button>'+hh+'</div>';}).join('');
     return h;
   }
+  /* 10-08c 選完之後折起來（spec §9）：只留選中的（集數＋標題＋開場），企劃說明收進「看企劃說明」，沒選的整組折起來；送出後、開工前多一條追蹤條 */
+  function pickedView(w,p){
+    var V=(S.work&&S.work.videos)||{},picks=p?p.picks:(w.picks||[]),need=w.pickCount||3,ids=picks.map(function(x){return x.id;});
+    var chosen=w.topics.filter(function(t){return ids.indexOf(t.id)>=0;}),rest=w.topics.filter(function(t){return ids.indexOf(t.id)<0;});
+    var tr=trackOf(S.ch,w,'pick','week',w.id),openTr=tr&&!tr.done;
+    var wkEps=Object.keys(V).filter(function(e){return V[e].week===w.id;}).sort(function(a,b){return (V[a].no||0)-(V[b].no||0);});
+    var st=openTr?'已送出':w.pickedBy==='producer'?'你沒選，製作人代挑了':'已選好・製作中';
+    var h='<div class="wk"><b>'+esc(w.label||w.id)+'</b><span class="pill '+(openTr?'acc':'ok')+'">'+st+'</span></div>'+
+      '<p class="pnote">這'+(need===1?'支':' '+need+' 支')+'會在 '+esc(w.slotsText||'週二、週四、週六')+' '+esc((chan().rhythm||{}).publish_time||'11:30')+' 發。</p>';
+    if(openTr)h+=trackBox(tr,S.ch,null);
+    h+=chosen.map(function(tp){var px=picks.filter(function(x){return x.id===tp.id;})[0]||{},i=ids.indexOf(tp.id);
+      var ep=Object.keys(V).filter(function(e){return V[e].topic===tp.id&&V[e].week===w.id;})[0]||wkEps[i],v=ep&&V[ep];
+      var hk=(tp.hooks||[])[px.hook];
+      return '<div class="pk"><div class="pt">'+(v?'<span class="no">'+no2(v.no)+'</span>':'')+'<b>'+esc(tp.title)+'</b></div>'+
+        (hk?'<div class="op">開場：<q>'+esc(hk)+'</q></div>':'')+
+        ((tp.why||tp.source)?'<details><summary>看企劃說明</summary>'+(tp.why?'<p>'+esc(tp.why)+'</p>':'')+(tp.source?'<p>來源：'+esc(tp.source)+'</p>':'')+'</details>':'')+'</div>';}).join('');
+    if(rest.length)h+='<details class="fold"><summary>沒選的 '+rest.length+' 個題目</summary>'+rest.map(function(tp){return '<div class="dimrow">'+esc(tp.title)+(tp.animal?'<small>'+esc(tp.animal)+'</small>':'')+'</div>';}).join('')+'</details>';
+    return h;}
   function bindTopics(){var w=S.work.week;if(!w)return;var pk=ck(LS_PICK)+w.id;
     document.querySelectorAll('.topic .hd').forEach(function(b){b.addEventListener('click',function(){var sel=S.picks[pk],id=b.dataset.t;
       if(id in sel)delete sel[id];else{var need=w.pickCount||3;if(need===1){for(var k in sel)delete sel[k];}else if(Object.keys(sel).length>=need){toast('最多 '+need+' 個，先取消一個');return;}sel[id]=0;}
@@ -809,26 +1013,123 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
       .then(function(){toast('送出了，電腦最慢 10 分鐘內收');$('pickSubmit').textContent='送出';render();})
       .catch(function(e){toast(sendErr(e));$('pickSubmit').textContent='送出';pickBar();});});
 
-  /* ── 審片 ── */
+  /* ── 進度（10-08c 改版；原「審片」分頁，Benson 10-08 改名「進度」） ──
+     等你看（片卡：這版改了什麼 → 預覽 → 你的修改意見 → 品管 → 進度步驟 → 要修改／好，照排）
+     進行中／已排程（片卡：進度步驟 → 追蹤條 → 各平台發布狀態）、已發布（精簡列，最新 2 支）
+     新欄位（stage、ver、changes、rounds、track、pub）見 animal-shorts/work/app-redesign/spec.md 第 0 節；舊狀態沒有就照舊欄位推，缺什麼就少畫那塊。 */
+  var ST_ANIM=[['pick','選題'],['research','研究'],['script','寫稿'],['voice','配音剪輯'],['qa','品管'],['review','等你審'],['scheduled','已排程'],['published','已發布']];
+  var ST_PUFF=[['dm','讀 DM'],['price','核對價格'],['items','挑商品'],['make','出片'],['review','等你審'],['published','發片']];
+  var ST_FALL={producing:'research',review:'review',revise:'review',approved:'scheduled',scheduled:'scheduled',published:'published',skipped:'review'};
+  function stepsOf(){var s=chan().steps;return s&&s.length?s:(chan().schedule?ST_PUFF:ST_ANIM);}
+  function stepIdx(L,id){var ids=L.map(function(s){return s[0];}),i=ids.indexOf(id);if(i>=0)return i;
+    if(id==='scheduled')return ids.indexOf('published');                      /* 買了啦沒有「已排程」⇒ 亮「發片」 */
+    if(['pick','research','script','voice','qa'].indexOf(id)>=0&&ids.indexOf('make')>=0)return ids.indexOf('make');
+    if(['dm','price','items','make'].indexOf(id)>=0&&ids.indexOf('voice')>=0)return ids.indexOf('research');
+    return -1;}
+  /* 手機剛按、電腦還沒收的審片動作 ⇒ 片子先照按的結果分區 */
+  function effStatus(e,v){var a=pendFor(S.ch,'review','ep',e);return a?(a.decision==='approved'?'approved':a.decision==='revise'?'revise':'review'):v.status;}
+  function stepsRow(v,tr,es){
+    var L=stepsOf(),cur,wait=false;
+    if(tr&&!tr.done&&tr.kind==='revise'){                                       /* 修改中：退回寫稿那一步，處理中照 stage 往後走 */
+      cur=tr.start&&['script','voice','qa','make'].indexOf(v.stage)>=0?stepIdx(L,v.stage):stepIdx(L,'script');wait=!tr.start;}
+    else if(tr&&!tr.done&&tr.kind==='approve'){cur=stepIdx(L,'scheduled');wait=!tr.start;}
+    else{cur=stepIdx(L,v.stage||ST_FALL[es]||'research');
+      if(v.stage==='items'&&needItems())wait=true;}
+    if(cur<0)cur=0;
+    var allDone=es==='published';
+    return '<div class="stp" aria-label="進度：'+esc(L[cur][1])+'">'+L.map(function(s,i){
+      var cl=allDone||i<cur?'done':i===cur?(wait?'wait':'doing'):'';
+      return '<span class="'+cl+'" style="flex-grow:'+(String(s[1]).replace(/\s/g,'').length+1)+'">'+esc(s[1])+'</span>';}).join('')+'</div>';}
+  /* 追蹤條：你送出 → 電腦收到 → 預計開始 → 處理中 → 結果 */
+  function trackBox(tr,cid,v){
+    var L=tline(tr,cid),k=tr.kind,rows=[],done=!!tr.done,w=(S.all[cid]||{}).work||{};
+    rows.push({s:'ok',t:'你送出'+(k==='revise'?'修改意見':k==='approve'?'「好，照排」':k==='items'?' '+(((w.itemPick||{}).need)||10)+' 樣商品':'題目'),tm:when(tr.sent)});
+    rows.push(L.gotOk?{s:'ok',t:'電腦收到',tm:when(L.got)}:{s:'now',t:'電腦收到',tm:Date.now()>L.got+3*MIN?'稍等':'約 '+hhmm(L.got),sub:'電腦每 10 分鐘收一次手機按的'});
+    var lbl=k==='approve'?'排程上架':k==='revise'?'開始照你的意見改':'開工';
+    if(L.started||done)rows.push({s:'ok',t:k==='approve'?'開始排程上架':'開始處理',tm:L.started?when(L.start):''});
+    else if(L.locked)rows.push({s:L.gotOk?'now':'tdo',t:'預計'+lbl,tm:'',sub:workingTxt(cid)});
+    else{var nine=hhmm(L.start)==='09:00',nx=dayNo(L.start)>dayNo(Math.max(tr.sent,Date.now()));
+      rows.push({s:L.gotOk?'now':'tdo',t:'預計'+lbl,tm:'約 '+when(L.start),
+        sub:L.late?'排程晚了：上一班沒開始，改等下一班':nine&&nx?'製作排程 23:30 後休息，明早 09:00 第一班':nine?'製作排程 09:00 開始第一班':'製作排程每 30 分鐘醒來一次，會晚 0⁠～⁠2 分'});}
+    if(k==='revise'){
+      if(!done)rows.push(L.started?{s:'now',t:'處理中：'+phaseName(tr,v),tm:''}:{s:'tdo',t:'處理中',tm:''});
+      rows.push(done?{s:'ok',t:(v&&v.ver?'第 '+v.ver+' 版':'新版')+'送審，已推手機通知',tm:typeof tr.done==='number'?when(tr.done):''}:{s:'tdo',t:'新版送審',tm:'',sub:'好了會推手機通知'});}
+    else if(k==='approve'){var pbx=v?pubOf(v):{},man=plats().some(function(p){return pbx[p]&&pbx[p].s==='manual';});
+      rows.push(done?{s:'ok',t:'已排程，'+slot(v&&v.slot)+' 發',tm:typeof tr.done==='number'?when(tr.done):''}:{s:L.started?'now':'tdo',t:'各平台排好',tm:'',sub:slot(v&&v.slot)+' 發'+(plats().indexOf('th')>=0||man?'；不能預約的平台到點手動發':'')});}
+    else rows.push(done?{s:'ok',t:k==='items'?'開工：出片':'開工：研究',tm:typeof tr.done==='number'?when(tr.done):''}:{s:L.started?'now':'tdo',t:'開工',tm:''});
+    return '<div class="trk"><div class="th"><span>'+(done?'處理完了':'你送出的，現在到哪了')+'</span></div><ol class="tl">'+rows.map(function(r){
+      return '<li class="'+r.s+'"><span class="d" aria-hidden="true">'+(r.s==='ok'?'✓':'')+'</span><span>'+esc(r.t)+(r.sub?'<small>'+esc(r.sub)+'</small>':'')+'</span><span class="tm">'+esc(r.tm)+'</span></li>';}).join('')+'</ol></div>';}
+  /* 各平台發布狀態：新欄位 pub 為主；沒有就照舊欄位推（links／sched／meta／igDirect／Threads） */
+  function pubOf(v){var o={},L=v.links||{},sc=v.sched||{},mt=v.meta||{},pb=v.pub||{},now=Date.now(),sl=T(v.slot),live=v.status==='published'||(sl&&now>=sl);
+    plats().forEach(function(k){var lk=L[k]||(k==='th'?L.threads:null),p;
+      if(pb[k])p=pb[k];
+      else if(k==='ig'&&v.igDirect&&!v.igDirectDone&&v.status!=='published')p={s:'manual',why:'instagram.com 直接發'};
+      else if(k==='th'&&!v.threadsDone&&v.status==='scheduled')p={s:'manual',why:'網頁不能預約影片'};
+      else if(lk)p={s:live?'published':'scheduled'};
+      else if(k==='ig'&&mt.ig&&mt.ig.state==='published')p={s:'published',url:mt.ig.permalink};
+      else if(k==='ig'&&mt.ig&&(mt.ig.state==='pending'||mt.ig.state==='uploaded'))p={s:'scheduled',why:'到點由電腦自動發'};
+      else if(k==='fb'&&mt.fb&&mt.fb.state)p={s:mt.fb.state==='published'||live?'published':'scheduled'};
+      else if(sc[k]||((k==='ig'||k==='fb')&&sc.meta))p={s:live?'published':'scheduled'};
+      else p={s:v.status==='published'&&k!=='th'?'published':'todo'};
+      if(lk&&!p.url)p=Object.assign({},p,{url:lk});
+      o[k]=p;});
+    return o;}
+  function pubGrid(v){
+    var P=plats(),pb=pubOf(v),five=P.length>4,man=[],sl=T(v.slot),now=Date.now();
+    var cells=P.map(function(k){var p=pb[k]||{s:'todo'},cl,ps,pt='';
+      if(p.s==='scheduled'&&sl&&now>=sl+MIN&&!p.why)p={s:'published',at:v.slot,how:p.how};   /* 平台自己排的，時間到就算發了 */
+      if(p.s==='published'){var at=T(p.at)||sl;cl='pub';ps='已發布';pt=(p.how==='manual'?'手動 ':'')+(at?(dayNo(at)===dayNo(now)?hhmm(at):mdT(at)):'');}
+      else if(p.s==='scheduled'){cl='sch';ps=p.why?(sl&&now>=sl?'發布中':'到點自動'):'已排程';pt=sl?(dayNo(sl)===dayNo(now)?hhmm(sl):mdT(sl)):'';}
+      else if(p.s==='manual'){var due=sl&&now>=sl;cl=due?'due':'man';ps=due?'該發了':'到點手動';pt=due?'製作人發中':sl?(dayNo(sl)===dayNo(now)?hhmm(sl):mdT(sl)):'';man.push(PFN[k].n+(p.why?'（'+p.why+'）':''));}
+      else if(p.s==='failed'){cl='bad';ps='沒發成功';}
+      else{cl='none';ps='還沒排';pt=p.why?'處理中':'';}
+      return '<div class="pubc '+cl+'"'+(p.why?' title="'+esc(p.why)+'"':'')+'><div class="pn"><i style="background:'+PFN[k].c+'"></i>'+(five?PFN[k].s:PFN[k].n)+'</div><div class="ps">'+ps+'</div><div class="pt">'+(pt?esc(pt):'&nbsp;')+'</div></div>';});
+    return '<div class="pubg" style="grid-template-columns:repeat('+P.length+',minmax(0,1fr))">'+cells.join('')+'</div>'+
+      (man.length?'<div class="pubk"><b>到點手動</b>＝平台不能預約，製作人到時間自己發：'+esc(man.join('、'))+'</div>':'');}
+  /* 這版改了什麼（放在影片上面：先知道要看哪裡再按播放）；沒有 changes 就把製作人的 note 當一條 */
+  function changesBox(v,R){var c=v.changes;
+    if(c&&c.items&&c.items.length)return '<div class="chg"><div class="ct">這版改了什麼'+(c.from&&c.to?'（第 '+c.from+' 版 → 第 '+c.to+' 版）':'')+'</div><ul>'+c.items.map(function(s){return '<li>'+esc(s)+'</li>';}).join('')+'</ul></div>';
+    if(v.note&&v.status==='review'&&!R.some(function(r){return r.text===v.note;}))return '<div class="chg"><div class="ct">這版改了什麼</div><ul><li>'+esc(v.note)+'</li></ul></div>';
+    return '';}
+  /* 你的修改意見：新欄位 rounds；沒有就用舊的 history／revisedFrom 當成已處理（spec §0） */
+  function roundsOf(v,tr){var R=(v.rounds||[]).slice();
+    if(!R.length){(v.history||[]).forEach(function(h){if(h&&h.note)R.push({at:h.at,text:h.note,state:'done'});});
+      if(v.revisedFrom)R.push({at:v.revisedAt,text:v.revisedFrom,state:'done'});
+      if(v.status==='revise'&&v.note)R.push({at:v.reviewedAt,text:v.note,state:'sent'});}
+    if(tr&&tr.local&&tr.kind==='revise'&&tr.note)R.push({at:tr.sent,text:tr.note,state:'sent',v:v.ver});
+    if(tr&&!tr.done&&tr.kind==='revise'&&tr.start)R=R.map(function(r){return r.state==='sent'?Object.assign({},r,{state:'doing'}):r;});
+    return R;}
+  function roundsBox(R){
+    if(!R.length)return '';
+    R=R.slice().reverse();
+    var item=function(r){var at=T(r.at);
+      var st=r.state==='done'?'<span class="pill ok">已處理'+(r.fixedIn?'・第 '+r.fixedIn+' 版':'')+'</span>':r.state==='doing'?'<span class="pill acc">處理中</span>':'<span class="pill">已送出・等處理</span>';
+      return '<div class="fbi"><div class="fh">'+st+'<span>'+(at?esc(when(at)):'')+(r.v?(at?'・':'')+'看第 '+r.v+' 版時說的':'')+'</span></div><p class="'+(r.state==='done'?'clip':'')+'">'+esc(r.text)+'</p>'+(r.reply?'<div class="rp"><b>怎麼改的：</b>'+esc(r.reply)+'</div>':'')+'</div>';};
+    var old=R.slice(1);
+    return '<div class="fbk"><div class="ft">你的修改意見'+(R.length>1?'（共 '+R.length+' 次）':'')+'</div>'+item(R[0])+
+      (old.length?'<details class="fold" style="margin-top:0"><summary>更早的 '+old.length+' 次</summary>'+old.map(item).join('')+'</details>':'')+'</div>';}
+  function durOf(e,v){var d=v.dur;if(d==null&&S.stats&&S.stats.episodes&&S.stats.episodes[e])d=S.stats.episodes[e].dur;return d;}
+  function hdRow(v){return '<div class="hd"><b><span class="no">'+no2(v.no)+'</span>'+esc(cleanTitle(v.title))+'</b>'+(v.slot?'<small>'+esc(slot(v.slot))+' 發</small>':'')+'</div>';}
   function reviewView(){
-    var v=(S.work&&S.work.videos)||{},p=pending(),eps=Object.keys(v).sort(function(a,b){return (v[a].no||0)-(v[b].no||0);});
-    var pend=function(e){return p.filter(function(a){return a.type==='review'&&a.ep===e;})[0];};
-    var rv=eps.filter(function(e){return v[e].status==='review'&&!pend(e);});
-    var h='<h2>等你看</h2>'+(rv.length?rv.map(function(e){return card(e,v[e]);}).join(''):'<div class="empty">沒有等你看的片。挑完題目後，做好的片會陸續送過來（發片當天 09:00 前要按好）。</div>');
-    var sent=eps.filter(function(e){return pend(e);});
-    if(sent.length)h+='<h2>你剛送出的</h2>'+sent.map(function(e){var a=pend(e);return row(e,v[e],'<span class="pill">'+(a.decision==='approved'?'好，照排':a.decision==='revise'?'要修改':'改回待審')+'・等電腦收</span>');}).join('');
-    var ok=eps.filter(function(e){return v[e].status==='approved'&&!pend(e);});
-    if(ok.length)h+='<h2>你說好了，等排程</h2>'+ok.map(function(e){return row(e,v[e],'<button class="btn" data-undo="'+e+'" type="button" style="padding:6px 12px;font-size:13px">改回待審</button>');}).join('');
-    var fix=eps.filter(function(e){return (v[e].status==='revise'||v[e].status==='producing')&&!pend(e);});
-    if(fix.length)h+='<h2>製作中／修改中</h2>'+fix.map(function(e){return row(e,v[e],'<span class="pill warn">'+(v[e].status==='revise'?'照你的意見修改中':'製作中')+'</span>',v[e].note?'你的意見：'+v[e].note:'');}).join('');
-    h+=planView();
-    var done=eps.filter(function(e){return v[e].status==='scheduled'||v[e].status==='published';}).reverse();
-    if(done.length)h+='<h2>已排程／已發布</h2>'+done.map(function(e){return row(e,v[e],'<span class="pill '+(v[e].status==='published'?'ok':'')+'">'+(v[e].status==='published'?'已發布':'已排程')+'</span>','',v[e].links);}).join('');
+    var V=(S.work&&S.work.videos)||{},eps=Object.keys(V).sort(function(a,b){return (V[a].no||0)-(V[b].no||0);}),es={};
+    eps.forEach(function(e){es[e]=effStatus(e,V[e]);});
+    var rv=eps.filter(function(e){return es[e]==='review';});
+    var prog=eps.filter(function(e){return ['revise','approved','producing'].indexOf(es[e])>=0;});
+    var sch=eps.filter(function(e){return es[e]==='scheduled';});
+    var pub=eps.filter(function(e){return es[e]==='published'||es[e]==='skipped';}).reverse();
+    var h='<h2>等你看</h2>'+(rv.length?rv.map(function(e){return card(e,V[e]);}).join(''):'<div class="empty">沒有等你看的片。做好的片會送過來（發片當天 '+esc((chan().rhythm||{}).review_deadline||'09:00')+' 前要按好）。</div>');
+    var pl=planView(V);
+    if(prog.length||pl)h+='<h2>進行中</h2>'+prog.map(function(e){return progCard(e,V[e],es[e]);}).join('')+pl;
+    if(sch.length)h+='<h2>已排程</h2>'+sch.map(function(e){return progCard(e,V[e],es[e]);}).join('');
+    if(pub.length){var head=pub.slice(0,2),rest=pub.slice(2);
+      h+='<h2>已發布</h2>'+head.map(function(e){return pubRow(e,V[e]);}).join('');
+      if(rest.length)h+='<details class="fold"><summary>更早的 '+rest.length+' 支</summary>'+rest.map(function(e){return pubRow(e,V[e]);}).join('')+'</details>';}
     return h;
   }
-  /* 10-06c：工作進度。state.plan＝[{title, slot, steps:[{t:"讀 DM", s:"done|doing|todo"}], note}]，電腦做片時隨時更新 */
-  function planView(){var pl=(S.work&&S.work.plan)||[];if(!pl.length)return '';
-    return '<h2>工作進度・接下來要發的</h2>'+pl.map(function(x){
+  /* 10-06c：工作進度（state.plan，買了啦）。10-08c 起片卡自己有進度步驟 ⇒ 只列還沒建成片的那幾筆 */
+  function planView(V){var pl=(S.work&&S.work.plan)||[],nos={};Object.keys(V).forEach(function(e){nos[no2(V[e].no)]=1;});
+    pl=pl.filter(function(x){var m=String(x.title||'').match(/#\d+/);return !(m&&nos[m[0]]);});if(!pl.length)return '';
+    return pl.map(function(x){
       var st=(x.steps||[]).map(function(k){return '<span class="'+esc(k.s||'todo')+'">'+esc(k.t)+'</span>';}).join('');
       return '<div class="plan"><div class="ph"><b>'+esc(x.title)+'</b><small>'+esc(x.slot?slot(x.slot)+' 發':'')+'</small></div>'+
         (st?'<div class="steps">'+st+'</div>':'')+(x.note?'<div class="pn">'+esc(x.note)+'</div>':'')+'</div>';}).join('');}
@@ -837,20 +1138,33 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
     var vk=S.ch+':'+e,ap=S.justPlayed===vk;if(ap)S.justPlayed=null;
     var pl=S.videoUrl[vk]?'<video src="'+S.videoUrl[vk]+'" controls playsinline'+(ap?' autoplay':'')+'></video>':
       v.preview?'<button class="btn" data-play="'+e+'" type="button">▶ 播放預覽（'+(v.preview.size/1048576).toFixed(1)+' MB）</button>':'<span class="pnote">預覽片還在上傳</span>';
-    return '<div class="rv"><div class="player" id="pl-'+e+'">'+pl+'</div>'+
-      '<div class="head"><b><span class="no">'+no2(v.no)+'</span>'+esc(v.title)+'</b><span class="slot">'+esc(slot(v.slot))+' 發</span></div>'+
-      (v.qa?'<div class="qa">品管：'+esc(v.qa)+'</div>':'')+
-      (v.caption?'<details><summary>上架標題與說明</summary><pre>'+esc(v.caption)+'</pre></details>':'')+
+    var tr=trackOf(S.ch,v,'review','ep',e),R=roundsOf(v,tr),d=durOf(e,v);
+    return '<div class="vc">'+hdRow(v)+
+      ((v.ver||d)?'<div class="sub">'+(v.ver?'<span class="pill acc">第 '+v.ver+' 版</span>':'')+(d?'<span class="pnote">'+Math.round(d)+' 秒</span>':'')+'</div>':'')+
+      changesBox(v,R)+
+      '<div class="player" id="pl-'+e+'">'+pl+'</div>'+
+      roundsBox(R)+(v.qa?'<div class="qa">品管：'+esc(v.qa)+'</div>':'')+
+      (v.caption?'<details class="cap"><summary>上架標題與說明</summary><pre>'+esc(v.caption)+'</pre></details>':'')+
+      stepsRow(v,tr,'review')+
+      (tr&&tr.done&&tr.kind==='revise'&&typeof tr.done==='number'?'<details class="fold" style="margin-top:10px"><summary>處理紀錄：'+esc(when(tr.sent))+' 送出 → '+esc(when(tr.done))+' 送審</summary>'+trackBox(tr,S.ch,v)+'</details>':'')+
       '<div class="acts"><button class="btn" data-fix="'+e+'" type="button">要修改</button><button class="btn primary wide" data-ok="'+e+'" type="button">好，照排</button></div></div>';}
-  function row(e,v,right,sub,links){
-    /* 10-06a：TikTok／IG／FB 要等發出去才有網址 ⇒ 還沒網址但已排程的平台顯示灰字「已排」（排程紀錄在 v.sched：tt、meta＝FB+IG） */
-    var sc=v.sched||{}, queued={tt:!!sc.tt, ig:!!(sc.meta||(v.meta&&v.meta.ig)), fb:!!(sc.meta||(v.meta&&v.meta.fb)), yt:!!sc.yt};
-    links=links||{};
-    var L=[['yt','YouTube'],['tt','TikTok'],['ig','IG'],['fb','FB']].map(function(x){
-      if(links[x[0]])return '<a href="'+esc(links[x[0]])+'" target="_blank" rel="noopener">'+x[1]+'</a>';
-      if(v.status==='scheduled'&&queued[x[0]])return '<span class="q">'+x[1]+' 已排</span>';
-      return '';}).join('');
-    return '<div class="row"><div><span class="no">'+no2(v.no)+'</span>'+esc(v.title)+'<small>'+esc(slot(v.slot))+(sub?'　'+esc(sub):'')+'</small>'+(L?'<div class="links">'+L+'</div>':'')+'</div><div>'+right+'</div></div>';}
+  function progCard(e,v,es){
+    var tr=trackOf(S.ch,v,'review','ep',e),R=roundsOf(v,tr),wt=v.wait||(v.stage==='items'&&needItems()?'等'+(chan().owner||'')+'挑商品（日程分頁）':'');
+    var showTr=tr&&(!tr.done||(tr.kind==='approve'&&es!=='published'))&&!(tr.kind==='revise'&&tr.done);
+    return '<div class="vc">'+hdRow(v)+
+      ((v.ver||wt)?'<div class="sub">'+(v.ver?'<span class="pill">第 '+v.ver+' 版</span>':'')+(wt?'<span class="pnote" style="color:var(--accent)">'+esc(wt)+'</span>':'')+'</div>':'')+
+      stepsRow(v,tr,es)+
+      (showTr?trackBox(tr,S.ch,v):'')+
+      (es==='revise'?roundsBox(R):'')+
+      (es==='scheduled'||es==='approved'?pubGrid(v):'')+
+      (es==='approved'&&!(tr&&tr.local)?'<div class="acts" style="margin-top:10px"><button class="btn sm" data-undo="'+e+'" type="button">改回待審</button></div>':'')+'</div>';}
+  function pubRow(e,v){
+    var pb=pubOf(v),skip=v.status==='skipped';
+    var L=plats().map(function(k){var p=pb[k],nm=PFN[k].n;
+      if(p&&p.s==='published')return p.url?'<a href="'+esc(p.url)+'" target="_blank" rel="noopener">'+nm+'</a>':'<span>'+nm+'</span>';
+      return '<span class="off">'+nm+' —</span>';}).join('');
+    return '<div class="row"><div class="rt"><div><span class="no">'+no2(v.no)+'</span>'+esc(cleanTitle(v.title))+'</div><small>'+esc(slot(v.slot))+'</small>'+(skip?'':'<div class="links">'+L+'</div>')+'</div>'+
+      '<span class="pill'+(skip?'':' ok')+'">'+(skip?'沒發':'已發布')+'</span></div>';}
   function bindReview(){
     document.querySelectorAll('[data-play]').forEach(function(b){b.addEventListener('click',function(){play(b.dataset.play,b);});});
     document.querySelectorAll('[data-ok]').forEach(function(b){b.addEventListener('click',function(){decide(b.dataset.ok,'approved');});});
@@ -879,7 +1193,7 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
   /* ── 開機 ── */
   /* 自動更新會整頁重畫，正在看的預覽片會被換掉而停掉（10-04 Benson：全螢幕播到一半突然停）
      ⇒ 審片頁有載入的影片、或正在打修改意見時，自動更新只抓資料不重畫；按「重新整理」或送出決定才重畫 */
-  function busyUI(){return !$('sheet').hidden||(S.tab==='review'&&!!document.querySelector('.rv video'));}
+  function busyUI(){return !$('sheet').hidden||(S.tab==='review'&&!!document.querySelector('.vc video'));}
   function refresh(manual){var b=$('re');if(b)b.textContent='更新中…';
     return loadAll().then(function(){if(!manual&&busyUI()){var r=$('re');if(r)r.textContent='重新整理';return;}render();refreshDetail();})
       .catch(function(){if(b)b.textContent='沒連上，再按一次';});}
