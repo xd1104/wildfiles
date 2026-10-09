@@ -832,9 +832,10 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
   function ptsAt(pts,s){if(s<=pts[0][0])return pts[0][1];for(var i=1;i<pts.length;i++){if(s<=pts[i][0]){var a=pts[i-1],b=pts[i];return a[1]+(b[1]-a[1])*(s-a[0])/((b[0]-a[0])||1);}}return pts[pts.length-1][1];}
   function curveView(pts,others,color,label,extra){
     var dur=pts[pts.length-1][0],W=340,H=170,l=32,rr=12,t=12,b=24,iw=W-l-rr,ih=H-t-b;
-    var X=function(s){return l+s/dur*iw;},Y=function(p){return t+(100-Math.min(100,Math.max(0,p)))/100*ih;};
+    var top=Math.max(100,Math.ceil(Math.max.apply(null,pts.map(function(p){return p[1];}))/50)*50);
+    var X=function(s){return l+s/dur*iw;},Y=function(p){return t+(top-Math.min(top,Math.max(0,p)))/top*ih;};
     var g='';
-    [0,50,100].forEach(function(p){g+='<line x1="'+l+'" x2="'+(W-rr)+'" y1="'+Y(p).toFixed(1)+'" y2="'+Y(p).toFixed(1)+'" stroke="var(--line)"/><text x="'+(l-5)+'" y="'+(Y(p)+3.5).toFixed(1)+'" text-anchor="end" font-size="10" fill="var(--muted)">'+p+'%</text>';});
+    (top>100?[0,50,100,top]:[0,50,100]).forEach(function(p){g+='<line x1="'+l+'" x2="'+(W-rr)+'" y1="'+Y(p).toFixed(1)+'" y2="'+Y(p).toFixed(1)+'" stroke="var(--line)"/><text x="'+(l-5)+'" y="'+(Y(p)+3.5).toFixed(1)+'" text-anchor="end" font-size="10" fill="var(--muted)">'+p+'%</text>';});
     var stepS=dur>90?30:dur>45?20:10;
     for(var s=0;s<=dur+0.01;s+=stepS)g+='<text x="'+X(s).toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle" font-size="10" fill="var(--muted)">'+s+' 秒</text>';
     var oth10=null;
@@ -845,18 +846,18 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
       g+='<path d="'+path+'" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 4"/>';
       if(maxS>=10)oth10=medAt(10);}
     g+='<path d="'+pts.map(function(p,i){return (i?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1);}).join('')+'" fill="none" stroke="'+color+'" stroke-width="2.5" stroke-linejoin="round"/>';
-    /* 超過 100%＝有人重播，畫到 100 為止，標籤也寫「100%+」 */
-    function lab(v){return v>100?'100%+':Math.round(v)+'%';}
-    function mark(sx,val,txt){var x=X(sx),y=Y(val);return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="4.5" fill="var(--accent)" stroke="var(--ground)" stroke-width="2"/>'+
-      '<text x="'+(x+8).toFixed(1)+'" y="'+(y+15).toFixed(1)+'" font-size="12" font-weight="700" fill="var(--text)">'+txt+'</text>';}
-    var r3=ptsAt(pts,3);g+=mark(3,r3,'第 3 秒 '+lab(r3));
+    /* 10-09：超過 100%＝有人重播；Y 軸照最大值放大、標籤寫真實數字（原本壓在 100 會讓兩個標籤疊在一起） */
+    function lab(v){return Math.round(v)+'%';}
+    function mark(sx,val,txt,up){var x=X(sx),y=Y(val);return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="4.5" fill="var(--accent)" stroke="var(--ground)" stroke-width="2"/>'+
+      '<text x="'+(x+8).toFixed(1)+'" y="'+(up?y-8:y+17).toFixed(1)+'" font-size="12" font-weight="700" fill="var(--text)">'+txt+'</text>';}
+    var r3=ptsAt(pts,3);g+=mark(3,r3,'第 3 秒 '+lab(r3),true);
     var svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(label)+'">';
     if(dur<=12)return '<div class="ret">'+svg+g+'</svg></div>';
     var r10=ptsAt(pts,10),end=pts[pts.length-1][1],early=(Math.min(100,r3)-Math.min(100,r10))/7,late=(Math.min(100,r10)-end)/(dur-10),isEarly=early>=late*2;
     g+=mark(10,r10,'第 10 秒 '+lab(r10));
     var cmp=oth10==null?null:Math.round(r10-oth10);
     return '<span class="where'+(isEarly?'':' mid')+'">'+(isEarly?'主要在開頭跑掉':'主要在中間跑掉')+'</span>'+
-      '<div class="ret">'+svg+g+'</svg><p class="say">第 10 秒剩 '+lab(r10)+(cmp==null?'':'，'+(Math.abs(cmp)<5?'跟平常差不多':cmp>0?'<span class="up">比平常多 '+cmp+' 點</span>':'<span class="dn">比平常少 '+(-cmp)+' 點</span>')+'（虛線＝平常）')+'。'+(extra||'')+'</p></div>';}
+      '<div class="ret">'+svg+g+'</svg><p class="say">第 10 秒剩 '+lab(r10)+(r10>100?'（超過 100% 是有人重播）':'')+(cmp==null?'':'，'+(Math.abs(cmp)<5?'跟平常差不多':cmp>0?'<span class="up">比平常多 '+cmp+' 點</span>':'<span class="dn">比平常少 '+(-cmp)+' 點</span>')+'（虛線＝平常）')+'。'+(extra||'')+'</p></div>';}
   function ytPts(e){var y=e.v.yt||{},r=y.ytaRet;if(!r||!r.pct||r.pct.length<3)return null;
     var dur=e.E.dur||(y.ytaAvgSec&&y.ytaAvgPct?y.ytaAvgSec/(y.ytaAvgPct/100):null);if(!dur)return null;
     var n=r.pct.length;return [[0,r.pct[0]]].concat(r.pct.map(function(p,i){return [dur*(i+1)/n,p];}));}
@@ -879,10 +880,11 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
   function hookBars(e){
     var E=e.E,studio=epList(S.stats).some(function(o){return o.v.yt&&o.v.yt.stayedPct!=null;});
     var ytOff=!studio?'這個頻道沒讀後台':(Date.now()-new Date(e.slot).getTime())/3600e3<48?'最多 2 天才出來':'後台沒有這支';
+    var ya=e.v.yt||{},hy=E.hookYt;if((!hy||hy.v==null)&&!studio&&ya.ytaEngagedPct!=null)hy={v:ya.ytaEngagedPct,approx:1};
     function bar(name,o,off,verb){if(!o||o.v==null)return '<div class="bar off"><div class="l"><span>'+name+'</span><span>'+off+'</span></div></div>';
       var v=Math.max(0,Math.min(100,o.v));
-      return '<div class="bar"><div class="l"><span>'+name+'</span><span>'+(verb||'留住')+' <b class="n" style="font-size:16px">'+Math.round(o.v)+'%</b>'+(o.base!=null?'・平常 '+Math.round(o.base)+'%':'')+'</span></div><div class="tr"><i style="width:'+v+'%"></i>'+(o.base!=null?'<u style="left:calc('+Math.max(0,Math.min(100,o.base))+'% - 1px)"></u>':'')+'</div></div>';}
-    return '<div class="bars">'+bar('YouTube 前 3 秒',E.hookYt,ytOff,'留下')+bar('IG 前 3 秒',E.hookIg,e.bad.ig?'流程出錯，不算':'播放太少','沒滑走')+'</div>';}
+      return '<div class="bar"><div class="l"><span>'+name+'</span><span>'+(verb||'留住')+' '+(o.approx?'約 ':'')+'<b class="n" style="font-size:16px">'+Math.round(o.v)+'%</b>'+(o.base!=null?'・平常 '+Math.round(o.base)+'%':'')+'</span></div><div class="tr"><i style="width:'+v+'%"></i>'+(o.base!=null?'<u style="left:calc('+Math.max(0,Math.min(100,o.base))+'% - 1px)"></u>':'')+'</div></div>';}
+    return '<div class="bars">'+bar('YouTube 前 3 秒'+(hy&&hy.approx?'（近似值）':''),hy,ytOff,'留下')+bar('IG 前 3 秒',E.hookIg,e.bad.ig?'流程出錯，不算':'播放太少','沒滑走')+'</div>';}
   function badNote(e){var b=plats().filter(function(k){return e.bad[k]&&e.v[k];}).map(function(k){return PFN[k].s;});return b.length?'<small style="display:block;font-size:11px;color:var(--faint)">不含 '+b.join('、')+'（流程出錯）</small>':'';}
   /* 10-08c：格子數照這個頻道的平台數（計謀 5 格、縮寫）；上面一條合計；手動發的平台最下面寫「手動發」 */
   function grid(e){var hist=(S.stats&&S.stats.hist)||[],slotT=new Date(e.slot).getTime(),P=plats(),five=P.length>4;
@@ -911,8 +913,8 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
     h+=V?'<div class="verd '+esc(V.tone)+'"><div class="t">'+esc(V.t)+'</div><div class="nx"><b>該做什麼</b>'+esc(V.next)+'</div></div>':
       '<div class="verd"><div class="t">電腦還沒算結論</div></div>';
     var ya=e.v.yt||{},apx=ya.ytaEngagedPct!=null?'<br>YouTube 報表沒有一模一樣的數字；近似值（有效觀看÷觀看）＝'+ya.ytaEngagedPct+'%，跟後台對照中，先不拿來比。':'';
-    h+='<div class="dh"><span>前 3 秒留下幾成</span>'+qb('q1','滑到這支片的人，有幾成停下來看（沒滑走）。YouTube 這條是後台的「選擇看下去」，每天早上讀一次。白線＝其他片的中間值。'+apx+(V&&V.conf?'<br>'+esc(V.conf):''))+'<div class="dcard">'+hookBars(e)+'</div>';
-    h+='<div class="dh"><span>整支片哪裡跑掉</span>'+qb('q2','YouTube 每一秒還剩幾 % 的人（YouTube 報表，慢 2～3 天）。超過 100% 是有人重播，畫到 100 為止。虛線＝其他片同一秒的中間值。FB 的曲線放在下面當輔助：FB 第 3 秒幾乎都還有 9 成以上，開頭好壞看上面那塊。')+'<div class="dcard">'+retView(e,epList(S.stats))+'</div>';
+    h+='<div class="dh"><span>前 3 秒留下幾成</span>'+qb('q1','滑到這支片的人，有幾成停下來看（沒滑走）。YouTube 這條是後台的「選擇看下去」，每天早上讀一次；沒讀後台的頻道（例如計謀）改用報表近似值（有效觀看÷觀看），標「約」。白線＝其他片的中間值。'+apx+(V&&V.conf?'<br>'+esc(V.conf):''))+'<div class="dcard">'+hookBars(e)+'</div>';
+    h+='<div class="dh"><span>整支片哪裡跑掉</span>'+qb('q2','YouTube 每一秒還剩幾 % 的人（YouTube 報表，慢 2～3 天）。超過 100% 是有人重播（圖的上緣會跟著放大）。虛線＝其他片同一秒的中間值。FB 的曲線放在下面當輔助：FB 第 3 秒幾乎都還有 9 成以上，開頭好壞看上面那塊。')+'<div class="dcard">'+retView(e,epList(S.stats))+'</div>';
     h+='<div class="dh"><span>各平台'+(plats().length>4?'（含 Threads）':'')+'</span>'+qb('q3','觀看、平均看完幾成、最近 3 小時有沒有在漲。YouTube 觀看是公開數與後台數取大的；YouTube 看完 % 來自 YouTube 報表（慢 2～3 天）。Shorts 動態＝從別支 Shorts 滑過來的，越高代表演算法在推。TikTok 官方不給看完率和留言。')+grid(e)+trafficRow(e);
     h+='<div class="dh" id="s-cm"><span>留言 '+cmCount(e)+'</span></div><div id="cmBox">'+comments(e)+'</div>';
     return h;}
