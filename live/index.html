@@ -879,7 +879,8 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
     return '<p class="trf">YouTube 從哪來：'+top.map(function(k2){return esc(TRAFFIC[k2]||k2)+' <b>'+Math.round(tr[k2]/tot*100)+'%</b>';}).join('・')+(Math.round(rest/tot*100)?'・其他 <b>'+Math.round(rest/tot*100)+'%</b>':'')+'</p>';}
   function hookBars(e){
     var E=e.E,studio=epList(S.stats).some(function(o){return o.v.yt&&o.v.yt.stayedPct!=null;});
-    var ytOff=!studio?'這個頻道沒讀後台':(Date.now()-new Date(e.slot).getTime())/3600e3<48?'最多 2 天才出來':'後台沒有這支';
+    var yta=epList(S.stats).some(function(o){return o.v.yt&&o.v.yt.ytaEngagedPct!=null;});
+    var ytOff=!studio&&!yta?'這個頻道沒讀後台':(Date.now()-new Date(e.slot).getTime())/3600e3<48?'最多 2 天才出來':'後台沒有這支';
     var ya=e.v.yt||{},hy=E.hookYt;if((!hy||hy.v==null)&&!studio&&ya.ytaEngagedPct!=null)hy={v:ya.ytaEngagedPct,approx:1};
     function bar(name,o,off,verb){if(!o||o.v==null)return '<div class="bar off"><div class="l"><span>'+name+'</span><span>'+off+'</span></div></div>';
       var v=Math.max(0,Math.min(100,o.v));
