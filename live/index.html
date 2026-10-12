@@ -808,7 +808,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
       h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝各平台觀看合計（YouTube 取公開數與後台數大的那個）；<b>比平常同時間、前 3 秒、平均看完</b>看 YouTube（會賺錢的平台）。<br><b>YT 前 3 秒留下</b>＝在 YouTube 滑到這支片的人，幾成停下來看；YouTube 還沒出來時改看 <b>IG 前 3 秒沒滑走</b>。<b>平均看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<b>YT 比平常同時間</b>＝發布一樣久，YouTube 觀看比其他片多或少幾 %。<br>'+
         '<span class="up">▲</span><span class="dn">▼</span>＝比其他片的中間值高／低 5 點以上（比平常同時間是 30%）；不到 6 支片都只供參考。<b>還在推／變慢／停了</b>：YouTube 最近還有沒有在送觀看；公開數常卡好幾小時，卡住時不判。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
     var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
-    return h+'<p class="note">版本 10-08h・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+    return h+'<p class="note">版本 10-13a・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
   /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
@@ -958,6 +958,12 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
     if(sc.note)h+='<p class="pnote">'+esc(sc.note)+'</p>';
     return h;}
   function itemsView(){var ip=S.work&&S.work.itemPick;if(!ip||!ip.items)return '';
+    /* 10-13a：這批商品做的片已發布（work.py 標 status=used、usedBy）⇒ 收成一行「已用在 MM/DD 那支・已發布」，挑過的折起來；下一檔出來會換新一批 */
+    if(ip.status==='used'){var uv=((S.work&&S.work.videos)||{})[ip.usedBy]||{},ud=(uv.slot||ip.usedAt||ip.slot||'').slice(5,10).replace('-','/'),us={};
+      (ip.picks||[]).forEach(function(id){us[id]=1;});var up=ip.items.filter(function(x){return x.id in us;});
+      return '<h2>挑商品・'+esc(ip.title||'')+'</h2><div class="wk"><b>已用在 '+esc(ud||'')+' 那支'+(uv.no?'（'+no2(uv.no)+'）':'')+'</b><span class="pill ok">已發布</span></div>'+
+        '<p class="pnote">下一檔的商品出來後，這裡會換成新的一批讓你挑。</p>'+
+        (up.length?'<details class="fold"><summary>這批挑的 '+up.length+' 樣</summary>'+up.map(function(x){return '<div class="dimrow">'+esc(x.name)+'<small>$'+fmt(x.price)+'</small></div>';}).join('')+'</details>':'');}
     var p=pending().filter(function(a){return a.type==='items'&&a.pick===ip.id;})[0],pk=ck(LS_PICK)+'items:'+ip.id,open=ip.status==='picking'&&!p,need=ip.need||10;
     /* 10-08m2：重開重挑時（ip.prev＝上次送出的），先幫她勾好上次那幾樣 */
     if(open&&!S.picks[pk]){S.picks[pk]=lsGet(pk,null);if(!S.picks[pk]){S.picks[pk]={};(ip.prev||[]).forEach(function(id){S.picks[pk][id]=1;});}}
@@ -1011,11 +1017,12 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
   function pickedView(w,p){
     var V=(S.work&&S.work.videos)||{},picks=p?p.picks:(w.picks||[]),need=w.pickCount||3,ids=picks.map(function(x){return x.id;});
     var chosen=w.topics.filter(function(t){return ids.indexOf(t.id)>=0;}),rest=w.topics.filter(function(t){return ids.indexOf(t.id)<0;});
-    var tr=trackOf(S.ch,w,'pick','week',w.id),openTr=tr&&!tr.done;
+    var tr=trackOf(S.ch,w,'pick','week',w.id),openTr=tr&&!tr.done&&w.status!=='done';
     var wkEps=Object.keys(V).filter(function(e){return V[e].week===w.id;}).sort(function(a,b){return (V[a].no||0)-(V[b].no||0);});
-    var st=openTr?'已送出':w.pickedBy==='producer'?'你沒選，製作人代挑了':'已選好・製作中';
+    var wdone=w.status==='done';   /* 10-13a：這週挑的都發布了（work.py 標 week.status=done）⇒ 不再寫「製作中」 */
+    var st=openTr?'已送出':wdone?'這週都發完了':w.pickedBy==='producer'?'你沒選，製作人代挑了':'已選好・製作中';
     var h='<div class="wk"><b>'+esc(w.label||w.id)+'</b><span class="pill '+(openTr?'acc':'ok')+'">'+st+'</span></div>'+
-      '<p class="pnote">這'+(need===1?'支':' '+need+' 支')+'會在 '+esc(w.slotsText||'週二、週四、週六')+' '+esc((chan().rhythm||{}).publish_time||'11:30')+' 發。</p>';
+      '<p class="pnote">這'+(need===1?'支':' '+need+' 支')+(wdone?'已經在 '+esc(w.slotsText||'週二、週四、週六')+' 發完了，下週五會出新題目。':'會在 '+esc(w.slotsText||'週二、週四、週六')+' '+esc((chan().rhythm||{}).publish_time||'11:30')+' 發。')+'</p>';
     if(openTr)h+=trackBox(tr,S.ch,null);
     h+=chosen.map(function(tp){var px=picks.filter(function(x){return x.id===tp.id;})[0]||{},i=ids.indexOf(tp.id);
       var ep=Object.keys(V).filter(function(e){return V[e].topic===tp.id&&V[e].week===w.id;})[0]||wkEps[i],v=ep&&V[ep];
