@@ -1039,7 +1039,8 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
       '<p class="pnote">這'+(need===1?'支':' '+need+' 支')+(wdone?'已經在 '+esc(w.slotsText||'週二、週四、週六')+' 發完了，下週五會出新題目。':'會在 '+esc(w.slotsText||'週二、週四、週六')+' '+esc((chan().rhythm||{}).publish_time||'11:30')+' 發。')+'</p>';
     if(openTr)h+=trackBox(tr,S.ch,null);
     h+=chosen.map(function(tp){var px=picks.filter(function(x){return x.id===tp.id;})[0]||{},i=ids.indexOf(tp.id);
-      var ep=Object.keys(V).filter(function(e){return V[e].topic===tp.id&&V[e].week===w.id;})[0]||wkEps[i],v=ep&&V[ep];
+      /* 10-14b（Benson：狗被標成 #06、賽鴿 #07，看起來很亂）：只有片子真的寫了 topic 才標集數，不再照順序硬配 */
+      var ep=Object.keys(V).filter(function(e){return V[e].topic===tp.id&&V[e].week===w.id;})[0],v=ep&&V[ep];
       var hk=(tp.hooks||[])[px.hook];
       return '<div class="pk"><div class="pt">'+(v?'<span class="no">'+no2(v.no)+'</span>':'')+'<b>'+esc(tp.title)+'</b></div>'+
         (hk?'<div class="op">開場：<q>'+esc(hk)+'</q></div>':'')+
