@@ -1014,15 +1014,16 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
     if(open&&!S.picks[pk])S.picks[pk]=lsGet(pk,{});
     var sel=open?S.picks[pk]:{};
     if(!open){(p?p.picks:(w.picks||[])).forEach(function(x){sel[x.id]=x.hook;});}
-    var need=w.pickCount||3,st=p?'已送出，等電腦收':open?'挑 '+need+' 個，每個選一句開場':w.pickedBy==='producer'?'你沒選，製作人代挑了':'已選好，製作中';
+    var need=w.pickCount||3,st=p?'已送出，等電腦收':open?'挑 '+need+' 個':w.pickedBy==='producer'?'你沒選，製作人代挑了':'已選好，製作中';
     var h='<div class="wk"><b>'+esc(w.label||w.id)+'</b><span class="pill '+(open?'warn':'ok')+'">'+st+'</span></div>'+
-      '<p class="pnote">'+(open?(w.deadline?esc(slot(w.deadline))+' 前沒選，製作人會挑'+(need===1?'排名第 1 的':'排名前 '+need+' 的')+'、用第一句開場。':''):'這'+(need===1?'支':'週的 '+need+' 支')+'會在 '+esc(w.slotsText||'週二、週四、週六')+' 11:30 發。')+'</p>';
-    h+=w.topics.map(function(tp,i){var on=tp.id in sel,hooks=tp.hooks||[];
+      '<p class="pnote">'+(open?(w.deadline?esc(slot(w.deadline))+' 前沒選，製作人會挑'+(need===1?'排名第 1 的':'排名前 '+need+' 的')+'。':'')+'標題和第一句等稿子寫好再讓你選。':'這'+(need===1?'支':'週的 '+need+' 支')+'會在 '+esc(w.slotsText||'週二、週四、週六')+' 11:30 發。')+'</p>';
+    /* 10-14d（Benson）：選題只挑「這支片在講什麼」——大字用白話 plain；標題（問句）和第一句留到審稿再選，不再選開場。舊題目沒有 plain 才照舊顯示標題＋選開場 */
+    h+=w.topics.map(function(tp,i){var on=tp.id in sel,hooks=tp.plain?[]:(tp.hooks||[]);
       var hh='';if(hooks.length&&(on||!open)){hh='<div class="hooks"><span class="lab">'+(open?'選一句開場：':'開場：')+'</span>'+hooks.map(function(s,j){
         if(!open)return on&&sel[tp.id]===j?'<div class="hk static" aria-pressed="true">'+esc(s)+'</div>':'';
         return '<button type="button" class="hk" data-t="'+esc(tp.id)+'" data-h="'+j+'" aria-pressed="'+(sel[tp.id]===j)+'">「'+esc(s)+'」</button>';}).join('')+'</div>';}
       return '<div class="topic'+(on?' on':'')+(!open&&!on?' dim':'')+'"><button type="button" class="hd" data-t="'+esc(tp.id)+'" '+(open?'':'disabled')+' aria-pressed="'+on+'"><span class="tick">'+(on?'✓':'')+'</span>'+
-        '<div class="rank">企劃排名 '+(i+1)+(tp.animal?'　·　'+esc(tp.animal):'')+'</div><div class="tt">'+esc(tp.title)+'</div>'+
+        '<div class="rank">企劃排名 '+(i+1)+(tp.animal?'　·　'+esc(tp.animal):'')+'</div><div class="tt">'+esc(tp.plain||tp.title)+'</div>'+
         (tp.why?'<div class="why">'+esc(tp.why)+'</div>':'')+
         '<div class="facts">'+(tp.film==null?'':typeof tp.film==='number'?'<span class="'+(tp.film<4?'warnf':'')+'">4K 實拍素材 '+esc(tp.film)+' 支'+(tp.film<4?'（偏少）':'')+'</span>':'<span>畫面：'+esc(tp.film)+'</span>')+(tp.source?'<span>來源：'+esc(tp.source)+'</span>':'')+'</div></button>'+hh+'</div>';}).join('');
     return h;
@@ -1041,8 +1042,8 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
     h+=chosen.map(function(tp){var px=picks.filter(function(x){return x.id===tp.id;})[0]||{},i=ids.indexOf(tp.id);
       /* 10-14b（Benson：狗被標成 #06、賽鴿 #07，看起來很亂）：只有片子真的寫了 topic 才標集數，不再照順序硬配 */
       var ep=Object.keys(V).filter(function(e){return V[e].topic===tp.id&&V[e].week===w.id;})[0],v=ep&&V[ep];
-      var hk=(tp.hooks||[])[px.hook];
-      return '<div class="pk"><div class="pt">'+(v?'<span class="no">'+no2(v.no)+'</span>':'')+'<b>'+esc(tp.title)+'</b></div>'+
+      var hk=tp.plain?null:(tp.hooks||[])[px.hook];
+      return '<div class="pk"><div class="pt">'+(v?'<span class="no">'+no2(v.no)+'</span>':'')+'<b>'+esc(tp.plain||tp.title)+'</b></div>'+
         (hk?'<div class="op">開場：<q>'+esc(hk)+'</q></div>':'')+
         ((tp.why||tp.source)?'<details><summary>看企劃說明</summary>'+(tp.why?'<p>'+esc(tp.why)+'</p>':'')+(tp.source?'<p>來源：'+esc(tp.source)+'</p>':'')+'</details>':'')+'</div>';}).join('');
     if(rest.length)h+='<details class="fold"><summary>沒選的 '+rest.length+' 個題目</summary>'+rest.map(function(tp){return '<div class="dimrow">'+esc(tp.title)+(tp.animal?'<small>'+esc(tp.animal)+'</small>':'')+'</div>';}).join('')+'</details>';
