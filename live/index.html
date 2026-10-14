@@ -1185,7 +1185,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
     var prog=eps.filter(function(e){return ['revise','approved','producing','scriptRevise'].indexOf(es[e])>=0||(es[e]==='scriptReview'&&!V[e].script);});
     var sch=eps.filter(function(e){return es[e]==='scheduled';});
     var pub=eps.filter(function(e){return es[e]==='published'||es[e]==='skipped';}).reverse();
-    var h=(sr.length?'<h2>稿子等你看</h2>'+sr.map(function(e){return scriptCard(e,V[e]);}).join(''):'')+
+    var h='<h2>稿子等你看</h2>'+(sr.length?sr.map(function(e){return scriptCard(e,V[e]);}).join(''):'<div class="empty">沒有等你看的稿子。編劇寫好會推播通知你，選好標題、第一句按「好」才會開始做片。</div>')+
       '<h2>等你看</h2>'+(rv.length?rv.map(function(e){return card(e,V[e]);}).join(''):'<div class="empty">沒有等你看的片。做好的片會送過來（發片當天 '+esc((chan().rhythm||{}).review_deadline||'09:00')+' 前要按好）。</div>');
     var pl=planView(V);
     if(prog.length||pl)h+='<h2>進行中</h2>'+prog.map(function(e){return progCard(e,V[e],es[e]);}).join('')+pl;
