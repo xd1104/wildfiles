@@ -541,9 +541,9 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
   function mdw(t){return mdT(t)+'（'+WD[tw(t).getUTCDay()]+'）';}
   /* 相對今天：今天只寫時間、明天寫「明天」、其他寫日期 */
   function when(t){var dd=dayNo(t)-dayNo(Date.now());return (dd===0?'':dd===1?'明天 ':dd===-1?'昨天 ':mdw(t))+hhmm(t);}
-  /* 電腦每 10 分鐘收一次手機按的（live_stats，:00 :10 :20…，全天）；製作排程 09:00～23:30 每 30 分鐘醒來，23:30 後等隔天 09:00 */
+  /* 電腦每 10 分鐘收一次手機按的（live_stats，:00 :10 :20…，全天）；製作排程 09:00～23:50 每 10 分鐘醒來（10-14 從 30 分改），23:50 後等隔天 09:00 */
   function nextRecv(t){return Math.floor(t/(10*MIN))*10*MIN+10*MIN;}
-  function nextRun(t){var s=Math.ceil(t/(30*MIN))*30*MIN;if(tw(s).getUTCHours()<9)s=dayNo(s)*DAY-TZ+9*HR;return s;}
+  function nextRun(t){var s=Math.ceil(t/(10*MIN))*10*MIN;if(tw(s).getUTCHours()<9)s=dayNo(s)*DAY-TZ+9*HR;return s;}
   function slot(iso){if(!iso)return '';var t=T(iso);return mdw(t)+hhmm(t);}
   function toast(t){var el=$('toast');el.textContent=t;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(function(){el.classList.remove('on');},2600);}
   function no2(n){return '#'+String(n).padStart(2,'0');}
@@ -1092,7 +1092,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
     else if(L.locked)rows.push({s:L.gotOk?'now':'tdo',t:'預計'+lbl,tm:'',sub:workingTxt(cid)});
     else{var nine=hhmm(L.start)==='09:00',nx=dayNo(L.start)>dayNo(Math.max(tr.sent,Date.now()));
       rows.push({s:L.gotOk?'now':'tdo',t:'預計'+lbl,tm:'約 '+when(L.start),
-        sub:L.late?'排程晚了：上一班沒開始，改等下一班':nine&&nx?'製作排程 23:30 後休息，明早 09:00 第一班':nine?'製作排程 09:00 開始第一班':'製作排程每 30 分鐘醒來一次，會晚 0⁠～⁠2 分'});}
+        sub:L.late?'排程晚了：上一班沒開始，改等下一班':nine&&nx?'製作排程 23:50 後休息，明早 09:00 第一班':nine?'製作排程 09:00 開始第一班':'製作排程每 10 分鐘醒來一次，會晚 0⁠～⁠2 分'});}
     if(k==='revise'){
       if(!done)rows.push(L.started?{s:'now',t:'處理中：'+phaseName(tr,v),tm:''}:{s:'tdo',t:'處理中',tm:''});
       rows.push(done?{s:'ok',t:(v&&v.ver?'第 '+v.ver+' 版':'新版')+'送審，已推手機通知',tm:typeof tr.done==='number'?when(tr.done):''}:{s:'tdo',t:'新版送審',tm:'',sub:'好了會推手機通知'});}
