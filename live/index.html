@@ -1229,7 +1229,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
   function optHTML(sc,k,j,s){var b=k==='hook'&&sc.big&&sc.big[j];return b?'<span class="bigt">大字：'+esc(b)+'</span><br><span class="lab">旁白：</span>'+esc(s):esc(s);}
   function spickOf(e,v){var sc=v.script||{},k=ck('wfl.spick.')+e+':'+(sc.ver||1);S.spick=S.spick||{};
     if(!S.spick[k])S.spick[k]=lsGet(k,{});var o=S.spick[k],op=sc.opts||{};
-    SOPT.forEach(function(x){if((op[x[0]]||[]).length===1)o[x[0]]=0;});return {key:k,sel:o};}
+    SOPT.forEach(function(x){if((op[x[0]]||[]).length===1||(x[0]==='title'&&o.title==null&&(op.title||[]).length))o[x[0]]=0;});return {key:k,sel:o};}   /* 標題不給選：預設第 1 個（製作人推薦） */
   function scriptText(sc,sel){var op=sc.opts||{},nm={hook:'第一句',end:'結尾',title:'標題'};
     return esc(sc.text).replace(/\{(hook|end|title)\}/g,function(m,k){var a=op[k]||[],i=sel[k];
       return i!=null&&a[i]!=null?'<mark>'+esc(a[i])+'</mark>':'<span class="miss">（'+nm[k]+'：選了才會出現）</span>';});}
@@ -1239,7 +1239,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
     return R;}
   function scriptCard(e,v){var sc=v.script,op=sc.opts||{},sel=spickOf(e,v).sel,tr=trackOf(S.ch,v,'review','ep',e);
     var miss=SOPT.filter(function(x){return (op[x[0]]||[]).length>1&&sel[x[0]]==null;});
-    var groups=SOPT.map(function(x){var a=op[x[0]]||[];if(!a.length)return '';
+    var groups=SOPT.map(function(x){var a=op[x[0]]||[];if(!a.length||x[0]==='title')return '';   /* 10-15 Benson：標題不用他選（製作人照 A1 定），審稿頁不顯示 */
       var hint='<span class="pnote">（'+SHINT[x[0]]+'）</span>';
       if(a.length===1)return '<div class="hooks"><span class="lab">'+x[1]+hint+'：</span><div class="hk static" aria-pressed="true">'+optHTML(sc,x[0],0,a[0])+'</div></div>';
       return '<div class="hooks"><span class="lab">選一個'+x[1]+hint+'：</span>'+a.map(function(s,j){
