@@ -1225,8 +1225,8 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
      稿子裡的 {hook}／{end}／{title} 會換成目前選的那個（黃底）；只有 1 個選項就不用選。 */
   var SOPT=[['title','標題'],['hook','開場'],['end','結尾']];
   /* 10-15 Benson：每個選項說明它出現在哪；開場＝第 0 秒大字（script.big，跟 hook 一對一）＋旁白第一句 */
-  var SHINT={title:'平台上的影片標題',hook:'第 0 秒畫面大字＋旁白第一句',end:'旁白最後一句'};
-  function optHTML(sc,k,j,s){var b=k==='hook'&&sc.big&&sc.big[j];return b?'<span class="bigt">大字：'+esc(b)+'</span><br><span class="lab">旁白：</span>'+esc(s):esc(s);}
+  var SHINT={title:'平台上的影片標題',hook:'大字＝影片標題，第 0 秒出現；下面是旁白第一句',end:'旁白最後一句，講完影片就結束'};
+  function optHTML(sc,k,j,s){var b=k==='hook'&&sc.big&&sc.big[j];return b?'<span class="bigt">標題大字：'+esc(b)+'</span><br><span class="lab">旁白：</span>'+esc(s):esc(s);}
   function spickOf(e,v){var sc=v.script||{},k=ck('wfl.spick.')+e+':'+(sc.ver||1);S.spick=S.spick||{};
     if(!S.spick[k])S.spick[k]=lsGet(k,{});var o=S.spick[k],op=sc.opts||{};
     SOPT.forEach(function(x){if((op[x[0]]||[]).length===1||(x[0]==='title'&&o.title==null&&(op.title||[]).length))o[x[0]]=0;});return {key:k,sel:o};}   /* 標題不給選：預設第 1 個（製作人推薦） */
