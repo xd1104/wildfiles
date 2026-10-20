@@ -92,6 +92,8 @@ h2.sh .pill{font-size:11px;padding:1px 8px;letter-spacing:0}
 .vid .ms>span{white-space:nowrap}
 .vid .ms b{color:var(--text);font-family:var(--num);font-weight:600;font-size:14px}
 .vid .ms .sl{color:var(--warn)}
+.vid .ms .up,.vid .ms .g3{font-family:var(--num);font-weight:600;font-size:14px} .vid .ms .g3{color:var(--faint)}
+.vid .ms small,.vcell .g small{font-size:11px;font-weight:400;opacity:.8;margin-left:1px}
 /* 最底下「更多」 */
 details.more{margin-top:18px;border-top:1px solid var(--line)}
 details.more>summary{cursor:pointer;list-style:none;padding:12px 2px;font-size:14px;color:var(--muted);display:flex;justify-content:space-between;gap:10px}
@@ -777,7 +779,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
     var h=summary(d,eps)+'<h2 class="sh">每支片'+(eps.length&&few?'<span class="pill warn">樣本少</span>':'')+'</h2>';
     h+=eps.length?eps.map(vcard).join(''):'<div class="empty">還沒有發出去的片。<br>第一支發布後約 10 分鐘，這裡就會出現。</div>';
     var lost=0;PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok)(x.videos||[]).forEach(function(v){if(!v.ep)lost++;});});
-    if(eps.length)h+='<p class="note">大數字＝各平台觀看合計；下面一行是各平台。「比平常同時間、前 3 秒、平均看完」看 YouTube（會賺錢的平台；YouTube 還沒有時用 IG）。</p>';
+    if(eps.length)h+='<p class="note">大數字＝各平台觀看合計；下面一行是各平台。平均看完看 YouTube（還沒有時用 IG）；+N/3h＝最近 3 小時新增觀看。</p>';
     if(lost)h+='<p class="note">另有 '+lost+' 支片還沒對上集數。</p>';
     return h+moreBox(d);
   }
@@ -798,13 +800,11 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
       '<br>照一週 '+pw+' 支算，每支平均要約 '+per+' 萬有效觀看才達標，重點是找出「哪一支開始爆」。'+(X.target&&!X.total?'<br>實驗目標：任一支破 '+(X.target>=1e4?fmt(X.target/1e4)+' 萬':fmt(X.target))+'。':'')+'</div>';}
   /* 片卡三行：①（新）#NN 片名＋YouTube 觀看 › ② 一句結論 ③ 小字：同時間・開頭・看完・推不推（沒資料就省略） */
   function vcard(e){
-    var E=e.E,V=E.verdict,hk=E.hook,w=E.watch,ps=E.push||{},bits=[];
-    var st=sameTxt(E.same);if(st)bits.push(st);
-    /* 10-08h（Benson 看不懂指標名稱）：改白話；每項各自不斷行，放不下整項換到下一行 */
-    if(hk&&hk.v!=null)bits.push('<span>'+(hk.src==='ig'?'IG 前 3 秒沒滑走':'YT 前 3 秒留下')+' <b>'+Math.round(hk.v)+'%</b>'+arrow(hk)+'</span>');
+    /* 10-20 Benson：片卡只留各平台觀看＋平均看完；結論句（開頭留不住人…）、前 3 秒、比平常同時間拿掉；
+       「還在推／變慢／停了」的字改成數字：近 3 小時新增觀看（+N/3h），沒在漲就灰色 +0 */
+    var E=e.E,w=E.watch,ps=E.push||{},bits=[];
     if(w&&w.v!=null)bits.push('<span>平均看完 <b>'+Math.round(w.v)+'%</b>'+arrow(w)+'</span>');
-    var lb=ps.label||(ps.on===true?'還在推':ps.on===false?'停了':'');
-    if(lb==='還在推')bits.push('<span class="up">還在推</span>');else if(lb==='變慢')bits.push('<span class="sl">變慢</span>');else if(lb==='停了')bits.push('<span>停了</span>');
+    if(ps.d3!=null)bits.push('<span class="'+(ps.d3>0?'up':'g3')+'">+'+fmt(ps.d3)+'<small>/3h</small></span>');
     var isNew=(Date.now()-new Date(e.slot).getTime())/3600e3<24;
     /* 10-08c：片名下多一行各平台小字；Threads 還沒接數據前片卡不列 */
     var split=plats().filter(function(k){return k!=='th'||(e.v.th&&e.v.th.views!=null);}).map(function(k){var x=k==='yt'?e.views:(e.v[k]?e.v[k].views:null),P=PFN[k];
@@ -814,16 +814,15 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
       '<span class="tt">'+(isNew?'<span class="new">新</span>':'')+'<span class="no">'+no2(e.no)+'</span>'+esc(cleanTitle(e.title))+'</span>'+
       '<span class="vw"><span class="n">'+fmt(e.total)+'</span><em aria-hidden="true">›</em></span>'+
       '<span class="split">'+split+'</span>'+
-      (V?'<span class="vd '+esc(V.tone)+'"><i></i><span>'+esc(V.t)+'</span></span>':'')+
       (bits.length?'<span class="ms">'+bits.join('')+'</span>':'')+'</button>';}
   /* 最底下「更多」：每小時觀看、各平台合計、怎麼看、手機提醒（提醒卡不放上面了，沒開過的人從這裡開） */
   function moreBox(d){
     var h='<details class="more" id="more"'+(S.moreOpen?' open':'')+'><summary>更多：每小時觀看、各平台合計、怎麼看'+(pushOn()?'':'、手機提醒')+'</summary>';
     if(d){h+='<div class="mh">最近 3 天每小時新增觀看</div>'+chart(d.hist||[])+'<div class="mh">各平台合計（各平台算法不同，只看大概）</div>'+totals(d);
-      h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝各平台觀看合計（YouTube 取公開數與後台數大的那個）；<b>比平常同時間、前 3 秒、平均看完</b>看 YouTube（會賺錢的平台）。<br><b>YT 前 3 秒留下</b>＝在 YouTube 滑到這支片的人，幾成停下來看；YouTube 還沒出來時改看 <b>IG 前 3 秒沒滑走</b>。<b>平均看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<b>YT 比平常同時間</b>＝發布一樣久，YouTube 觀看比其他片多或少幾 %。<br>'+
-        '<span class="up">▲</span><span class="dn">▼</span>＝比其他片的中間值高／低 5 點以上（比平常同時間是 30%）；不到 6 支片都只供參考。<b>還在推／變慢／停了</b>：YouTube 最近還有沒有在送觀看；公開數常卡好幾小時，卡住時不判。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
+      h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝各平台觀看合計（YouTube 取公開數與後台數大的那個）；<b>平均看完</b>看 YouTube（會賺錢的平台）。<br><b>平均看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<br>'+
+        '<span class="up">▲</span><span class="dn">▼</span>＝比其他片的中間值高／低 5 點以上；不到 6 支片都只供參考。<b>+N/3h</b>：最近 3 小時新增的觀看（灰色＝沒在漲）；YouTube 公開數常卡好幾小時，卡住時不顯示。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
     var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
-    return h+'<p class="note">版本 10-13a・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+    return h+'<p class="note">版本 10-20a・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
   /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
@@ -911,7 +910,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
     return '<div class="vsum"><span>合計觀看'+badNote(e)+'</span><span class="n">'+fmt(e.total)+'</span></div><div class="vgrid'+(five?' g5':'')+(two?' two':'')+'">'+P.map(function(k){var x=e.v[k],bad=e.bad[k],c=PFN[k].c,nm=five?PFN[k].s:pname(k);
       if(!x)return '<div class="vcell off"><div class="pn"><span class="sw" style="background:'+c+'"></span>'+nm+'</div><div class="pv n">—</div><div class="ps">'+(k==='th'?'沒數據':'沒有這支')+'</div>'+(k==='th'?'<div class="ps">API 還沒接</div>':'')+man(k)+'</div>';
       var s=k==='tt'?(five?'不提供':'官方不提供'):x.avgPct!=null?'平均看完 <span style="white-space:nowrap">'+x.avgPct+'%</span>':'&nbsp;';
-      var sp=spark(hist,e.id,k,slotT,c),lb3=five?'3時 ':'近3時 ',grow=sp.d3==null?'&nbsp;':(sp.d3>0?'<span class="up">'+lb3+'+'+fmt(sp.d3)+'</span>':'<span class="stop">'+lb3+'停了</span>');
+      var sp=spark(hist,e.id,k,slotT,c),grow=sp.d3==null?'&nbsp;':'<span class="'+(sp.d3>0?'up':'stop')+'">+'+fmt(sp.d3)+'<small>/3h</small></span>';   /* 10-20：不寫「停了」，沒在漲就灰色 +0 */
       return '<div class="vcell'+(bad?' badc':'')+'"><div class="pn"><span class="sw" style="background:'+c+'"></span>'+nm+'</div><div class="pv n">'+fmt(k==='yt'?e.views:x.views)+'</div>'+
         (bad?'<div class="warnt">流程出錯<br>不算</div>':'<div class="ps st'+(x.avgPct!=null&&k!=='tt'?' avg':'')+'">'+s+'</div>'+sp.svg+'<div class="ps g">'+grow+'</div>')+man(k)+'</div>';}).join('')+'</div>';}
   function comments(e){
@@ -925,9 +924,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
       :'<div class="empty" style="margin-top:8px">還沒有人留言。</div>');}
   function qb(id,txt){return '<button class="qbtn" type="button" data-q="'+id+'" aria-label="說明" aria-expanded="false">?</button></div><div class="qtx" id="'+id+'" hidden>'+txt+'</div>';}
   function detailBody(e){
-    var V=e.E.verdict,h='';
-    h+=V?'<div class="verd '+esc(V.tone)+'"><div class="t">'+esc(V.t)+'</div><div class="nx"><b>該做什麼</b>'+esc(V.next)+'</div></div>':
-      '<div class="verd"><div class="t">電腦還沒算結論</div></div>';
+    var V=e.E.verdict,h='';   /* 10-20 Benson：結論句（開頭留不住人…＋該做什麼）拿掉，太雜 */
     var ya=e.v.yt||{},apx=ya.ytaEngagedPct!=null?'<br>YouTube 報表沒有一模一樣的數字；近似值（有效觀看÷觀看）＝'+ya.ytaEngagedPct+'%，跟後台對照中，先不拿來比。':'';
     h+='<div class="dh"><span>前 3 秒留下幾成</span>'+qb('q1','滑到這支片的人，有幾成停下來看（沒滑走）。YouTube 這條是後台的「選擇看下去」，每天早上讀一次；沒讀後台的頻道（例如計謀）改用報表近似值（有效觀看÷觀看），標「約」。白線＝其他片的中間值。'+apx+(V&&V.conf?'<br>'+esc(V.conf):''))+'<div class="dcard">'+hookBars(e)+'</div>';
     h+='<div class="dh"><span>整支片哪裡跑掉</span>'+qb('q2','YouTube 每一秒還剩幾 % 的人（YouTube 報表，慢 2～3 天）。超過 100% 是有人重播（圖的上緣會跟著放大）。虛線＝其他片同一秒的中間值。FB 的曲線放在下面當輔助：FB 第 3 秒幾乎都還有 9 成以上，開頭好壞看上面那塊。')+'<div class="dcard">'+retView(e,epList(S.stats))+'</div>';
