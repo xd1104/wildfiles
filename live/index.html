@@ -180,6 +180,8 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
 .cm .who span{color:var(--muted);font-size:12px;white-space:nowrap;margin-left:auto}
 .cm p{margin:3px 0 0 14px;font-size:15px;line-height:1.5;overflow-wrap:anywhere}
 .cm.rp{padding-left:16px}
+.chg>summary.ct{cursor:pointer;list-style:none;margin:0} .chg>summary.ct::-webkit-details-marker{display:none} .chg>summary.ct::after{content:' ＋';color:var(--muted);font-weight:400} .chg[open]>summary.ct::after{content:' －'} .chg[open]>summary.ct{margin-bottom:6px}
+.whyd{margin:2px 0 0;font-size:13px;color:var(--muted)} .whyd>summary{cursor:pointer;list-style:none} .whyd>summary::-webkit-details-marker{display:none} .whyd>summary::after{content:' ＋'} .whyd[open]>summary::after{content:' －'} .whyd .why{margin-top:6px;white-space:pre-wrap}
 .empty{padding:24px 16px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px;font-size:14px}
 .note{font-size:12px;color:var(--faint);margin-top:18px}
 .pnote{font-size:13px;color:var(--muted)}
@@ -821,7 +823,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
       h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝各平台觀看合計（YouTube 取公開數與後台數大的那個）；<b>平均看完</b>看 YouTube（會賺錢的平台）。<br><b>平均看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<br>'+
         '<span class="up">▲</span><span class="dn">▼</span>＝比其他片的中間值高／低 5 點以上；不到 6 支片都只供參考。<b>+N/3h</b>：最近 3 小時新增的觀看（灰色＝沒在漲）；YouTube 公開數常卡好幾小時，卡住時不顯示。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
     var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
-    return h+'<p class="note">版本 10-20b・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+    return h+'<p class="note">版本 10-20c・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
   /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
@@ -1012,17 +1014,17 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
     var sel=open?S.picks[pk]:{};
     if(!open){(p?p.picks:(w.picks||[])).forEach(function(x){sel[x.id]=x.hook;});}
     var need=w.pickCount||3,st=p?'已送出，等電腦收':open?'挑 '+need+' 個':w.pickedBy==='producer'?'你沒選，製作人代挑了':'已選好，製作中';
+    /* 10-20 精簡：說明句只留截止時間 */
     var h='<div class="wk"><b>'+esc(w.label||w.id)+'</b><span class="pill '+(open?'warn':'ok')+'">'+st+'</span></div>'+
-      '<p class="pnote">'+(open?(w.deadline?esc(slot(w.deadline))+' 前沒選，製作人會挑'+(need===1?'排名第 1 的':'排名前 '+need+' 的')+'。':'')+'標題和第一句等稿子寫好再讓你選。':'這'+(need===1?'支':'週的 '+need+' 支')+'會在 '+esc(w.slotsText||'週二、週四、週六')+' 11:30 發。')+'</p>';
+      (open&&w.deadline?'<p class="pnote">'+esc(slot(w.deadline))+' 前沒選會代挑</p>':'');
     /* 10-14d（Benson）：選題只挑「這支片在講什麼」——大字用白話 plain；標題（問句）和第一句留到審稿再選，不再選開場。舊題目沒有 plain 才照舊顯示標題＋選開場 */
     h+=w.topics.map(function(tp,i){var on=tp.id in sel,hooks=tp.plain?[]:(tp.hooks||[]);
       var hh='';if(hooks.length&&(on||!open)){hh='<div class="hooks"><span class="lab">'+(open?'選一句開場：':'開場：')+'</span>'+hooks.map(function(s,j){
         if(!open)return on&&sel[tp.id]===j?'<div class="hk static" aria-pressed="true">'+esc(s)+'</div>':'';
         return '<button type="button" class="hk" data-t="'+esc(tp.id)+'" data-h="'+j+'" aria-pressed="'+(sel[tp.id]===j)+'">「'+esc(s)+'」</button>';}).join('')+'</div>';}
       return '<div class="topic'+(on?' on':'')+(!open&&!on?' dim':'')+'"><button type="button" class="hd" data-t="'+esc(tp.id)+'" '+(open?'':'disabled')+' aria-pressed="'+on+'"><span class="tick">'+(on?'✓':'')+'</span>'+
-        '<div class="rank">企劃排名 '+(i+1)+(tp.animal?'　·　'+esc(tp.animal):'')+'</div><div class="tt">'+esc(tp.plain||tp.title)+'</div>'+
-        (tp.why?'<div class="why">'+esc(tp.why)+'</div>':'')+
-        '<div class="facts">'+(tp.film==null?'':typeof tp.film==='number'?'<span class="'+(tp.film<4?'warnf':'')+'">4K 實拍素材 '+esc(tp.film)+' 支'+(tp.film<4?'（偏少）':'')+'</span>':'<span>畫面：'+esc(tp.film)+'</span>')+(tp.source?'<span>來源：'+esc(tp.source)+'</span>':'')+'</div></button>'+hh+'</div>';}).join('');
+        '<div class="rank">'+(i+1)+'</div><div class="tt">'+esc(tp.plain||tp.title)+'</div>'+
+        '</button>'+(tp.why?'<details class="whyd"><summary>看說明</summary><div class="why">'+esc(tp.why)+'</div></details>':'')+hh+'</div>';}).join('');   /* 10-20：說明（大綱）預設折起來 */   /* 10-20 精簡：排名只留數字，動物名、4K 素材數、來源拿掉 */
     return h;
   }
   /* 10-08c 選完之後折起來（spec §9）：只留選中的（集數＋標題＋開場），企劃說明收進「看企劃說明」，沒選的整組折起來；送出後、開工前多一條追蹤條 */
@@ -1033,16 +1035,14 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
     var wkEps=Object.keys(V).filter(function(e){return V[e].week===w.id;}).sort(function(a,b){return (V[a].no||0)-(V[b].no||0);});
     var wdone=w.status==='done';   /* 10-13a：這週挑的都發布了（work.py 標 week.status=done）⇒ 不再寫「製作中」 */
     var st=openTr?'已送出':wdone?'這週都發完了':w.pickedBy==='producer'?'你沒選，製作人代挑了':'已選好・製作中';
-    var h='<div class="wk"><b>'+esc(w.label||w.id)+'</b><span class="pill '+(openTr?'acc':'ok')+'">'+st+'</span></div>'+
-      '<p class="pnote">這'+(need===1?'支':' '+need+' 支')+(wdone?'已經在 '+esc(w.slotsText||'週二、週四、週六')+' 發完了，下週五會出新題目。':'會在 '+esc(w.slotsText||'週二、週四、週六')+' '+esc((chan().rhythm||{}).publish_time||'11:30')+' 發。')+'</p>';
+    var h='<div class="wk"><b>'+esc(w.label||w.id)+'</b><span class="pill '+(openTr?'acc':'ok')+'">'+st+'</span></div>';   /* 10-20 精簡：拿掉「這 3 支會在…發」說明 */
     if(openTr)h+=trackBox(tr,S.ch,null);
     h+=chosen.map(function(tp){var px=picks.filter(function(x){return x.id===tp.id;})[0]||{},i=ids.indexOf(tp.id);
       /* 10-14b（Benson：狗被標成 #06、賽鴿 #07，看起來很亂）：只有片子真的寫了 topic 才標集數，不再照順序硬配 */
       var ep=Object.keys(V).filter(function(e){return V[e].topic===tp.id&&V[e].week===w.id;})[0],v=ep&&V[ep];
       var hk=tp.plain?null:(tp.hooks||[])[px.hook];
-      return '<div class="pk"><div class="pt">'+(v?'<span class="no">'+no2(v.no)+'</span>':'')+'<b>'+esc(tp.plain||tp.title)+'</b></div>'+
-        (hk?'<div class="op">開場：<q>'+esc(hk)+'</q></div>':'')+
-        ((tp.why||tp.source)?'<details><summary>看企劃說明</summary>'+(tp.why?'<p>'+esc(tp.why)+'</p>':'')+(tp.source?'<p>來源：'+esc(tp.source)+'</p>':'')+'</details>':'')+'</div>';}).join('');
+      return '<div class="pk"><div class="pt">'+(v?'<span class="no">'+no2(v.no)+'</span>':'')+'<b>'+esc(tp.plain||tp.title)+'</b>'+(v&&v.slot?'<small style="margin-left:auto;color:var(--muted);font-size:12px;white-space:nowrap">'+esc(mdT(T(v.slot)))+'</small>':'')+'</div>'+
+        (hk?'<div class="op">開場：<q>'+esc(hk)+'</q></div>':'')+'</div>';}).join('');   /* 10-20 精簡：企劃說明拿掉，右邊只放發片日 */
     if(rest.length)h+='<details class="fold"><summary>沒選的 '+rest.length+' 個題目</summary>'+rest.map(function(tp){return '<div class="dimrow">'+esc(tp.title)+(tp.animal?'<small>'+esc(tp.animal)+'</small>':'')+'</div>';}).join('')+'</details>';
     return h;}
   function bindTopics(){var w=S.work.week;if(!w)return;var pk=ck(LS_PICK)+w.id;
@@ -1154,7 +1154,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
       (man.length?'<div class="pubk"><b>到點手動</b>＝平台不能預約，製作人到時間自己發：'+esc(man.join('、'))+'</div>':'');}
   /* 這版改了什麼（放在影片上面：先知道要看哪裡再按播放）；沒有 changes 就把製作人的 note 當一條 */
   function changesBox(v,R){var c=v.changes;
-    if(c&&c.items&&c.items.length)return '<div class="chg"><div class="ct">這版改了什麼'+(c.from&&c.to?'（第 '+c.from+' 版 → 第 '+c.to+' 版）':'')+'</div><ul>'+c.items.map(function(s){return '<li>'+esc(s)+'</li>';}).join('')+'</ul></div>';
+    if(c&&c.items&&c.items.length)return '<details class="chg"><summary class="ct">這版改了什麼（'+c.items.length+' 項）</summary><ul>'+c.items.map(function(s){return '<li>'+esc(s)+'</li>';}).join('')+'</ul></details>';   /* 10-20 精簡：預設折起來 */
     if(v.note&&v.status==='review'&&!R.some(function(r){return r.text===v.note;}))return '<div class="chg"><div class="ct">這版改了什麼</div><ul><li>'+esc(v.note)+'</li></ul></div>';
     return '';}
   /* 你的修改意見：新欄位 rounds；沒有就用舊的 history／revisedFrom 當成已處理（spec §0） */
@@ -1184,8 +1184,10 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
     var prog=eps.filter(function(e){return ['revise','approved','producing','scriptRevise'].indexOf(es[e])>=0||(es[e]==='scriptReview'&&!V[e].script);});
     var sch=eps.filter(function(e){return es[e]==='scheduled';});
     var pub=eps.filter(function(e){return es[e]==='published'||es[e]==='skipped';}).reverse();
-    var h='<h2>稿子等你看</h2>'+(sr.length?sr.map(function(e){return scriptCard(e,V[e]);}).join(''):'<div class="empty">沒有等你看的稿子。編劇寫好會推播通知你，選好標題、第一句按「好」才會開始做片。</div>')+
-      '<h2>等你看</h2>'+(rv.length?rv.map(function(e){return card(e,V[e]);}).join(''):'<div class="empty">沒有等你看的片。做好的片會送過來（發片當天 '+esc((chan().rhythm||{}).review_deadline||'09:00')+' 前要按好）。</div>');
+    /* 10-20 精簡（Benson：審片、選題也要改，少字）：空的區塊整個不顯示；兩區都空才一行「目前沒有要你看的」 */
+    var h=(sr.length?'<h2>稿子等你看</h2>'+sr.map(function(e){return scriptCard(e,V[e]);}).join(''):'')+
+      (rv.length?'<h2>片子等你看</h2>'+rv.map(function(e){return card(e,V[e]);}).join(''):'');
+    if(!sr.length&&!rv.length)h='<div class="empty">目前沒有要你看的</div>';
     var pl=planView(V);
     if(prog.length||pl)h+='<h2>進行中</h2>'+prog.map(function(e){return progCard(e,V[e],es[e]);}).join('')+pl;
     if(sch.length)h+='<h2>已排程</h2>'+sch.map(function(e){return progCard(e,V[e],es[e]);}).join('');
@@ -1211,10 +1213,8 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
       ((v.ver||d)?'<div class="sub">'+(v.ver?'<span class="pill acc">第 '+v.ver+' 版</span>':'')+(d?'<span class="pnote">'+Math.round(d)+' 秒</span>':'')+'</div>':'')+
       changesBox(v,R)+
       '<div class="player" id="pl-'+e+'">'+pl+'</div>'+
-      roundsBox(R)+(v.qa?'<div class="qa">品管：'+esc(v.qa)+'</div>':'')+
+      roundsBox(R)+   /* 10-20 精簡：拿掉品管那行、進度格子、處理紀錄 */
       (v.caption?'<details class="cap"><summary>上架標題與說明</summary><pre>'+esc(v.caption)+'</pre></details>':'')+
-      stepsRow(v,tr,'review')+
-      (tr&&tr.done&&tr.kind==='revise'&&typeof tr.done==='number'?'<details class="fold" style="margin-top:10px"><summary>處理紀錄：'+esc(when(tr.sent))+' 送出 → '+esc(when(tr.done))+' 送審</summary>'+trackBox(tr,S.ch,v)+'</details>':'')+
       '<div class="acts"><button class="btn" data-fix="'+e+'" type="button">要修改</button><button class="btn primary wide" data-ok="'+e+'" type="button">好，照排</button></div></div>';}
   /* ── 10-14 審稿（Benson：挑題目 → 審稿 → 審片）：整份稿＋標題／第一句／結尾選項，按「好」才開始配音剪輯／出片 ──
      狀態：videos.epNN.script={ver,at,text,opts:{title,hook,end},changes,note}、scriptRounds（稿子的修改意見）、scriptPick（選了哪個）
@@ -1236,27 +1236,27 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
   function scriptCard(e,v){var sc=v.script,op=sc.opts||{},sel=spickOf(e,v).sel,tr=trackOf(S.ch,v,'review','ep',e);
     var miss=SOPT.filter(function(x){return (op[x[0]]||[]).length>1&&sel[x[0]]==null;});
     var groups=SOPT.map(function(x){var a=op[x[0]]||[];if(!a.length||x[0]==='title')return '';   /* 10-15 Benson：標題不用他選（製作人照 A1 定），審稿頁不顯示 */
-      var hint='<span class="pnote">（'+SHINT[x[0]]+'）</span>';
+      var hint='';   /* 10-20 精簡：拿掉（大字＝影片標題…）說明 */
       if(a.length===1)return '<div class="hooks"><span class="lab">'+x[1]+hint+'：</span><div class="hk static" aria-pressed="true">'+optHTML(sc,x[0],0,a[0])+'</div></div>';
       return '<div class="hooks"><span class="lab">選一個'+x[1]+hint+'：</span>'+a.map(function(s,j){
         return '<button type="button" class="hk" data-se="'+e+'" data-sk="'+x[0]+'" data-si="'+j+'" aria-pressed="'+(sel[x[0]]===j)+'"><b>'+String.fromCharCode(65+j)+'</b>'+optHTML(sc,x[0],j,s)+'</button>';}).join('')+'</div>';}).join('');
     var len=String(sc.text).replace(/\{(hook|end|title)\}/g,function(m,k){var a=op[k]||[];return a[sel[k]!=null?sel[k]:0]||'';}).replace(/[\s，。、！？「」『』…：；（）—\-,.!?]/g,'').length;
     return '<div class="vc">'+hdRow(v)+
-      '<div class="sub"><span class="pill acc">第 '+(sc.ver||1)+' 版稿</span><span class="pnote">約 '+len+' 字・唸約 '+Math.round(len/3.9)+' 秒</span></div>'+
-      (sc.changes&&sc.changes.length?'<div class="chg"><div class="ct">這版改了什麼（第 '+((sc.ver||2)-1)+' 版 → 第 '+(sc.ver||2)+' 版）</div><ul>'+sc.changes.map(function(s){return '<li>'+esc(s)+'</li>';}).join('')+'</ul></div>':'')+
-      (sc.note?'<div class="qa">'+esc(sc.note)+'</div>':'')+groups+
-      '<div class="sct">整份稿'+(/\{(hook|end|title)\}/.test(sc.text)?'（黃底＝你選的）':'')+'</div><div class="scr">'+scriptText(sc,sel)+'</div>'+
-      roundsBox(sRoundsOf(v,tr))+stepsRow(v,tr,'scriptReview')+
+      '<div class="sub"><span class="pill acc">第 '+(sc.ver||1)+' 版稿</span><span class="pnote">約 '+Math.round(len/3.9)+' 秒</span></div>'+
+      (sc.changes&&sc.changes.length?'<details class="chg"><summary class="ct">這版改了什麼（'+sc.changes.length+' 項）</summary><ul>'+sc.changes.map(function(s){return '<li>'+esc(s)+'</li>';}).join('')+'</ul></details>':'')+
+      groups+   /* 10-20 精簡：拿掉製作人備註、字數、進度格子 */
+      '<div class="sct">整份稿</div><div class="scr">'+scriptText(sc,sel)+'</div>'+
+      roundsBox(sRoundsOf(v,tr))+
       '<div class="acts"><button class="btn" data-sfix="'+e+'" type="button">要修改</button><button class="btn primary wide" data-sok="'+e+'" type="button"'+(miss.length?' disabled':'')+'>'+
       (miss.length?'先選'+miss.map(function(x){return x[1];}).join('、'):'好，開始做片')+'</button></div></div>';}
   function finalScript(v){var sc=v.script;if(!sc||!v.scriptPick)return '';
     return '<details class="cap"><summary>定稿（第 '+(sc.ver||1)+' 版）</summary><pre>'+scriptText(sc,v.scriptPick)+'</pre></details>';}
   function progCard(e,v,es){
     var tr=trackOf(S.ch,v,'review','ep',e),R=roundsOf(v,tr),wt=v.wait||(v.stage==='items'&&needItems()?'等'+(chan().owner||'')+'挑商品（日程分頁）':'');
-    var showTr=tr&&(!tr.done||(tr.kind==='approve'&&es!=='published'))&&!(tr.kind==='revise'&&tr.done);
+    var showTr=tr&&!tr.done;   /* 10-20 精簡：處理完的追蹤條（你送出→電腦收到…）不再留著；版本 pill 拿掉 */
     return '<div class="vc">'+hdRow(v)+
-      ((v.ver||wt)?'<div class="sub">'+(v.ver?'<span class="pill">第 '+v.ver+' 版</span>':'')+(wt?'<span class="pnote" style="color:var(--accent)">'+esc(wt)+'</span>':'')+'</div>':'')+
-      stepsRow(v,tr,es)+
+      (wt?'<div class="sub"><span class="pnote" style="color:var(--accent)">'+esc(wt)+'</span></div>':'')+
+      (es==='scheduled'||es==='approved'?'':stepsRow(v,tr,es))+   /* 已排程的看下面各平台格子就好，不用再一排進度 */
       (showTr?trackBox(tr,S.ch,v):'')+
       (es==='revise'?roundsBox(R):'')+(es==='scriptRevise'?roundsBox(sRoundsOf(v,tr)):'')+(es==='producing'?finalScript(v):'')+
       (es==='scheduled'||es==='approved'?pubGrid(v):'')+
