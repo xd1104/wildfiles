@@ -779,7 +779,6 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
     var h=summary(d,eps)+'<h2 class="sh">每支片'+(eps.length&&few?'<span class="pill warn">樣本少</span>':'')+'</h2>';
     h+=eps.length?eps.map(vcard).join(''):'<div class="empty">還沒有發出去的片。<br>第一支發布後約 10 分鐘，這裡就會出現。</div>';
     var lost=0;PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok)(x.videos||[]).forEach(function(v){if(!v.ep)lost++;});});
-    if(eps.length)h+='<p class="note">大數字＝各平台觀看合計；下面一行是各平台。平均看完看 YouTube（還沒有時用 IG）；+N/3h＝最近 3 小時新增觀看。</p>';
     if(lost)h+='<p class="note">另有 '+lost+' 支片還沒對上集數。</p>';
     return h+moreBox(d);
   }
@@ -822,7 +821,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
       h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝各平台觀看合計（YouTube 取公開數與後台數大的那個）；<b>平均看完</b>看 YouTube（會賺錢的平台）。<br><b>平均看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<br>'+
         '<span class="up">▲</span><span class="dn">▼</span>＝比其他片的中間值高／低 5 點以上；不到 6 支片都只供參考。<b>+N/3h</b>：最近 3 小時新增的觀看（灰色＝沒在漲）；YouTube 公開數常卡好幾小時，卡住時不顯示。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
     var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
-    return h+'<p class="note">版本 10-20a・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+    return h+'<p class="note">版本 10-20b・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
   /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
