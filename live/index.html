@@ -442,6 +442,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
 .vid .ms{border-top:1px solid var(--line);margin-top:7px;padding-top:7px;gap:2px 18px}
 .vid .ms .lb{color:var(--muted)}
 .vid .ms .lb b,.vid .ms .lb .up,.vid .ms .lb .g3{font-size:15.5px;margin-left:4px}
+.vid .ms .dt{order:9;margin-left:auto;color:var(--faint);font-size:12.5px;align-self:center}
 .vid .ms .lb b.up{color:var(--ok)} .vid .ms .lb b.g3{color:var(--faint)}
 .kpi .n{font-size:30px}
 </style>
@@ -848,6 +849,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
     var E=e.E,w=E.watch,ps=E.push||{},bits=[];
     /* 10-24：底下這行每張卡都有、位置固定；沒資料寫「—」 */
     bits.push('<span class="lb">平均看完'+(w&&w.v!=null?'<b>'+Math.round(w.v)+'%</b>'+arrow(w):'<b class="g3">—</b>')+'</span>');
+    if(e.slot)bits.push('<span class="dt">'+mdw(T(e.slot)).trim()+' 發</span>');   /* 10-24 Benson：片卡要看得到幾月幾號發的 */
     bits.push('<span class="lb">近 3 小時'+(ps.d3!=null?'<b class="'+(ps.d3>0?'up':'g3')+'">+'+fmt(ps.d3)+'</b>':'<b class="g3">—</b>')+'</span>');
     var isNew=(Date.now()-new Date(e.slot).getTime())/3600e3<24;
     /* 10-08c：片名下多一行各平台小字；Threads 還沒接數據前片卡不列 */
@@ -866,7 +868,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
       h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝各平台觀看合計（YouTube 取公開數與後台數大的那個）；<b>平均看完</b>看 YouTube（會賺錢的平台）。<br><b>平均看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<br>'+
         '<span class="up">▲</span><span class="dn">▼</span>＝比其他片的中間值高／低 5 點以上；不到 6 支片都只供參考。<b>+N/3h</b>：最近 3 小時新增的觀看（灰色＝沒在漲）；YouTube 公開數常卡好幾小時，卡住時不顯示。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
     var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
-    return h+'<p class="note">版本 10-24a・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+    return h+'<p class="note">版本 10-24b・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
   /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
