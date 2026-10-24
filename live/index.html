@@ -366,6 +366,9 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
 .vc .hooks .hk b{color:var(--accent);font-weight:700;margin-right:4px}
 .vc .hooks .hk .bigt{font-size:18px;font-weight:800}
 .fbk{margin-top:10px}
+.vc.rule .rtx{font-size:15px;line-height:1.6;font-weight:600}
+.vc.rule .rwhy{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.55}
+.vc.rule .acts .btn.sm{flex:none}
 .fbk .ft{font-size:12px;color:var(--muted);margin-bottom:2px}
 .fbi{padding:8px 0;border-top:1px solid var(--line)}
 .fbi .fh{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);flex-wrap:wrap}
@@ -583,6 +586,9 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
     return !!(w&&w.status==='picking'&&!pending(1).some(function(a){return (a.ch||DEF)===cid&&a.type==='pick'&&a.week===w.id;}));}
   function reviewList(cid){cid=cid||S.ch;var wk=S.all[cid]&&S.all[cid].work,v=(wk&&wk.videos)||{},p=pending(1);
     return Object.keys(v).filter(function(e){return v[e].status==='review'&&!p.some(function(a){return (a.ch||DEF)===cid&&a.type==='review'&&a.ep===e;});});}
+  /* 10-24 建議新規則（state.rules）：你的修改意見 ⇒ 製作人整理成規則 ⇒ 你同意才寫進手冊 */
+  function rulesList(cid){cid=cid||S.ch;var wk=S.all[cid]&&S.all[cid].work,R=(wk&&wk.rules)||[],p=pending(1);
+    return R.filter(function(r){return r.state==='proposed'&&!p.some(function(a){return (a.ch||DEF)===cid&&a.type==='rule'&&a.rule===r.id;});});}
   /* 10-14 審稿：稿子等你看（status=scriptReview、手機還沒送出決定） */
   function scriptList(cid){cid=cid||S.ch;var wk=S.all[cid]&&S.all[cid].work,v=(wk&&wk.videos)||{},p=pending(1);
     return Object.keys(v).filter(function(e){return v[e].status==='scriptReview'&&v[e].script&&!p.some(function(a){return (a.ch||DEF)===cid&&a.type==='script'&&a.ep===e;});});}
@@ -642,10 +648,11 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
     return '製作人正在處理'+(x?' '+no2(x.no)+(wk.what?' 的'+wk.what:''):wk&&wk.what?'「'+wk.what+'」':'別的事')+'，弄完就輪到這支';}
   /* 上方的條（spec §5）：黃＝要你做的事；灰＝你送出、還沒開始處理的；最後是「正在做」 */
   function todo(){
-    var ni=needItems(),np=needPick(),rv=reviewList(),sr=scriptList(),w=S.work&&S.work.week,ip=S.work&&S.work.itemPick,V=(S.work&&S.work.videos)||{},cid=S.ch,bars=[],nb=rv.length+sr.length;
+    var ni=needItems(),np=needPick(),rv=reviewList(),sr=scriptList(),w=S.work&&S.work.week,ip=S.work&&S.work.itemPick,V=(S.work&&S.work.videos)||{},cid=S.ch,bars=[],ru=rulesList(),nb=rv.length+sr.length+ru.length;
     $('tTopics').textContent=chan().schedule?'日程':'選題';   /* 10-07i：買了啦沒有選題，這格改放發片日程 */
     $('bTopics').hidden=!(np||ni);$('bTopics').textContent=(np||ni)?'!':'';$('bReview').hidden=!nb;$('bReview').textContent=nb||'';   /* 徽章要在「沒事 return」之前更新（10-07f 品管：切頻道徽章沒換）；10-14 稿子也算 */
     if(sr.length)bars.push({hot:1,t:sr.length===1?no2(V[sr[0]].no)+' '+short(V[sr[0]].title)+' 的稿子等你看，說「好」才會開始做片':'有 '+sr.length+' 份稿子等你看，說「好」才會開始做片',go:'去看',v:'review'});
+    if(ru.length)bars.push({hot:1,t:ru.length===1?'有 1 條新規則等你同意，同意了才會寫進手冊':'有 '+ru.length+' 條新規則等你同意，同意了才會寫進手冊',go:'去看',v:'review'});
     if(ni)bars.push({hot:1,t:(ip.title||'下一支')+'：挑 '+(ip.need||10)+' 樣商品'+(ip.deadline?'（'+slot(ip.deadline)+' 前，沒挑就代挑）':''),go:'去挑',v:'topics'});
     if(np)bars.push({hot:1,t:'本週題目等你挑 '+(w.pickCount||3)+' 個'+(w.deadline?'（'+slot(w.deadline)+' 前，沒選就代挑）':''),go:'去挑',v:'topics'});
     if(rv.length)bars.push({hot:1,t:rv.length===1?no2(V[rv[0]].no)+' '+short(V[rv[0]].title)+' 等你看，說「好」才會排程':'有 '+rv.length+' 支片等你看，說「好」才會排程',go:'去看',v:'review'});
@@ -671,7 +678,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
     return L.map(function(x){return '<a class="qlink" href="'+esc(x.u)+'" target="_blank" rel="noopener"><span><b>'+esc(x.t)+'</b>'+(x.sub?'<small>'+esc(x.sub)+'</small>':'')+'</span><i aria-hidden="true">›</i></a>';}).join('');}
   /* 頻道切換（10-05c）：兩個以上頻道才出現；別的頻道有事要處理時亮橘點 */
   function chips(){if(S.chans.length<2)return '';
-    return '<div class="chs" role="group" aria-label="切換頻道">'+S.chans.map(function(c){var hot=c.id!==S.ch&&(needPick(c.id)||needItems(c.id)||reviewList(c.id).length);
+    return '<div class="chs" role="group" aria-label="切換頻道">'+S.chans.map(function(c){var hot=c.id!==S.ch&&(needPick(c.id)||needItems(c.id)||reviewList(c.id).length||rulesList(c.id).length);
       return '<button class="chip" type="button" data-ch="'+esc(c.id)+'" aria-pressed="'+(c.id===S.ch)+'">'+(hot?'<i class="dot" aria-label="有事要處理"></i>':'')+esc(c.name)+(c.active===false?' <small>籌備中</small>':'')+'</button>';}).join('')+'</div>';}
 
   /* ── 手機提醒（10-05）：題目出來了、有片可以審時，電腦的 work.py 推 Web Push 過來 ──
@@ -1187,15 +1194,34 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
     /* 10-20 精簡（Benson：審片、選題也要改，少字）：空的區塊整個不顯示；兩區都空才一行「目前沒有要你看的」 */
     var h=(sr.length?'<h2>稿子等你看</h2>'+sr.map(function(e){return scriptCard(e,V[e]);}).join(''):'')+
       (rv.length?'<h2>片子等你看</h2>'+rv.map(function(e){return card(e,V[e]);}).join(''):'');
-    if(!sr.length&&!rv.length)h='<div class="empty">目前沒有要你看的</div>';
+    var ru=rulesList();
+    if(ru.length)h='<h2>新規則等你同意</h2>'+ru.map(ruleCard).join('')+h;
+    if(!sr.length&&!rv.length&&!ru.length)h='<div class="empty">目前沒有要你看的</div>';
     var pl=planView(V);
     if(prog.length||pl)h+='<h2>進行中</h2>'+prog.map(function(e){return progCard(e,V[e],es[e]);}).join('')+pl;
     if(sch.length)h+='<h2>已排程</h2>'+sch.map(function(e){return progCard(e,V[e],es[e]);}).join('');
     if(pub.length){var head=pub.slice(0,2),rest=pub.slice(2);
       h+='<h2>已發布</h2>'+head.map(function(e){return pubRow(e,V[e]);}).join('');
       if(rest.length)h+='<details class="fold"><summary>更早的 '+rest.length+' 支</summary>'+rest.map(function(e){return pubRow(e,V[e]);}).join('')+'</details>';}
-    return h;
+    return h+rulesDone();
   }
+  function ruleWhere(f){f=String(f||'');var m=f.match(/channels[\\\/](\w+)[\\\/]CLAUDE\.md/);
+    if(m){var c=S.chans.filter(function(x){return x.id===m[1];})[0];return (c?c.name:m[1])+'的手冊';}
+    if(/^CLAUDE\.md$/i.test(f))return '三個頻道共通的手冊';if(/agents/.test(f))return '隊員的工作守則';return f?'手冊':'';}
+  function ruleCard(r){var V=(S.work&&S.work.videos)||{},v=r.ep&&V[r.ep],wh=ruleWhere(r.file);
+    return '<div class="vc rule"><div class="rtx">'+esc(r.text)+'</div>'+
+      (r.why?'<div class="rwhy">'+(v?'看 '+no2(v.no)+' 時你說：':'你說：')+'「'+esc(r.why)+'」</div>':'')+
+      (wh||(r.ver||1)>1?'<div class="sub">'+(wh?'<span class="pnote">同意後寫進'+esc(wh)+'</span>':'')+((r.ver||1)>1?'<span class="pill acc">照你的意見改過</span>':'')+'</div>':'')+
+      '<div class="acts"><button class="btn sm" data-rno="'+esc(r.id)+'" type="button">不要</button><button class="btn" data-redit="'+esc(r.id)+'" type="button">改一下</button><button class="btn primary wide" data-rok="'+esc(r.id)+'" type="button">同意</button></div></div>';}
+  function rulesDone(){var R=((S.work&&S.work.rules)||[]).filter(function(r){return r.state!=='proposed'&&Date.now()-(T(r.writtenAt||r.decidedAt||r.at)||0)<14*86400e3;}).slice().reverse();
+    if(!R.length)return '';
+    var lab={approved:['acc','已同意・寫入中'],written:['ok','已寫進手冊'],edit:['acc','照你的意見改中'],rejected:['','不要']};
+    return '<details class="fold"><summary>最近的規則（'+R.length+' 條）</summary>'+R.map(function(r){var L=lab[r.state]||['',r.state];
+      return '<div class="row"><div class="rt"><div class="rtt">'+esc(r.text)+'</div></div><span class="pill '+L[0]+'">'+L[1]+'</span></div>';}).join('')+'</details>';}
+  function decideRule(id,dec,note){
+    send({type:'rule',ch:S.ch,rule:id,decision:dec,note:note||''}).then(function(){try{localStorage.removeItem(ck('wfl.rnote.')+id);}catch(x){}
+      toast(dec==='ok'?'收到，會寫進手冊，之後每支片照做':dec==='edit'?'收到，會照你的意見改好再給你看':'收到，這條不寫');render();})
+      .catch(function(err){toast(sendErr(err));});}
   /* 10-06c：工作進度（state.plan，買了啦）。10-08c 起片卡自己有進度步驟 ⇒ 只列還沒建成片的那幾筆 */
   function planView(V){var pl=(S.work&&S.work.plan)||[],nos={};Object.keys(V).forEach(function(e){nos[no2(V[e].no)]=1;});
     pl=pl.filter(function(x){var m=String(x.title||'').match(/#\d+/);return !(m&&nos[m[0]]);});if(!pl.length)return '';
@@ -1278,18 +1304,22 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
       P.sel[b.dataset.sk]=+b.dataset.si;lsSet(P.key,P.sel);render();});});
     document.querySelectorAll('[data-sok]').forEach(function(b){b.addEventListener('click',function(){decideScript(b.dataset.sok,'ok');});});
     document.querySelectorAll('[data-sfix]').forEach(function(b){b.addEventListener('click',function(){openSheet(b.dataset.sfix,'script');});});
+    /* 10-24 建議新規則 */
+    document.querySelectorAll('[data-rok]').forEach(function(b){b.addEventListener('click',function(){decideRule(b.dataset.rok,'ok');});});
+    document.querySelectorAll('[data-rno]').forEach(function(b){b.addEventListener('click',function(){decideRule(b.dataset.rno,'no');});});
+    document.querySelectorAll('[data-redit]').forEach(function(b){b.addEventListener('click',function(){openSheet(b.dataset.redit,'rule');});});
   }
   /* 修改意見輸入頁（不重畫審片頁，影片照樣在底下）；10-14 起審稿也用這頁（sheetMode='script'） */
   var sheetEp=null,sheetMode='';
-  function noteKey(e){return ck(sheetMode==='script'?'wfl.snote.':'wfl.note.')+e;}
-  function openSheet(e,mode){var v=S.work.videos[e];sheetEp=e;sheetMode=mode||'';
+  function noteKey(e){return ck(sheetMode==='script'?'wfl.snote.':sheetMode==='rule'?'wfl.rnote.':'wfl.note.')+e;}
+  function openSheet(e,mode){sheetEp=e;sheetMode=mode||'';if(sheetMode==='rule'){$('shTitle').textContent='這條規則要怎麼改';$('shText').value=lsGet(noteKey(e),'');$('sheet').hidden=false;$('shText').focus();return;}var v=S.work.videos[e];
     $('shTitle').textContent='要修改 '+no2(v.no)+' '+(sheetMode==='script'?'的稿子':(v.title||''));$('shText').value=lsGet(noteKey(e),'');
     $('sheet').hidden=false;$('shText').focus();}
   function closeSheet(){$('sheet').hidden=true;$('shText').blur();sheetEp=null;}
   $('shText').addEventListener('input',function(){if(sheetEp)lsSet(noteKey(sheetEp),$('shText').value);});
   $('shCancel').addEventListener('click',closeSheet);
   $('shSend').addEventListener('click',function(){var n=$('shText').value.trim();if(!n){toast('寫一下要改哪裡');return;}var e=sheetEp,m=sheetMode;closeSheet();
-    if(m==='script')decideScript(e,'revise',n);else decide(e,'revise',n);});
+    if(m==='rule')decideRule(e,'edit',n);else if(m==='script')decideScript(e,'revise',n);else decide(e,'revise',n);});
   function decideScript(e,dec,note){var v=S.work.videos[e],P=spickOf(e,v);
     send({type:'script',ch:S.ch,ep:e,decision:dec,pick:dec==='ok'?P.sel:{},note:note||''}).then(function(){try{localStorage.removeItem(ck('wfl.snote.')+e);}catch(x){}
       toast(dec==='ok'?'收到，電腦收到後就開始做片':'收到，會照你的意見改稿');render();})
