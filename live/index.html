@@ -388,6 +388,14 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
 .links{flex-wrap:wrap}
 .links span.off{color:var(--faint)}
 details.fold{margin-top:10px;border-top:1px solid var(--line)}
+details.schd{border-top:1px solid var(--line)}
+details.schd>summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 2px}
+details.schd>summary::-webkit-details-marker{display:none}
+details.schd>summary .st{min-width:0;font-size:14.5px;font-weight:600;line-height:1.4}
+details.schd>summary small{display:block;font-size:12.5px;color:var(--muted);font-weight:400;margin-top:1px}
+details.schd>summary .pill{flex:none}
+details.schd>.vc{margin-top:0;margin-bottom:10px}
+details.schd>.vc>.hd{display:none}
 details.fold>summary{cursor:pointer;list-style:none;padding:11px 2px;font-size:14px;color:var(--muted);display:flex;justify-content:space-between;gap:10px}
 details.fold>summary::-webkit-details-marker{display:none}
 details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary::after{content:"－"}
@@ -907,7 +915,7 @@ body.focus .tabs{display:none}
       h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝各平台觀看合計（YouTube 取公開數與後台數大的那個）；<b>平均看完</b>看 YouTube（會賺錢的平台）。<br><b>平均看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<br>'+
         '<b>前 3 秒留</b>＝YouTube 和 IG 前 3 秒沒滑走的平均（細節頁有各平台分開的；YouTube 只有報表近似值時標「約」）。<b>+N/3h</b>：最近 3 小時新增的觀看（灰色＝沒在漲）；YouTube 公開數常卡好幾小時，卡住時不顯示。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
     var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
-    return h+'<p class="note">版本 10-25c・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+    return h+'<p class="note">版本 10-25d・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
   /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
@@ -1292,7 +1300,11 @@ body.focus .tabs{display:none}
     var h=chan().schedule?scheduleView():'';
     var pl=planView(V);
     if(prog.length||pl)h+='<h2>進行中</h2>'+prog.map(function(e){return progCard(e,V[e],es[e]);}).join('')+pl;
-    if(sch.length)h+='<h2>已排程</h2>'+sch.map(function(e){return progCard(e,V[e],es[e]);}).join('');
+    /* 10-25 Benson：已排程的收成一行（哪支、哪天發），點了才展開各平台；有平台還沒排好就標出來並自動展開 */
+    if(sch.length)h+='<h2>已排程</h2>'+sch.map(function(e){var v=V[e],pb=pubOf(v),P=plats(),miss=P.filter(function(k){var x=pb[k];return !x||(x.s!=='scheduled'&&x.s!=='published'&&x.s!=='manual');}).length;
+      S.schOpen=S.schOpen||{};var op=S.schOpen[e]!=null?S.schOpen[e]:miss>0;
+      return '<details class="schd" data-sch="'+e+'"'+(op?' open':'')+'><summary><span class="st"><span class="no">'+no2(v.no)+'</span>'+esc(cleanTitle(v.title))+'<small>'+esc(slot(v.slot))+' 發</small></span>'+
+        '<span class="pill '+(miss?'warn':'ok')+'">'+(miss?'差 '+miss+' 個平台':'都排好了')+'</span></summary>'+progCard(e,v,es[e])+'</details>';}).join('');
     if(pub.length){var head=pub.slice(0,2),rest=pub.slice(2);
       h+='<h2>已發布</h2>'+head.map(function(e){return pubRow(e,V[e]);}).join('');
       if(rest.length)h+='<details class="fold"><summary>更早的 '+rest.length+' 支</summary>'+rest.map(function(e){return pubRow(e,V[e]);}).join('')+'</details>';}
@@ -1397,6 +1409,7 @@ body.focus .tabs{display:none}
       '<span class="pill'+(skip?'':' ok')+'">'+(skip?'沒發':'已發布')+'</span></div>';}
   function bindReview(){
     document.querySelectorAll('[data-play]').forEach(function(b){b.addEventListener('click',function(){play(b.dataset.play,b);});});
+    document.querySelectorAll('details.schd').forEach(function(d){d.addEventListener('toggle',function(){S.schOpen=S.schOpen||{};S.schOpen[d.dataset.sch]=d.open;});});
     document.querySelectorAll('[data-ok]').forEach(function(b){b.addEventListener('click',function(){decide(b.dataset.ok,'approved');});});
     document.querySelectorAll('[data-fix]').forEach(function(b){b.addEventListener('click',function(){openSheet(b.dataset.fix);});});
     document.querySelectorAll('[data-undo]').forEach(function(b){b.addEventListener('click',function(){decide(b.dataset.undo,'review');});});
