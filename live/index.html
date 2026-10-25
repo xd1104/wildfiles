@@ -179,12 +179,12 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
 .cm .who em{font-style:normal;font-size:11px;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:0 6px;flex:none}
 .cm .who span{color:var(--muted);font-size:12px;white-space:nowrap;margin-left:auto}
 .cm p{margin:3px 0 0 14px;font-size:15px;line-height:1.5;overflow-wrap:anywhere}
-.cmrb{margin:6px 0 0 14px;background:none;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:13px;padding:3px 12px;cursor:pointer}
-.cmr{margin:6px 0 0 14px;padding:6px 10px;border-left:2px solid var(--accent);background:var(--surface);border-radius:0 8px 8px 0;font-size:14px;line-height:1.5}
-.cmr b{display:block;font-size:12px;color:var(--accent);font-weight:600}
+.cmrb{margin:4px 0 0 14px;background:none;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:13px;padding:3px 12px;cursor:pointer}
+.cmr{margin:3px 0 0 14px;font-size:13px;line-height:1.45;color:var(--muted)}
+.cmr b{font-size:13px;color:var(--accent);font-weight:600;margin-right:6px}
 .cmr small{display:block;font-size:12px;color:var(--muted)}
-.cmr.ok b{color:var(--ok)} .cmr.ok{border-left-color:var(--ok)}
-.cmr.bad b{color:var(--bad)} .cmr.bad{border-left-color:var(--bad)}
+.cmr.ok b{color:var(--ok)}
+.cmr.bad b{color:var(--bad)}
 .cm.rp{padding-left:16px}
 .chg>summary.ct{cursor:pointer;list-style:none;margin:0} .chg>summary.ct::-webkit-details-marker{display:none} .chg>summary.ct::after{content:' ＋';color:var(--muted);font-weight:400} .chg[open]>summary.ct::after{content:' －'} .chg[open]>summary.ct{margin-bottom:6px}
 .whyd{margin:2px 0 0;font-size:13px;color:var(--muted)} .whyd>summary{cursor:pointer;list-style:none} .whyd>summary::-webkit-details-marker{display:none} .whyd>summary::after{content:' ＋'} .whyd[open]>summary::after{content:' －'} .whyd .why{margin-top:6px;white-space:pre-wrap}
@@ -836,7 +836,9 @@ body.focus .tabs{display:none}
         return {id:ep,no:e.no,title:e.title||'',slot:e.slot,E:e,v:v,bad:bad,views:views,total:any?tot:null,
           cm:(d.comments&&d.comments[ep])||{}};})
       .sort(function(a,b){return new Date(b.slot)-new Date(a.slot);});}
-  function cmCount(e){var n=0;for(var k in e.cm)n+=(e.cm[k]||[]).length;return n;}
+  function cmHide(){var RR=(S.work&&S.work.replies)||{},mine={},par={};for(var k in RR){if(RR[k].rid)mine[RR[k].rid]=1;if(RR[k].s==='sent')par[k]=RR[k].text;}
+    return function(c){return c.own&&c.reply&&(mine[c.id]||(par[c.parent]&&par[c.parent]===c.text));};}
+  function cmCount(e){var n=0,h=cmHide();for(var k in e.cm)(e.cm[k]||[]).forEach(function(c){if(!h(c))n++;});return n;}
   /* 跟「平常」（其他片中位數）比：差 5 點以上才標 ▲▼ */
   function arrow(o){if(!o||o.v==null||o.base==null)return '';var d=o.v-o.base;return d>=5?' <span class="up">▲</span>':d<=-5?' <span class="dn">▼</span>':'';}
   /* 有事才出現的警示：電腦斷線、平台沒抓到、Meta 授權快到期（放在最上面） */
@@ -902,7 +904,7 @@ body.focus .tabs{display:none}
       h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝各平台觀看合計（YouTube 取公開數與後台數大的那個）；<b>平均看完</b>看 YouTube（會賺錢的平台）。<br><b>平均看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<br>'+
         '<span class="up">▲</span><span class="dn">▼</span>＝比其他片的中間值高／低 5 點以上；不到 6 支片都只供參考。<b>+N/3h</b>：最近 3 小時新增的觀看（灰色＝沒在漲）；YouTube 公開數常卡好幾小時，卡住時不顯示。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
     var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
-    return h+'<p class="note">版本 10-25a・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+    return h+'<p class="note">版本 10-25b・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
   /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
@@ -998,6 +1000,11 @@ body.focus .tabs{display:none}
     var cnt={all:all.length};['yt','ig','fb'].forEach(function(k){cnt[k]=(e.cm[k]||[]).length;});
     var f='<div class="cmf" role="group" aria-label="篩選平台"><button type="button" data-cf="all" aria-pressed="'+(DT.cf==='all')+'">全部 '+cnt.all+'</button>'+
       ['yt','ig','fb'].map(function(k){var p=PF.filter(function(x){return x.k===k;})[0];return '<button type="button" data-cf="'+k+'" aria-pressed="'+(DT.cf===k)+'"><i style="background:'+p.c+'"></i>'+pname(k)+' '+cnt[k]+'</button>';}).join('')+'</div>';
+    /* 10-25：從後台回的留言，重抓時會變成一則「頻道」留言 ⇒ 已經顯示在原留言下面的就不再列一次 */
+    var hid=cmHide();all=all.filter(function(c){return !hid(c);});
+    cnt.all=all.length;['yt','ig','fb'].forEach(function(k){cnt[k]=all.filter(function(c){return c.p===k;}).length;});
+    f='<div class="cmf" role="group" aria-label="篩選平台"><button type="button" data-cf="all" aria-pressed="'+(DT.cf==='all')+'">全部 '+cnt.all+'</button>'+
+      ['yt','ig','fb'].map(function(k){var p=PF.filter(function(x){return x.k===k;})[0];return '<button type="button" data-cf="'+k+'" aria-pressed="'+(DT.cf===k)+'"><i style="background:'+p.c+'"></i>'+pname(k)+' '+cnt[k]+'</button>';}).join('')+'</div>';
     var list=all.filter(function(c){return DT.cf==='all'||c.p===DT.cf;}).sort(function(a,b){return new Date(b.at)-new Date(a.at);});
     return f+(list.length?list.map(function(c){var p=PF.filter(function(x){return x.k===c.p;})[0]||{c:'var(--muted)'};
         return '<div class="cm'+(c.reply?' rp':'')+'"><div class="who"><i style="background:'+p.c+'"></i><b>'+(c.reply?'↳ ':'')+esc(c.name||'（沒有名字）')+'</b>'+(c.own?'<em>頻道</em>':'')+'<span>'+pname(c.p)+'・'+hmTxt(c.at)+'</span></div><p>'+esc(c.text)+'</p>'+replyRow(c,e)+'</div>';}).join('')
@@ -1006,11 +1013,11 @@ body.focus .tabs{display:none}
   function canReply(c){if(c.own)return false;if(c.p==='fb')return true;if(c.p==='ig')return S.ch!=='joke';if(c.p==='yt')return !!(S.work&&S.work.replyYT);return false;}
   var CMR={};   /* 回覆輸入頁要用的留言（id → {c, ep}） */
   function replyRow(c,e){var R=(S.work&&S.work.replies)||{},r=R[c.id],pd=pendFor(S.ch,'reply','cid',c.id);
-    if(pd)return '<div class="cmr"><b>你的回覆</b>'+esc(pd.text)+'<small>傳送中，約 10 分鐘內送出</small></div>';
-    if(r&&r.s==='sent')return '<div class="cmr ok"><b>你回覆了</b>'+esc(r.text)+'</div>';
+    if(pd)return '<div class="cmr"><b>↳ 你（傳送中）</b>'+esc(pd.text)+'</div>';
+    if(r&&r.s==='sent')return '<div class="cmr ok"><b>↳ 你</b>'+esc(r.text)+'</div>';
     if(!canReply(c))return '';
     CMR[c.id]={c:c,ep:e.id};
-    return (r&&r.s==='failed'?'<div class="cmr bad"><b>沒回成功</b>'+esc(r.text)+'<small>'+esc(r.why||'')+'</small></div>':'')+'<button class="cmrb" type="button" data-cr="'+esc(c.id)+'">'+(r&&r.s==='failed'?'再回一次':'回覆')+'</button>';}
+    return (r&&r.s==='failed'?'<div class="cmr bad"><b>↳ 沒回成功</b>'+esc(r.text)+'<small>'+esc(r.why||'')+'</small></div>':'')+'<button class="cmrb" type="button" data-cr="'+esc(c.id)+'">'+(r&&r.s==='failed'?'再回一次':'回覆')+'</button>';}
   function qb(id,txt){return '<button class="qbtn" type="button" data-q="'+id+'" aria-label="說明" aria-expanded="false">?</button></div><div class="qtx" id="'+id+'" hidden>'+txt+'</div>';}
   function detailBody(e){
     var V=e.E.verdict,h='';   /* 10-20 Benson：結論句（開頭留不住人…＋該做什麼）拿掉，太雜 */
