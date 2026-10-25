@@ -460,7 +460,8 @@ body.focus .tabs{display:none}
 .fback{display:block;background:none;border:0;color:var(--muted);font-size:15px;padding:4px 2px 2px;cursor:pointer}
 .fone>.vc{background:none;padding:0 0 84px;margin-top:6px}
 .fone>.vc .acts{position:fixed;left:0;right:0;bottom:0;margin:0;padding:10px 16px max(14px,env(safe-area-inset-bottom,0px));background:var(--ground);border-top:1px solid var(--line);z-index:5}
-.vid .ms .dt{order:9;margin-left:auto;color:var(--faint);font-size:12.5px;align-self:center}
+.vid .ms .dt{order:9;margin-left:auto;color:var(--faint);font-size:12px;align-self:center;letter-spacing:-.02em}
+.vid .ms{gap:2px 12px!important} .vid .ms .lb b,.vid .ms .lb .up,.vid .ms .lb .g3{margin-left:3px!important}
 .vid .ms .lb b.up{color:var(--ok)} .vid .ms .lb b.g3{color:var(--faint)}
 .kpi .n{font-size:30px}
 </style>
@@ -884,9 +885,11 @@ body.focus .tabs{display:none}
        「還在推／變慢／停了」的字改成數字：近 3 小時新增觀看（+N/3h），沒在漲就灰色 +0 */
     var E=e.E,w=E.watch,ps=E.push||{},bits=[];
     /* 10-24：底下這行每張卡都有、位置固定；沒資料寫「—」 */
-    bits.push('<span class="lb">平均看完'+(w&&w.v!=null?'<b>'+Math.round(w.v)+'%</b>'+arrow(w):'<b class="g3">—</b>')+'</span>');
+    /* 10-25 Benson：看完 % 旁邊不要 ▲▼；加「前 3 秒留下」＝YouTube／IG 前 3 秒的平均（細節頁那兩條的平均） */
+    bits.push('<span class="lb">看完'+(w&&w.v!=null?'<b>'+Math.round(w.v)+'%</b>':'<b class="g3">—</b>')+'</span>');
+    var h3=hook3(e);bits.push('<span class="lb">前 3 秒留'+(h3!=null?'<b>'+(h3.approx?'約':'')+Math.round(h3.v)+'%</b>':'<b class="g3">—</b>')+'</span>');
     if(e.slot)bits.push('<span class="dt">'+mdw(T(e.slot)).trim()+'</span>');   /* 10-24 Benson：片卡要看得到幾月幾號發的 */
-    bits.push('<span class="lb">近 3 小時'+(ps.d3!=null?'<b class="'+(ps.d3>0?'up':'g3')+'">+'+fmt(ps.d3)+'</b>':'<b class="g3">—</b>')+'</span>');
+    bits.push('<span class="lb">3 小時'+(ps.d3!=null?'<b class="'+(ps.d3>0?'up':'g3')+'">+'+fmt(ps.d3)+'</b>':'<b class="g3">—</b>')+'</span>');
     var isNew=(Date.now()-new Date(e.slot).getTime())/3600e3<24;
     /* 10-08c：片名下多一行各平台小字；Threads 還沒接數據前片卡不列 */
     var split=plats().filter(function(k){return k!=='th'||(e.v.th&&e.v.th.views!=null);}).map(function(k){var x=k==='yt'?e.views:(e.v[k]?e.v[k].views:null),P=PFN[k];
@@ -902,9 +905,9 @@ body.focus .tabs{display:none}
     var h='<details class="more" id="more"'+(S.moreOpen?' open':'')+'><summary>更多：每小時觀看、各平台合計、怎麼看'+(pushOn()?'':'、手機提醒')+'</summary>';
     if(d){h+='<div class="mh">最近 3 天每小時新增觀看</div>'+chart(d.hist||[])+'<div class="mh">各平台合計（各平台算法不同，只看大概）</div>'+totals(d);
       h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝各平台觀看合計（YouTube 取公開數與後台數大的那個）；<b>平均看完</b>看 YouTube（會賺錢的平台）。<br><b>平均看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<br>'+
-        '<span class="up">▲</span><span class="dn">▼</span>＝比其他片的中間值高／低 5 點以上；不到 6 支片都只供參考。<b>+N/3h</b>：最近 3 小時新增的觀看（灰色＝沒在漲）；YouTube 公開數常卡好幾小時，卡住時不顯示。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
+        '<b>前 3 秒留</b>＝YouTube 和 IG 前 3 秒沒滑走的平均（細節頁有各平台分開的；YouTube 只有報表近似值時標「約」）。<b>+N/3h</b>：最近 3 小時新增的觀看（灰色＝沒在漲）；YouTube 公開數常卡好幾小時，卡住時不顯示。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
     var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
-    return h+'<p class="note">版本 10-25b・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+    return h+'<p class="note">版本 10-25c・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
   /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
@@ -973,6 +976,10 @@ body.focus .tabs{display:none}
   function trafficRow(e){var tr=(e.v.yt||{}).ytaTraffic;if(!tr)return '';var tot=0,k;for(k in tr)tot+=tr[k];if(!tot)return '';
     var a=Object.keys(tr).sort(function(x,y){return tr[y]-tr[x];}),top=a.slice(0,3),rest=a.slice(3).reduce(function(s,k2){return s+tr[k2];},0);
     return '<p class="trf">YouTube 從哪來：'+top.map(function(k2){return esc(TRAFFIC[k2]||k2)+' <b>'+Math.round(tr[k2]/tot*100)+'%</b>';}).join('・')+(Math.round(rest/tot*100)?'・其他 <b>'+Math.round(rest/tot*100)+'%</b>':'')+'</p>';}
+  function hook3(e){var E=e.E,ya=e.v.yt||{},hy=E.hookYt,a=[],ap=false;
+    if((!hy||hy.v==null)&&ya.ytaEngagedPct!=null){hy={v:ya.ytaEngagedPct};ap=true;}
+    if(hy&&hy.v!=null&&!e.bad.yt)a.push(hy.v);if(E.hookIg&&E.hookIg.v!=null&&!e.bad.ig)a.push(E.hookIg.v);
+    return a.length?{v:a.reduce(function(x,y){return x+y;},0)/a.length,approx:ap&&a.length===1}:null;}
   function hookBars(e){
     var E=e.E,studio=epList(S.stats).some(function(o){return o.v.yt&&o.v.yt.stayedPct!=null;});
     var yta=epList(S.stats).some(function(o){return o.v.yt&&o.v.yt.ytaEngagedPct!=null;});
