@@ -179,6 +179,12 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
 .cm .who em{font-style:normal;font-size:11px;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:0 6px;flex:none}
 .cm .who span{color:var(--muted);font-size:12px;white-space:nowrap;margin-left:auto}
 .cm p{margin:3px 0 0 14px;font-size:15px;line-height:1.5;overflow-wrap:anywhere}
+.cmrb{margin:6px 0 0 14px;background:none;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:13px;padding:3px 12px;cursor:pointer}
+.cmr{margin:6px 0 0 14px;padding:6px 10px;border-left:2px solid var(--accent);background:var(--surface);border-radius:0 8px 8px 0;font-size:14px;line-height:1.5}
+.cmr b{display:block;font-size:12px;color:var(--accent);font-weight:600}
+.cmr small{display:block;font-size:12px;color:var(--muted)}
+.cmr.ok b{color:var(--ok)} .cmr.ok{border-left-color:var(--ok)}
+.cmr.bad b{color:var(--bad)} .cmr.bad{border-left-color:var(--bad)}
 .cm.rp{padding-left:16px}
 .chg>summary.ct{cursor:pointer;list-style:none;margin:0} .chg>summary.ct::-webkit-details-marker{display:none} .chg>summary.ct::after{content:' ＋';color:var(--muted);font-weight:400} .chg[open]>summary.ct::after{content:' －'} .chg[open]>summary.ct{margin-bottom:6px}
 .whyd{margin:2px 0 0;font-size:13px;color:var(--muted)} .whyd>summary{cursor:pointer;list-style:none} .whyd>summary::-webkit-details-marker{display:none} .whyd>summary::after{content:' ＋'} .whyd[open]>summary::after{content:' －'} .whyd .why{margin-top:6px;white-space:pre-wrap}
@@ -469,7 +475,7 @@ body.focus .tabs{display:none}
 </div></nav>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="shTitle" hidden>
   <div class="sh-top"><button class="btn" id="shCancel" type="button">取消</button><b id="shTitle"></b><button class="btn primary" id="shSend" type="button">送出</button></div>
-  <p class="sh-hint">寫下要改哪裡，送出後會照你的意見重做。</p>
+  <p class="sh-hint" id="shHint">寫下要改哪裡，送出後會照你的意見重做。</p>
   <textarea id="shText" placeholder="例如：開頭那句太慢、第 20 秒的畫面不是這種動物…"></textarea>
 </div>
 <div class="detail" id="detail" role="dialog" aria-modal="true" aria-labelledby="dTitle" hidden>
@@ -896,7 +902,7 @@ body.focus .tabs{display:none}
       h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝各平台觀看合計（YouTube 取公開數與後台數大的那個）；<b>平均看完</b>看 YouTube（會賺錢的平台）。<br><b>平均看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<br>'+
         '<span class="up">▲</span><span class="dn">▼</span>＝比其他片的中間值高／低 5 點以上；不到 6 支片都只供參考。<b>+N/3h</b>：最近 3 小時新增的觀看（灰色＝沒在漲）；YouTube 公開數常卡好幾小時，卡住時不顯示。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
     var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
-    return h+'<p class="note">版本 10-24e・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+    return h+'<p class="note">版本 10-25a・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
   /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
@@ -994,8 +1000,17 @@ body.focus .tabs{display:none}
       ['yt','ig','fb'].map(function(k){var p=PF.filter(function(x){return x.k===k;})[0];return '<button type="button" data-cf="'+k+'" aria-pressed="'+(DT.cf===k)+'"><i style="background:'+p.c+'"></i>'+pname(k)+' '+cnt[k]+'</button>';}).join('')+'</div>';
     var list=all.filter(function(c){return DT.cf==='all'||c.p===DT.cf;}).sort(function(a,b){return new Date(b.at)-new Date(a.at);});
     return f+(list.length?list.map(function(c){var p=PF.filter(function(x){return x.k===c.p;})[0]||{c:'var(--muted)'};
-        return '<div class="cm'+(c.reply?' rp':'')+'"><div class="who"><i style="background:'+p.c+'"></i><b>'+(c.reply?'↳ ':'')+esc(c.name||'（沒有名字）')+'</b>'+(c.own?'<em>頻道</em>':'')+'<span>'+pname(c.p)+'・'+hmTxt(c.at)+'</span></div><p>'+esc(c.text)+'</p></div>';}).join('')
+        return '<div class="cm'+(c.reply?' rp':'')+'"><div class="who"><i style="background:'+p.c+'"></i><b>'+(c.reply?'↳ ':'')+esc(c.name||'（沒有名字）')+'</b>'+(c.own?'<em>頻道</em>':'')+'<span>'+pname(c.p)+'・'+hmTxt(c.at)+'</span></div><p>'+esc(c.text)+'</p>'+replyRow(c,e)+'</div>';}).join('')
       :'<div class="empty" style="margin-top:8px">還沒有人留言。</div>');}
+  /* 10-25 Benson：後台直接回觀眾留言。IG／FB 走 API；YouTube 要另外授權（work.replyYT 有值才開）；梗到了的 IG 是 Instagram 登入、還沒開留言權限 */
+  function canReply(c){if(c.own)return false;if(c.p==='fb')return true;if(c.p==='ig')return S.ch!=='joke';if(c.p==='yt')return !!(S.work&&S.work.replyYT);return false;}
+  var CMR={};   /* 回覆輸入頁要用的留言（id → {c, ep}） */
+  function replyRow(c,e){var R=(S.work&&S.work.replies)||{},r=R[c.id],pd=pendFor(S.ch,'reply','cid',c.id);
+    if(pd)return '<div class="cmr"><b>你的回覆</b>'+esc(pd.text)+'<small>傳送中，約 10 分鐘內送出</small></div>';
+    if(r&&r.s==='sent')return '<div class="cmr ok"><b>你回覆了</b>'+esc(r.text)+'</div>';
+    if(!canReply(c))return '';
+    CMR[c.id]={c:c,ep:e.id};
+    return (r&&r.s==='failed'?'<div class="cmr bad"><b>沒回成功</b>'+esc(r.text)+'<small>'+esc(r.why||'')+'</small></div>':'')+'<button class="cmrb" type="button" data-cr="'+esc(c.id)+'">'+(r&&r.s==='failed'?'再回一次':'回覆')+'</button>';}
   function qb(id,txt){return '<button class="qbtn" type="button" data-q="'+id+'" aria-label="說明" aria-expanded="false">?</button></div><div class="qtx" id="'+id+'" hidden>'+txt+'</div>';}
   function detailBody(e){
     var V=e.E.verdict,h='';   /* 10-20 Benson：結論句（開頭留不住人…＋該做什麼）拿掉，太雜 */
@@ -1023,6 +1038,7 @@ body.focus .tabs{display:none}
   $('dToCm').addEventListener('click',function(){var el=document.getElementById('s-cm');if(el)$('dScroll').scrollTop=el.offsetTop-6;});
   $('dBody').addEventListener('click',function(ev){
     var b=ev.target.closest('[data-cf]');if(b){var e=curEp();if(!e)return;DT.cf=b.dataset.cf;$('cmBox').innerHTML=comments(e);return;}
+    var cr=ev.target.closest('[data-cr]');if(cr){openSheet(cr.dataset.cr,'reply');return;}
     var q=ev.target.closest('[data-q]');if(q){var t=document.getElementById(q.dataset.q);t.hidden=!t.hidden;q.setAttribute('aria-expanded',String(!t.hidden));}});
   $('app').addEventListener('click',function(ev){var t=ev.target;if(!t.closest)return;
     var c=t.closest('.vid[data-ep]');if(c){openDetail(c.dataset.ep);return;}
@@ -1382,15 +1398,22 @@ body.focus .tabs{display:none}
   }
   /* 修改意見輸入頁（不重畫審片頁，影片照樣在底下）；10-14 起審稿也用這頁（sheetMode='script'） */
   var sheetEp=null,sheetMode='';
-  function noteKey(e){return ck(sheetMode==='script'?'wfl.snote.':sheetMode==='rule'?'wfl.rnote.':'wfl.note.')+e;}
-  function openSheet(e,mode){sheetEp=e;sheetMode=mode||'';if(sheetMode==='rule'){$('shTitle').textContent='這條規則要怎麼改';$('shText').value=lsGet(noteKey(e),'');$('sheet').hidden=false;$('shText').focus();return;}var v=S.work.videos[e];
+  function noteKey(e){return ck(sheetMode==='script'?'wfl.snote.':sheetMode==='rule'?'wfl.rnote.':sheetMode==='reply'?'wfl.reply.':'wfl.note.')+e;}
+  function openSheet(e,mode){sheetEp=e;sheetMode=mode||'';$('shHint').textContent=sheetMode==='reply'?'會用頻道的名義公開回覆，約 10 分鐘內送出。':'寫下要改哪裡，送出後會照你的意見重做。';
+    if(sheetMode==='reply'){var x=CMR[e];$('shTitle').textContent='回覆 '+((x&&x.c.name)||'這則留言');$('shText').value=lsGet(noteKey(e),'');$('sheet').hidden=false;$('shText').focus();return;}
+    if(sheetMode==='rule'){$('shTitle').textContent='這條規則要怎麼改';$('shText').value=lsGet(noteKey(e),'');$('sheet').hidden=false;$('shText').focus();return;}var v=S.work.videos[e];
     $('shTitle').textContent='要修改 '+no2(v.no)+' '+(sheetMode==='script'?'的稿子':(v.title||''));$('shText').value=lsGet(noteKey(e),'');
     $('sheet').hidden=false;$('shText').focus();}
   function closeSheet(){$('sheet').hidden=true;$('shText').blur();sheetEp=null;}
   $('shText').addEventListener('input',function(){if(sheetEp)lsSet(noteKey(sheetEp),$('shText').value);});
   $('shCancel').addEventListener('click',closeSheet);
-  $('shSend').addEventListener('click',function(){var n=$('shText').value.trim();if(!n){toast('寫一下要改哪裡');return;}var e=sheetEp,m=sheetMode;closeSheet();
+  $('shSend').addEventListener('click',function(){var n=$('shText').value.trim();if(!n){toast(sheetMode==='reply'?'寫一下要回什麼':'寫一下要改哪裡');return;}var e=sheetEp,m=sheetMode;closeSheet();
+    if(m==='reply'){sendReply(e,n);return;}
     if(m==='rule')decideRule(e,'edit',n);else if(m==='script')decideScript(e,'revise',n);else decide(e,'revise',n);});
+  function sendReply(id,text){var x=CMR[id];if(!x)return;
+    send({type:'reply',ch:S.ch,ep:x.ep,plat:x.c.p,cid:id,parent:x.c.parent||'',text:text}).then(function(){try{localStorage.removeItem(ck('wfl.reply.')+id);}catch(y){}
+      toast('收到，約 10 分鐘內會回出去');var e=curEp();if(e&&$('cmBox'))$('cmBox').innerHTML=comments(e);})
+      .catch(function(err){toast(sendErr(err));});}
   function decideScript(e,dec,note){var v=S.work.videos[e],P=spickOf(e,v);
     send({type:'script',ch:S.ch,ep:e,decision:dec,pick:dec==='ok'?P.sel:{},note:note||''}).then(function(){try{localStorage.removeItem(ck('wfl.snote.')+e);}catch(x){}
       toast(dec==='ok'?'收到，電腦收到後就開始做片':'收到，會照你的意見改稿');setFocus(null);})
