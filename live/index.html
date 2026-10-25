@@ -395,6 +395,7 @@ details.schd>summary .st{min-width:0;font-size:14.5px;font-weight:600;line-heigh
 details.schd>summary small{display:block;font-size:12.5px;color:var(--muted);font-weight:400;margin-top:1px}
 details.schd>summary .pill{flex:none}
 details.schd>.vc{margin-top:0;margin-bottom:10px}
+details.schd>.vc.schv{background:none;padding:0 0 4px}
 details.schd>.vc>.hd{display:none}
 details.fold>summary{cursor:pointer;list-style:none;padding:11px 2px;font-size:14px;color:var(--muted);display:flex;justify-content:space-between;gap:10px}
 details.fold>summary::-webkit-details-marker{display:none}
@@ -915,7 +916,7 @@ body.focus .tabs{display:none}
       h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝各平台觀看合計（YouTube 取公開數與後台數大的那個）；<b>平均看完</b>看 YouTube（會賺錢的平台）。<br><b>平均看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<br>'+
         '<b>前 3 秒留</b>＝YouTube 和 IG 前 3 秒沒滑走的平均（細節頁有各平台分開的；YouTube 只有報表近似值時標「約」）。<b>+N/3h</b>：最近 3 小時新增的觀看（灰色＝沒在漲）；YouTube 公開數常卡好幾小時，卡住時不顯示。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
     var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
-    return h+'<p class="note">版本 10-25d・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+    return h+'<p class="note">版本 10-25e・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
   /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
@@ -1304,7 +1305,7 @@ body.focus .tabs{display:none}
     if(sch.length)h+='<h2>已排程</h2>'+sch.map(function(e){var v=V[e],pb=pubOf(v),P=plats(),miss=P.filter(function(k){var x=pb[k];return !x||(x.s!=='scheduled'&&x.s!=='published'&&x.s!=='manual');}).length;
       S.schOpen=S.schOpen||{};var op=S.schOpen[e]!=null?S.schOpen[e]:miss>0;
       return '<details class="schd" data-sch="'+e+'"'+(op?' open':'')+'><summary><span class="st"><span class="no">'+no2(v.no)+'</span>'+esc(cleanTitle(v.title))+'<small>'+esc(slot(v.slot))+' 發</small></span>'+
-        '<span class="pill '+(miss?'warn':'ok')+'">'+(miss?'差 '+miss+' 個平台':'都排好了')+'</span></summary>'+progCard(e,v,es[e])+'</details>';}).join('');
+        '<span class="pill '+(miss?'warn':'ok')+'">'+(miss?'差 '+miss+' 個平台':'都排好了')+'</span></summary>'+schPlayer(e,v)+progCard(e,v,es[e])+'</details>';}).join('');
     if(pub.length){var head=pub.slice(0,2),rest=pub.slice(2);
       h+='<h2>已發布</h2>'+head.map(function(e){return pubRow(e,V[e]);}).join('');
       if(rest.length)h+='<details class="fold"><summary>更早的 '+rest.length+' 支</summary>'+rest.map(function(e){return pubRow(e,V[e]);}).join('')+'</details>';}
@@ -1390,6 +1391,11 @@ body.focus .tabs{display:none}
       (miss.length?'先選'+miss.map(function(x){return x[1];}).join('、'):'好，開始做片')+'</button></div></div>';}
   function finalScript(v){var sc=v.script;if(!sc||!v.scriptPick)return '';
     return '<details class="cap"><summary>定稿（第 '+(sc.ver||1)+' 版）</summary><pre>'+scriptText(sc,v.scriptPick)+'</pre></details>';}
+  /* 10-25 Benson：排好的片也要能看 ⇒ 點開後有播放鈕（預覽片沿用審片那份，已排程的不會被清掉） */
+  function schPlayer(e,v){if(!v.preview)return '<p class="pnote" style="margin:0 2px 8px">這支沒有預覽片</p>';
+    var vk=S.ch+':'+e,ap=S.justPlayed===vk;if(ap)S.justPlayed=null;
+    return '<div class="vc schv"><div class="player" id="pl-'+e+'">'+(S.videoUrl[vk]?'<video src="'+S.videoUrl[vk]+'" controls playsinline'+(ap?' autoplay':'')+'></video>':
+      '<button class="btn" data-play="'+e+'" type="button">▶ 看這支片（'+(v.preview.size/1048576).toFixed(1)+' MB）</button>')+'</div></div>';}
   function progCard(e,v,es){
     var tr=trackOf(S.ch,v,'review','ep',e),R=roundsOf(v,tr),wt=v.wait||(v.stage==='items'&&needItems()?'等'+(chan().owner||'')+'挑商品（日程分頁）':'');
     var showTr=tr&&!tr.done;   /* 10-20 精簡：處理完的追蹤條（你送出→電腦收到…）不再留著；版本 pill 拿掉 */
@@ -1458,7 +1464,7 @@ body.focus .tabs{display:none}
   /* ── 開機 ── */
   /* 自動更新會整頁重畫，正在看的預覽片會被換掉而停掉（10-04 Benson：全螢幕播到一半突然停）
      ⇒ 審片頁有載入的影片、或正在打修改意見時，自動更新只抓資料不重畫；按「重新整理」或送出決定才重畫 */
-  function busyUI(){return !$('sheet').hidden||(!!S.focus&&!!document.querySelector('.vc video'));}
+  function busyUI(){return !$('sheet').hidden||!!document.querySelector('.vc video');}
   function refresh(manual){var b=$('re');if(b)b.textContent='更新中…';
     return loadAll().then(function(){if(!manual&&busyUI()){var r=$('re');if(r)r.textContent='重新整理';return;}render();refreshDetail();})
       .catch(function(){if(b)b.textContent='沒連上，再按一次';});}
