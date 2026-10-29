@@ -1348,9 +1348,9 @@ body.focus .tabs{display:none}
       return '<div class="plan"><div class="ph"><b>'+esc(x.title)+'</b><small>'+esc(x.slot?slot(x.slot)+' 發':'')+'</small></div>'+
         (st?'<div class="steps">'+st+'</div>':'')+(x.note?'<div class="pn">'+esc(x.note)+'</div>':'')+'</div>';}).join('');}
   function card(e,v){
-    /* 10-07：切回審片頁影片會自己播 ⇒ autoplay 只給剛按「播放」的那一支，用一次就清掉；10-29：剛下載完那支不加 playsinline，iPhone 一播就自動全螢幕 */
+    /* 10-07：切回審片頁影片會自己播 ⇒ autoplay 只給剛按「播放」的那一支，用一次就清掉 */
     var vk=S.ch+':'+e,ap=S.justPlayed===vk;if(ap)S.justPlayed=null;
-    var pl=S.videoUrl[vk]?'<video src="'+S.videoUrl[vk]+'" controls'+(ap?' autoplay':' playsinline')+'></video>':
+    var pl=S.videoUrl[vk]?'<video src="'+S.videoUrl[vk]+'" controls playsinline'+(ap?' autoplay':'')+'></video>':
       v.preview?'<button class="btn" data-play="'+e+'" type="button">▶ 播放預覽（'+(v.preview.size/1048576).toFixed(1)+' MB）</button>':'<span class="pnote">預覽片還在上傳</span>';
     var tr=trackOf(S.ch,v,'review','ep',e),R=roundsOf(v,tr),d=durOf(e,v);
     return '<div class="vc">'+hdRow(v)+
@@ -1398,7 +1398,7 @@ body.focus .tabs{display:none}
   /* 10-25 Benson：排好的片也要能看 ⇒ 點開後有播放鈕（預覽片沿用審片那份，已排程的不會被清掉） */
   function schPlayer(e,v){if(!v.preview)return '<p class="pnote" style="margin:0 2px 8px">這支沒有預覽片</p>';
     var vk=S.ch+':'+e,ap=S.justPlayed===vk;if(ap)S.justPlayed=null;
-    return '<div class="vc schv"><div class="player" id="pl-'+e+'">'+(S.videoUrl[vk]?'<video src="'+S.videoUrl[vk]+'" controls'+(ap?' autoplay':' playsinline')+'></video>':
+    return '<div class="vc schv"><div class="player" id="pl-'+e+'">'+(S.videoUrl[vk]?'<video src="'+S.videoUrl[vk]+'" controls playsinline'+(ap?' autoplay':'')+'></video>':
       '<button class="btn" data-play="'+e+'" type="button">▶ 看這支片（'+(v.preview.size/1048576).toFixed(1)+' MB）</button>')+'</div></div>';}
   function progCard(e,v,es){
     var tr=trackOf(S.ch,v,'review','ep',e),R=roundsOf(v,tr),wt=v.wait||(v.stage==='items'&&needItems()?'等'+(chan().owner||'')+'挑商品（日程分頁）':'');
@@ -1467,15 +1467,25 @@ body.focus .tabs{display:none}
           if(size)btn.textContent='下載中 '+Math.min(99,Math.round(got*100/size))+'%';return pump();});})();})
         .then(function(b){clearInterval(t);return b;},function(err){clearInterval(t);throw err;});}
     var n=0;return (function go(){return once().catch(function(err){if(++n>2)throw err;btn.textContent='網路卡住，重新下載…';return go();});})();}
-  function goFull(e){var vd=document.querySelector('#pl-'+e+' video');if(!vd)return;
-    var p=vd.play();if(p&&p.catch)p.catch(function(){});
-    try{if(vd.webkitEnterFullscreen)vd.webkitEnterFullscreen();else if(vd.requestFullscreen)vd.requestFullscreen().catch(function(){});}catch(x){}}
-  function play(e,btn){var v=S.work.videos[e];btn.disabled=true;btn.textContent='下載中…';
-    Promise.all([dlBin(RAW(v.preview.file,'media')+'?v='+v.preview.v,v.preview.size,btn),videoKey(S.keys)])
+  /* 10-29 Benson：下載完要自己全螢幕播 ⇒ iPhone 只准「點按當下」開始播放的影片之後再自己播：
+     按下去當下就建好 <video> 並播一支 0.2 秒空白片（解鎖），下載完同一個元素換成預覽片、拿掉 playsinline 再 play()，iPhone 會自己進全螢幕；
+     被擋就留一顆「▶ 全螢幕播放」大按鈕，點一下就好 */
+  var BLANK='data:video/mp4;base64,'+'AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAV6bW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAAAMgAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAlh0cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAAAMgAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAABAAAAAQAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAADIAAAAAAABAAAAAAHQbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAAAoAAAACABVxAAAAAAALWhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABWaWRlb0hhbmRsZXIAAAABe21pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAATtzdGJsAAAAt3N0c2QAAAAAAAAAAQAAAKdhdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAABAAEABIAAAASAAAAAAAAAABFUxhdmM2MS4xOS4xMDAgbGlieDI2NAAAAAAAAAAAAAAAGP//AAAALWF2Y0MBQsAK/+EAFWdCwAraewEQAAADABAAAAMBQPEiagEABWjOAZcgAAAAEHBhc3AAAAABAAAAAQAAABRidHJ0AAAAAAAAYTAAAGEwAAAAGHN0dHMAAAAAAAAAAQAAAAIAAAQAAAAAFHN0c3MAAAAAAAAAAQAAAAEAAAAcc3RzYwAAAAAAAAABAAAAAQAAAAEAAAABAAAAHHN0c3oAAAAAAAAAAAAAAAIAAAJlAAAACQAAABhzdGNvAAAAAAAAAAIAAAW/AAAIKAAAAk10cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAACAAAAAAAAAMgAAAAAAAAAAAAAAAEBAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAADIAAAEAAABAAAAAAHFbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAAAfQAAACkBVxAAAAAAALWhkbHIAAAAAAAAAAHNvdW4AAAAAAAAAAAAAAABTb3VuZEhhbmRsZXIAAAABcG1pbmYAAAAQc21oZAAAAAAAAAAAAAAAJGRpbmYAAAAcZHJlZgAAAAAAAAABAAAADHVybCAAAAABAAABNHN0YmwAAAB+c3RzZAAAAAAAAAABAAAAbm1wNGEAAAAAAAAAAQAAAAAAAAAAAAEAEAAAAAAfQAAAAAAANmVzZHMAAAAAA4CAgCUAAgAEgICAF0AVAAAAAAAfQAAAAsMFgICABRWIVuUABoCAgAECAAAAFGJ0cnQAAAAAAAAfQAAAAsMAAAAgc3R0cwAAAAAAAAACAAAAAgAABAAAAAABAAACQAAAABxzdHNjAAAAAAAAAAEAAAABAAAAAQAAAAEAAAAgc3RzegAAAAAAAAAAAAAAAwAAABUAAAAEAAAABAAAABxzdGNvAAAAAAAAAAMAAAWqAAAIJAAACDEAAAAac2dwZAEAAAByb2xsAAAAAgAAAAH//wAAABxzYmdwAAAAAHJvbGwAAAABAAAAAwAAAAEAAABhdWR0YQAAAFltZXRhAAAAAAAAACFoZGxyAAAAAAAAAABtZGlyYXBwbAAAAAAAAAAAAAAAACxpbHN0AAAAJKl0b28AAAAcZGF0YQAAAAEAAAAATGF2ZjYxLjcuMTAwAAAACGZyZWUAAAKTbWRhdN4CAExhdmM2MS4xOS4xMDAAAjBADgAAAlQGBf//UNxF6b3m2Ui3lizYINkj7u94MjY0IC0gY29yZSAxNjQgcjMxOTIgYzI0ZTA2YyAtIEguMjY0L01QRUctNCBBVkMgY29kZWMgLSBDb3B5bGVmdCAyMDAzLTIwMjQgLSBodHRwOi8vd3d3LnZpZGVvbGFuLm9yZy94MjY0Lmh0bWwgLSBvcHRpb25zOiBjYWJhYz0wIHJlZj0xIGRlYmxvY2s9MDowOjAgYW5hbHlzZT0wOjAgbWU9ZGlhIHN1Ym1lPTAgcHN5PTEgcHN5X3JkPTEuMDA6MC4wMCBtaXhlZF9yZWY9MCBtZV9yYW5nZT0xNiBjaHJvbWFfbWU9MSB0cmVsbGlzPTAgOHg4ZGN0PTAgY3FtPTAgZGVhZHpvbmU9MjEsMTEgZmFzdF9wc2tpcD0xIGNocm9tYV9xcF9vZmZzZXQ9MCB0aHJlYWRzPTEgbG9va2FoZWFkX3RocmVhZHM9MSBzbGljZWRfdGhyZWFkcz0wIG5yPTAgZGVjaW1hdGU9MSBpbnRlcmxhY2VkPTAgYmx1cmF5X2NvbXBhdD0wIGNvbnN0cmFpbmVkX2ludHJhPTAgYmZyYW1lcz0wIHdlaWdodHA9MCBrZXlpbnQ9MjUwIGtleWludF9taW49MTAgc2NlbmVjdXQ9MCBpbnRyYV9yZWZyZXNoPTAgcmM9Y3JmIG1idHJlZT0wIGNyZj01MS4wIHFjb21wPTAuNjAgcXBtaW49MCBxcG1heD02OSBxcHN0ZXA9NCBpcF9yYXRpbz0xLjQwIGFxPTAAgAAAAAlliIQ6JigAFcABGCAHAAAABUGaIDKUARggBw==';
+  function play(e,btn){var v=S.work.videos[e],box=document.getElementById('pl-'+e);btn.disabled=true;btn.textContent='下載中…';
+    var vd=document.createElement('video');vd.setAttribute('playsinline','');vd.controls=true;vd.style.cssText='position:absolute;width:1px;height:1px;opacity:0';
+    vd.src=BLANK;if(box)box.appendChild(vd);try{var p0=vd.play();if(p0&&p0.catch)p0.catch(function(){});}catch(x){}
+    /* 10-29：先走 jsDelivr（GitHub raw 實測 9.6MB 要 125 秒、jsDelivr 2.6 秒），抓不到再退回 raw */
+    var raw=RAW(v.preview.file,'media')+'?v='+v.preview.v,pv=v.preview;
+    var get=pv.sha?dlBin('https://cdn.jsdelivr.net/gh/'+REPO+'@'+pv.sha+'/'+pv.file,pv.size,btn).catch(function(){return dlBin(raw,pv.size,btn);}):dlBin(raw,pv.size,btn);
+    Promise.all([get,videoKey(S.keys)])
       .then(function(x){var u=new Uint8Array(x[0]);return crypto.subtle.decrypt({name:'AES-GCM',iv:u.subarray(0,12)},x[1],u.subarray(12));})
-      .then(function(pt){S.videoUrl[S.ch+':'+e]=URL.createObjectURL(new Blob([pt],{type:'video/mp4'}));S.justPlayed=S.ch+':'+e;render();
-        setTimeout(function(){goFull(e);},60);})
-      .catch(function(){btn.disabled=false;btn.textContent='沒載入成功，再按一次';});}
+      .then(function(pt){var url=URL.createObjectURL(new Blob([pt],{type:'video/mp4'}));S.videoUrl[S.ch+':'+e]=url;
+        vd.pause();vd.removeAttribute('playsinline');vd.src=url;vd.style.cssText='';btn.remove();
+        function full(){try{if(vd.webkitEnterFullscreen)vd.webkitEnterFullscreen();else if(vd.requestFullscreen)vd.requestFullscreen().catch(function(){});}catch(x){}}
+        var p=vd.play();
+        if(p&&p.then)p.then(full,function(){var b=document.createElement('button');b.className='btn';b.type='button';b.textContent='▶ 全螢幕播放';
+          b.addEventListener('click',function(){b.remove();vd.play();full();});if(box)box.insertBefore(b,vd);});else full();})
+      .catch(function(){vd.remove();btn.disabled=false;btn.textContent='沒載入成功，再按一次';});}
   function decide(e,dec,note){
     send({type:'review',ch:S.ch,ep:e,decision:dec,note:note||''}).then(function(){try{localStorage.removeItem(ck('wfl.note.')+e);}catch(x){}
       toast(dec==='approved'?'收到，電腦收到後就會排程':dec==='revise'?'收到，會照你的意見修改':'已改回待審');setFocus(null);})
