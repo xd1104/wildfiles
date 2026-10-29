@@ -1022,6 +1022,10 @@ body.focus .tabs{display:none}
     f='<div class="cmf" role="group" aria-label="篩選平台"><button type="button" data-cf="all" aria-pressed="'+(DT.cf==='all')+'">全部 '+cnt.all+'</button>'+
       ['yt','ig','fb'].map(function(k){var p=PF.filter(function(x){return x.k===k;})[0];return '<button type="button" data-cf="'+k+'" aria-pressed="'+(DT.cf===k)+'"><i style="background:'+p.c+'"></i>'+pname(k)+' '+cnt[k]+'</button>';}).join('')+'</div>';
     var list=all.filter(function(c){return DT.cf==='all'||c.p===DT.cf;}).sort(function(a,b){return new Date(b.at)-new Date(a.at);});
+    /* 10-29：回覆緊跟在原留言下面（舊的照時間攤平，回覆會跑到別人的留言上面） */
+    var ids={},kids={};list.forEach(function(c){ids[c.id]=1;});
+    var tops=list.filter(function(c){if(c.parent&&ids[c.parent]){(kids[c.parent]=kids[c.parent]||[]).unshift(c);return false;}return true;});
+    list=[];tops.forEach(function(c){list.push(c);(kids[c.id]||[]).forEach(function(k){list.push(k);});});
     return f+(list.length?list.map(function(c){var p=PF.filter(function(x){return x.k===c.p;})[0]||{c:'var(--muted)'};
         return '<div class="cm'+(c.reply?' rp':'')+'"><div class="who"><i style="background:'+p.c+'"></i><b>'+(c.reply?'↳ ':'')+esc(c.name||'（沒有名字）')+'</b>'+(c.own?'<em>頻道</em>':'')+'<span>'+pname(c.p)+'・'+hmTxt(c.at)+'</span></div><p>'+esc(c.text)+'</p>'+replyRow(c,e)+'</div>';}).join('')
       :'<div class="empty" style="margin-top:8px">還沒有人留言。</div>');}
