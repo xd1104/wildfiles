@@ -1348,9 +1348,9 @@ body.focus .tabs{display:none}
       return '<div class="plan"><div class="ph"><b>'+esc(x.title)+'</b><small>'+esc(x.slot?slot(x.slot)+' 發':'')+'</small></div>'+
         (st?'<div class="steps">'+st+'</div>':'')+(x.note?'<div class="pn">'+esc(x.note)+'</div>':'')+'</div>';}).join('');}
   function card(e,v){
-    /* 10-07：切回審片頁影片會自己播 ⇒ autoplay 只給剛按「播放」的那一支，用一次就清掉 */
+    /* 10-07：切回審片頁影片會自己播 ⇒ autoplay 只給剛按「播放」的那一支，用一次就清掉；10-29：剛下載完那支不加 playsinline，iPhone 一播就自動全螢幕 */
     var vk=S.ch+':'+e,ap=S.justPlayed===vk;if(ap)S.justPlayed=null;
-    var pl=S.videoUrl[vk]?'<video src="'+S.videoUrl[vk]+'" controls playsinline'+(ap?' autoplay':'')+'></video>':
+    var pl=S.videoUrl[vk]?'<video src="'+S.videoUrl[vk]+'" controls'+(ap?' autoplay':' playsinline')+'></video>':
       v.preview?'<button class="btn" data-play="'+e+'" type="button">▶ 播放預覽（'+(v.preview.size/1048576).toFixed(1)+' MB）</button>':'<span class="pnote">預覽片還在上傳</span>';
     var tr=trackOf(S.ch,v,'review','ep',e),R=roundsOf(v,tr),d=durOf(e,v);
     return '<div class="vc">'+hdRow(v)+
@@ -1398,7 +1398,7 @@ body.focus .tabs{display:none}
   /* 10-25 Benson：排好的片也要能看 ⇒ 點開後有播放鈕（預覽片沿用審片那份，已排程的不會被清掉） */
   function schPlayer(e,v){if(!v.preview)return '<p class="pnote" style="margin:0 2px 8px">這支沒有預覽片</p>';
     var vk=S.ch+':'+e,ap=S.justPlayed===vk;if(ap)S.justPlayed=null;
-    return '<div class="vc schv"><div class="player" id="pl-'+e+'">'+(S.videoUrl[vk]?'<video src="'+S.videoUrl[vk]+'" controls playsinline'+(ap?' autoplay':'')+'></video>':
+    return '<div class="vc schv"><div class="player" id="pl-'+e+'">'+(S.videoUrl[vk]?'<video src="'+S.videoUrl[vk]+'" controls'+(ap?' autoplay':' playsinline')+'></video>':
       '<button class="btn" data-play="'+e+'" type="button">▶ 看這支片（'+(v.preview.size/1048576).toFixed(1)+' MB）</button>')+'</div></div>';}
   function progCard(e,v,es){
     var tr=trackOf(S.ch,v,'review','ep',e),R=roundsOf(v,tr),wt=v.wait||(v.stage==='items'&&needItems()?'等'+(chan().owner||'')+'挑商品（日程分頁）':'');
@@ -1455,10 +1455,26 @@ body.focus .tabs{display:none}
     send({type:'script',ch:S.ch,ep:e,decision:dec,pick:dec==='ok'?P.sel:{},note:note||''}).then(function(){try{localStorage.removeItem(ck('wfl.snote.')+e);}catch(x){}
       toast(dec==='ok'?'收到，電腦收到後就開始做片':'收到，會照你的意見改稿');setFocus(null);})
       .catch(function(err){toast(sendErr(err));});}
+  /* 10-29 Benson：審片有時卡在「下載中…」⇒ 邊下載邊顯示 %，15 秒沒收到資料就中斷、自動重試 2 次；下載完自動全螢幕播放 */
+  function dlBin(url,size,btn){
+    function once(){var ac=new AbortController(),got=0,last=Date.now(),
+        t=setInterval(function(){if(Date.now()-last>15000)ac.abort();},2000);
+      return fetch(url,{signal:ac.signal,cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('dl '+r.status);
+        if(!r.body||!r.body.getReader)return r.arrayBuffer();
+        var rd=r.body.getReader(),parts=[];
+        return (function pump(){return rd.read().then(function(x){if(x.done){var o=new Uint8Array(got),p=0;parts.forEach(function(c){o.set(c,p);p+=c.length;});return o.buffer;}
+          parts.push(x.value);got+=x.value.length;last=Date.now();
+          if(size)btn.textContent='下載中 '+Math.min(99,Math.round(got*100/size))+'%';return pump();});})();})
+        .then(function(b){clearInterval(t);return b;},function(err){clearInterval(t);throw err;});}
+    var n=0;return (function go(){return once().catch(function(err){if(++n>2)throw err;btn.textContent='網路卡住，重新下載…';return go();});})();}
+  function goFull(e){var vd=document.querySelector('#pl-'+e+' video');if(!vd)return;
+    var p=vd.play();if(p&&p.catch)p.catch(function(){});
+    try{if(vd.webkitEnterFullscreen)vd.webkitEnterFullscreen();else if(vd.requestFullscreen)vd.requestFullscreen().catch(function(){});}catch(x){}}
   function play(e,btn){var v=S.work.videos[e];btn.disabled=true;btn.textContent='下載中…';
-    Promise.all([fetch(RAW(v.preview.file,'media')+'?v='+v.preview.v).then(function(r){if(!r.ok)throw new Error('dl '+r.status);return r.arrayBuffer();}),videoKey(S.keys)])
+    Promise.all([dlBin(RAW(v.preview.file,'media')+'?v='+v.preview.v,v.preview.size,btn),videoKey(S.keys)])
       .then(function(x){var u=new Uint8Array(x[0]);return crypto.subtle.decrypt({name:'AES-GCM',iv:u.subarray(0,12)},x[1],u.subarray(12));})
-      .then(function(pt){S.videoUrl[S.ch+':'+e]=URL.createObjectURL(new Blob([pt],{type:'video/mp4'}));S.justPlayed=S.ch+':'+e;render();})
+      .then(function(pt){S.videoUrl[S.ch+':'+e]=URL.createObjectURL(new Blob([pt],{type:'video/mp4'}));S.justPlayed=S.ch+':'+e;render();
+        setTimeout(function(){goFull(e);},60);})
       .catch(function(){btn.disabled=false;btn.textContent='沒載入成功，再按一次';});}
   function decide(e,dec,note){
     send({type:'review',ch:S.ch,ep:e,decision:dec,note:note||''}).then(function(){try{localStorage.removeItem(ck('wfl.note.')+e);}catch(x){}
