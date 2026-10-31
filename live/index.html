@@ -217,7 +217,10 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
 .topic.dim{opacity:.45}
 .topic .hd{display:block;width:100%;text-align:left;background:none;border:0;padding:0;cursor:pointer}
 .topic .rank{font-family:var(--num);font-size:13px;color:var(--muted);font-weight:600}
-.topic .tt{font-size:17px;font-weight:700;margin:2px 36px 6px 0;line-height:1.35}
+.topic .tt{font-size:17px;font-weight:700;margin:2px 36px 6px 0;line-height:1.35;white-space:pre-wrap}
+.repick{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+.repick textarea{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:16px;line-height:1.5;resize:none;color:var(--text)}
+.repick textarea::placeholder{color:var(--faint)}
 .topic .why{font-size:13px;color:var(--muted)}
 .topic .facts{display:flex;gap:14px;margin-top:6px;font-size:12px;color:var(--muted);flex-wrap:wrap}
 .topic .tick{position:absolute;top:14px;right:14px;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--faint);display:grid;place-items:center;font-size:14px;font-weight:700}
@@ -645,7 +648,7 @@ body.focus .tabs{display:none}
   function needItems(cid){cid=cid||S.ch;var wk=S.all[cid]&&S.all[cid].work,ip=wk&&wk.itemPick;
     return !!(ip&&ip.status==='picking'&&!pending(1).some(function(a){return (a.ch||DEF)===cid&&a.type==='items'&&a.pick===ip.id;}));}
   function needPick(cid){cid=cid||S.ch;var wk=S.all[cid]&&S.all[cid].work,w=wk&&wk.week;
-    return !!(w&&w.status==='picking'&&!pending(1).some(function(a){return (a.ch||DEF)===cid&&a.type==='pick'&&a.week===w.id;}));}
+    return !!(w&&w.status==='picking'&&!pending(1).some(function(a){return (a.ch||DEF)===cid&&(a.type==='pick'||a.type==='repick')&&a.week===w.id;}));}
   function reviewList(cid){cid=cid||S.ch;var wk=S.all[cid]&&S.all[cid].work,v=(wk&&wk.videos)||{},p=pending(1);
     return Object.keys(v).filter(function(e){return v[e].status==='review'&&!p.some(function(a){return (a.ch||DEF)===cid&&a.type==='review'&&a.ep===e;});});}
   /* 10-24 建議新規則（state.rules）：你的修改意見 ⇒ 製作人整理成規則 ⇒ 你同意才寫進手冊 */
@@ -720,6 +723,7 @@ body.focus .tabs{display:none}
     if(sr.length)bars.push({hot:1,c:sr.length,t:sr.length===1?no2(V[sr[0]].no)+' 稿子等你審':'份稿子等你審',go:'去看',f:'script:'+sr[0]});
     if(ru.length)bars.push({hot:1,c:ru.length,t:ru.length===1?'1 條新規則等你同意':'條新規則等你同意',go:'去看',f:'rules'});
     var wt=function(L,vb){return L.locked?'等製作人忙完':'預計 '+when(L.start)+' '+vb+(L.late?'（排程晚了）':'');};
+    if(w&&(w.status==='repicking'||pendFor(cid,'repick','week',w.id)))bars.push({t:'重找題目中',go:'看進度',v:'review',k:'重找題目'});   /* 10-31 */
     if(w){var tw1=trackOf(cid,w,'pick','week',w.id);if(tw1&&!tw1.done&&!tw1.start){var L1=tline(tw1,cid);bars.push({t:'你挑的題目：'+wt(L1,'開工'),go:'看進度',v:'topics',k:'題目開工'});}}
     if(ip){var ti=trackOf(cid,ip,'items','pick',ip.id);if(ti&&!ti.done&&!ti.start){var L2=tline(ti,cid);bars.push({t:'挑好的商品：'+wt(L2,'開工'),go:'看進度',v:'topics',k:'商品開工'});}}
     Object.keys(V).sort(function(a,b){return (V[a].no||0)-(V[b].no||0);}).forEach(function(e){var t=trackOf(cid,V[e],'review','ep',e);
@@ -1141,6 +1145,8 @@ body.focus .tabs{display:none}
       return '<div class="topic'+(on?' on':'')+(!open&&!on?' dim':'')+'"><button type="button" class="hd" data-t="'+esc(tp.id)+'" '+(open?'':'disabled')+' aria-pressed="'+on+'"><span class="tick">'+(on?'✓':'')+'</span>'+
         '<div class="rank">'+(i+1)+'</div><div class="tt">'+esc(tp.plain||tp.title)+'</div>'+
         '</button>'+(tp.why?'<details class="whyd"><summary>看說明</summary><div class="why">'+esc(tp.why)+'</div></details>':'')+hh+'</div>';}).join('');   /* 10-20：說明（大綱）預設折起來 */   /* 10-20 精簡：排名只留數字，動物名、4K 素材數、來源拿掉 */
+    /* 10-31 Benson：候選不喜歡可以按重找；勾著的留下、其他換掉，寫意見會照著找 */
+    if(open&&w.canRepick){var nk=Object.keys(sel).length;h+='<div class="repick"><textarea id="repickNote" rows="2" placeholder="哪裡不好？（可不填）">'+esc(S.repickNote||'')+'</textarea><button type="button" class="btn" id="repickBtn">'+(nk?'留下勾的 '+nk+' 個，其他重找':'全部重找')+'</button></div>';}
     return h;
   }
   /* 10-08c 選完之後折起來（spec §9）：只留選中的（集數＋標題＋開場），企劃說明收進「看企劃說明」，沒選的整組折起來；送出後、開工前多一條追蹤條 */
@@ -1166,6 +1172,13 @@ body.focus .tabs{display:none}
       if(id in sel)delete sel[id];else{var need=w.pickCount||3;if(need===1){for(var k in sel)delete sel[k];}else if(Object.keys(sel).length>=need){toast('最多 '+need+' 個，先取消一個');return;}sel[id]=0;}
       lsSet(pk,sel);render();});});
     document.querySelectorAll('.hk[data-t]').forEach(function(b){b.addEventListener('click',function(){S.picks[pk][b.dataset.t]=+b.dataset.h;lsSet(pk,S.picks[pk]);render();});});
+    var rn=$('repickNote'),rb=$('repickBtn');if(!rb)return;
+    rn.addEventListener('input',function(){S.repickNote=rn.value;});
+    rb.addEventListener('click',function(){var keep=w.topics.map(function(t){return t.id;}).filter(function(id){return id in S.picks[pk];});
+      if(!confirm(keep.length?'留下 '+keep.length+' 個，其他重找？':'這批全部重找？'))return;
+      rb.disabled=true;rb.textContent='送出中…';
+      send({type:'repick',ch:S.ch,week:w.id,keep:keep,note:rn.value}).then(function(){S.repickNote='';toast('送出了，找好會通知你');setFocus(null);})
+        .catch(function(e){toast(sendErr(e));rb.disabled=false;rb.textContent=keep.length?'留下勾的 '+keep.length+' 個，其他重找':'全部重找';});});
   }
   function pickBar(){var w=S.work&&S.work.week,ip=S.work&&S.work.itemPick;
     if(S.focus&&S.focus.k==='items'&&needItems()){$('pickBar').hidden=false;var ni=Object.keys(S.picks[ck(LS_PICK)+'items:'+ip.id]||{}).length,nn=ip.need||10;
