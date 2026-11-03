@@ -190,6 +190,21 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
 .whyd{margin:2px 0 0;font-size:13px;color:var(--muted)} .whyd>summary{cursor:pointer;list-style:none} .whyd>summary::-webkit-details-marker{display:none} .whyd>summary::after{content:' ＋'} .whyd[open]>summary::after{content:' －'} .whyd .why{margin-top:6px;white-space:pre-wrap}
 .empty{padding:24px 16px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px;font-size:14px}
 .note{font-size:12px;color:var(--faint);margin-top:18px}
+/* 11-03 週報 */
+.rhead{display:flex;flex-direction:column;gap:2px;margin:2px 0 6px}
+.rhead b{font-size:22px} .rhead span{font-size:13px;color:var(--muted)}
+.rg{background:var(--surface);border-radius:14px;padding:12px 14px 10px;margin-top:8px}
+.rg .l,.rx .l{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px}
+.rg .v{display:flex;align-items:baseline;gap:6px;margin-top:2px;flex-wrap:wrap}
+.rg .v .n{font-size:26px;line-height:1.15} .rg .v small{font-size:13px;color:var(--muted)}
+.rg .v em{margin-left:auto;font-style:normal;font-family:var(--num);font-weight:600;font-size:15px} .rg .v em.g3{color:var(--faint)}
+.rg .tr{position:relative;height:8px;border-radius:4px;background:var(--line);margin-top:8px}
+.rg .tr i{display:block;height:100%;border-radius:4px;background:var(--ok);min-width:3px}
+.rg .tr u{position:absolute;top:-4px;width:2px;height:16px;background:var(--text);border-radius:1px}
+.rg .s,.rx .s{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5}
+.rx .s.res{color:var(--text)}
+.rch{display:block;font-size:11px;color:var(--faint)}
+.rl{margin:0;padding-left:20px;font-size:14px;line-height:1.7}
 .pnote{font-size:13px;color:var(--muted)}
 /* 選題 */
 .wk{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
@@ -467,7 +482,7 @@ details.fold>summary::after{content:"＋";flex:none} details.fold[open]>summary:
 .busy.live i{background:var(--accent);box-shadow:0 0 0 3px rgba(255,210,63,.18);animation:breathe 1.6s ease-in-out infinite}
 /* 10-24 單獨一頁（S.focus）：底下分頁藏起來、按鈕固定在最下面 */
 .tab[data-v="topics"]{display:none}
-.tabs .wrap{grid-template-columns:repeat(2,1fr)}
+.tabs .wrap{grid-template-columns:repeat(3,1fr)}
 body.focus .tabs{display:none}
 .fback{display:block;background:none;border:0;color:var(--muted);font-size:15px;padding:4px 2px 2px;cursor:pointer}
 .fone>.vc{background:none;padding:0 0 84px;margin-top:6px}
@@ -485,6 +500,7 @@ body.focus .tabs{display:none}
   <button class="tab" role="tab" data-v="data" type="button"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>數據</button>
   <button class="tab" role="tab" data-v="topics" type="button"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg><span class="badge" id="bTopics" hidden></span></span><span id="tTopics">選題</span></button>
   <button class="tab" role="tab" data-v="review" type="button"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M17 10l4-2.5v9L17 14"/></svg><span class="badge" id="bReview" hidden></span></span>進度</button>
+  <button class="tab" role="tab" data-v="report" type="button"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></span>週報</button>
 </div></nav>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="shTitle" hidden>
   <div class="sh-top"><button class="btn" id="shCancel" type="button">取消</button><b id="shTitle"></b><button class="btn primary" id="shSend" type="button">送出</button></div>
@@ -567,6 +583,7 @@ body.focus .tabs{display:none}
           var sp=c.stats==='stats.json'?Promise.resolve([b0,d0]):getBox(c.stats,'stats').then(function(b){return b?open(b,S.keys).then(function(d){return [b,d];}):[null,null];});
           var wp=getBox(c.work,'stats').then(function(b){return b?open(b,S.keys):null;});
           return Promise.all([sp,wp]).then(function(r){S.all[c.id]={stats:r[0][1],statsT:r[0][0]?r[0][0].t:0,work:r[1]||{videos:{}}};});}));});})
+      .then(function(){return getBox('report.json','stats').then(function(b){return b?open(b,S.keys):null;}).then(function(r){S.report=r;},function(){});})   /* 11-03 自營頻道週報 */
       .then(function(){if(!S.all[S.ch])S.ch=DEF;useCh();});}
   function useCh(){var a=S.all[S.ch]||{};S.stats=a.stats||null;S.statsT=a.statsT||0;S.work=a.work||{videos:{}};}
   function chan(id){id=id||S.ch;return S.chans.filter(function(c){return c.id===id;})[0]||{id:id,name:id};}
@@ -647,15 +664,17 @@ body.focus .tabs{display:none}
   /* 10-07m 買了啦挑商品（work.itemPick）：status=picking 而且還沒送出 */
   function needItems(cid){cid=cid||S.ch;var wk=S.all[cid]&&S.all[cid].work,ip=wk&&wk.itemPick;
     return !!(ip&&ip.status==='picking'&&!pending(1).some(function(a){return (a.ch||DEF)===cid&&a.type==='items'&&a.pick===ip.id;}));}
-  function needPick(cid){cid=cid||S.ch;var wk=S.all[cid]&&S.all[cid].work,w=wk&&wk.week;
+  /* 11-03：自營頻道（荒野、計謀交給 Claude 經營）挑題／審稿／審片都是製作人自己決定，不出「等你…」黃條和徽章 */
+  function selfRun(cid){return !!chan(cid||S.ch).selfRun;}
+  function needPick(cid){cid=cid||S.ch;var wk=S.all[cid]&&S.all[cid].work,w=wk&&wk.week;if(selfRun(cid))return false;
     return !!(w&&w.status==='picking'&&!pending(1).some(function(a){return (a.ch||DEF)===cid&&(a.type==='pick'||a.type==='repick')&&a.week===w.id;}));}
-  function reviewList(cid){cid=cid||S.ch;var wk=S.all[cid]&&S.all[cid].work,v=(wk&&wk.videos)||{},p=pending(1);
+  function reviewList(cid){cid=cid||S.ch;var wk=S.all[cid]&&S.all[cid].work,v=(wk&&wk.videos)||{},p=pending(1);if(selfRun(cid))return [];
     return Object.keys(v).filter(function(e){return v[e].status==='review'&&!p.some(function(a){return (a.ch||DEF)===cid&&a.type==='review'&&a.ep===e;});});}
   /* 10-24 建議新規則（state.rules）：你的修改意見 ⇒ 製作人整理成規則 ⇒ 你同意才寫進手冊 */
-  function rulesList(cid){cid=cid||S.ch;var wk=S.all[cid]&&S.all[cid].work,R=(wk&&wk.rules)||[],p=pending(1);
+  function rulesList(cid){cid=cid||S.ch;var wk=S.all[cid]&&S.all[cid].work,R=(wk&&wk.rules)||[],p=pending(1);if(selfRun(cid))return [];
     return R.filter(function(r){return r.state==='proposed'&&!p.some(function(a){return (a.ch||DEF)===cid&&a.type==='rule'&&a.rule===r.id;});});}
   /* 10-14 審稿：稿子等你看（status=scriptReview、手機還沒送出決定） */
-  function scriptList(cid){cid=cid||S.ch;var wk=S.all[cid]&&S.all[cid].work,v=(wk&&wk.videos)||{},p=pending(1);
+  function scriptList(cid){cid=cid||S.ch;var wk=S.all[cid]&&S.all[cid].work,v=(wk&&wk.videos)||{},p=pending(1);if(selfRun(cid))return [];
     return Object.keys(v).filter(function(e){return v[e].status==='scriptReview'&&v[e].script&&!p.some(function(a){return (a.ch||DEF)===cid&&a.type==='script'&&a.ep===e;});});}
   /* ── 10-08c 追蹤條：你送出 → 電腦收到 → 預計開始 → 處理中 → 結果（spec §10） ──
      來源：電腦收到後寫在狀態裡的 track（work.py apply()）；還沒收到的用手機自己記的 pending 動作。舊狀態沒有 track 就不畫。 */
@@ -789,6 +808,7 @@ body.focus .tabs{display:none}
     document.body.classList.toggle('focus',!!S.focus);
     var h;
     if(S.focus)h=focusView();
+    else if(S.tab==='report')h=reportView();
     else{h=header();if(S.tab==='topics')S.tab='review';if(S.tab==='review')h+=reviewView();else h+=dataView();}
     $('app').innerHTML=h;
     var bk=$('fBack');if(bk)bk.addEventListener('click',function(){setFocus(null);});
@@ -799,6 +819,32 @@ body.focus .tabs{display:none}
     if(S.focus&&S.focus.k==='pick')bindTopics();if(S.focus&&S.focus.k==='items')bindItems();if(S.tab==='review')bindReview();
     pickBar();
   }
+
+  /* ── 11-03 週報（荒野＋計謀交給 Claude 經營；selfrun/weekly_report.py 每週日產 report.json）──
+     第一屏只放五個目標：現在 → 目標、這週多了多少、照不照進度；其他（片、實驗、花費、改了什麼）往下捲 */
+  function reportView(){
+    var R=S.report,h='<header class="top"><b>週報'+(R&&R.channels?'<small style="color:var(--muted)">'+esc(R.channels.join('＋'))+'</small>':'')+'</b></header>';
+    if(!R)return h+'<div class="empty">第一份週報 11/8（日）晚上出來。<br>每週日晚上更新，出來會推手機通知。</div>';
+    var ok=R.goals.filter(function(g){return g.ok;}).length;
+    h+='<div class="rhead"><b class="n">'+esc(R.label)+'</b><span>'+ok+'／'+R.goals.length+' 項照進度・第一期已過 '+Math.round(R.period.pct)+'%（到 '+esc(md(R.period.end))+'）</span></div>';
+    h+=R.goals.map(function(g){var p=g.pct==null?0:Math.max(0,Math.min(100,g.pct)),w=g.target===g.start?0:Math.max(0,Math.min(100,(g.want-g.start)/(g.target-g.start)*100));
+      return '<div class="rg"><div class="l"><span>'+esc(g.name)+'</span><span class="pill '+(g.ok?'ok':'warn')+'">'+(g.ok?'照進度':'落後')+'</span></div>'+
+        '<div class="v"><span class="n">'+fmt(g.now)+'</span><small>／目標 '+fmt(g.target)+'</small>'+(g.week!=null?'<em class="'+(g.week>0?'up':'g3')+'">本週 '+(g.week>0?'+':'')+fmt(g.week)+'</em>':'')+'</div>'+
+        '<div class="tr"><i style="width:'+p.toFixed(1)+'%"></i><u style="left:'+w.toFixed(1)+'%"></u></div>'+
+        '<div class="s">起點 '+fmt(g.start)+'・今天應該到 '+fmt(g.want)+(g.n!=null?'・算 '+g.n+' 支片':'')+'</div></div>';}).join('');
+    if(R.monthly)h+='<h2>這個月</h2><div class="dcard tip">'+esc(R.monthly)+'</div>';
+    var V=R.videos||[];
+    h+='<h2>這週發的片</h2>'+(V.length?V.map(function(x){return '<div class="row"><span><span class="no">'+no2(x.no)+'</span>'+esc(cleanTitle(x.title))+'<small class="rch">'+esc(x.chName)+'</small></span><b class="n">'+fmt(x.total)+'</b></div>';}).join(''):'<div class="empty">這週還沒有發片。</div>');
+    var X=R.experiments||[],XS={running:['進行中','acc'],pass:['過關','ok'],fail:['沒過','warn'],planned:['還沒開始','']};
+    if(X.length)h+='<h2>實驗</h2>'+X.map(function(x){var s=XS[x.status]||[x.status,''];
+      return '<div class="dcard rx"><div class="l"><b>'+esc(x.name)+'</b><span class="pill '+s[1]+'">'+s[0]+'</span></div><div class="s">過關標準：'+esc(x.pass)+'</div>'+(x.result?'<div class="s res">結果：'+esc(x.result)+'</div>':'')+'</div>';}).join('');
+    var sp=R.spend||{},sw=sp.week||{},sm=sp.month||{};
+    h+='<h2>花費（估算）</h2><div class="row"><span>本週<small class="rch">片 '+(sw.eps||0)+' 支・圖 '+(sw.imgs||0)+' 張</small></span><b class="n">NT$'+fmt(sw.nt||0)+'</b></div>'+
+      '<div class="row"><span>本月累計</span><b class="n'+((sm.nt||0)>(sp.cap||300)?' dn':'')+'">NT$'+fmt(sm.nt||0)+' <small>／上限 '+fmt(sp.cap||300)+'</small></b></div>';
+    var L=function(t,a){return a&&a.length?'<h2>'+t+'</h2><ul class="rl">'+a.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>':'';};
+    h+=L('這週改了什麼',R.changed)+L('下週做什麼',R.next);
+    if(R.note)h+='<div class="dcard tip">'+esc(R.note)+'</div>';
+    return h+'<p class="note">'+esc(String(R.at).slice(5,16).replace('T',' '))+' 產生・花費是估算（Gemini 預付制沒有查帳 API）</p>';}
 
   /* ── 數據 ── */
   function sumAt(h,key){var s=0,any=false;for(var p in (h[key]||{})){if(h[key][p]!=null){s+=h[key][p];any=true;}}return any?s:null;}
@@ -920,7 +966,7 @@ body.focus .tabs{display:none}
       h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝各平台觀看合計（YouTube 取公開數與後台數大的那個）；<b>平均看完</b>看 YouTube（會賺錢的平台）。<br><b>平均看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<br>'+
         '<b>前 3 秒留</b>＝YouTube 和 IG 前 3 秒沒滑走的平均（細節頁有各平台分開的；YouTube 只有報表近似值時標「約」）。<b>+N/3h</b>：最近 3 小時新增的觀看（灰色＝沒在漲）；YouTube 公開數常卡好幾小時，卡住時不顯示。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
     var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
-    return h+'<p class="note">版本 10-25e・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+    return h+'<p class="note">版本 11-03a・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
   /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
