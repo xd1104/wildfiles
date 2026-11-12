@@ -236,6 +236,7 @@ details.fbret>summary::before{content:"＋ "} details.fbret[open]>summary::befor
 .repick{margin-top:18px;display:flex;flex-direction:column;gap:10px}
 .repick textarea{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:16px;line-height:1.5;resize:none;color:var(--text)}
 .repick textarea::placeholder{color:var(--faint)}
+.bq .bqq{font-size:16px;line-height:1.5;margin-bottom:6px}.bq .bopts{flex-wrap:wrap}.bq textarea{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:16px;line-height:1.5;resize:none;color:var(--text);margin-top:8px}.bmore summary{color:var(--muted);font-size:14px;margin-top:8px}.bh{line-height:1.5}.bh .res{margin-top:4px}
 .topic .why{font-size:13px;color:var(--muted)}
 .topic .facts{display:flex;gap:14px;margin-top:6px;font-size:12px;color:var(--muted);flex-wrap:wrap}
 .topic .tick{position:absolute;top:14px;right:14px;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--faint);display:grid;place-items:center;font-size:14px;font-weight:700}
@@ -822,9 +823,35 @@ body.focus .tabs{display:none}
 
   /* ── 11-03 週報（荒野＋計謀交給 Claude 經營；selfrun/weekly_report.py 每週日產 report.json）──
      第一屏只放五個目標：現在 → 目標、這週多了多少、照不照進度；其他（片、實驗、花費、改了什麼）往下捲 */
+  /* 11-12 Benson：「你問我問題我要怎麼回答你」⇒ 週報頁可以回製作人：有問題就點選項（或打字），也可以直接講話。
+     問題＝荒野狀態的 asks（work.py ask 寫的）；回覆＝送 {type:'boss'} 到 inbox ⇒ work.py 存 boss、排程照做、boss done 寫怎麼處理 */
+  function bossW(){return (S.all[DEF]&&S.all[DEF].work)||{};}
+  function bossPend(){return pending(true).filter(function(a){return a.type==='boss';});}
+  function asksView(){var P=bossPend(),A=(bossW().asks||[]).filter(function(q){return !q.answer&&!P.some(function(a){return a.q===q.id;});});
+    if(!A.length)return '';
+    return '<h2>要問你的</h2>'+A.map(function(q,i){var ok=q.opts&&q.opts.length;
+      return '<div class="dcard bq"><div class="bqq"><b>'+(i+1)+'.</b> '+esc(q.q)+'</div>'+(q.why?'<div class="s">'+esc(q.why)+'</div>':'')+
+        (ok?'<div class="acts bopts">'+q.opts.map(function(o,j){return '<button class="btn'+(j===0?' primary':'')+'" type="button" data-qa="'+esc(q.id)+'" data-qo="'+esc(o)+'">'+esc(o)+'</button>';}).join('')+'</div>':'')+
+        '<details class="fold bmore"'+(ok?'':' open')+'><summary>'+(ok?'想多講幾句':'打字回答')+'</summary><textarea id="bqn-'+esc(q.id)+'" rows="3" placeholder="直接打你想說的">'+esc((S.bd||{})['bqn-'+q.id]||'')+'</textarea>'+
+        '<div class="acts"><button class="btn primary wide" type="button" data-qa="'+esc(q.id)+'" data-qo="">送出</button></div></details></div>';}).join('');}
+  function bossBox(){var B=(bossW().boss||[]).slice(-8).reverse(),P=bossPend(),h='<h2>跟製作人說</h2><div class="repick"><textarea id="bNote" rows="3" placeholder="想改什麼、不要什麼、問什麼都可以，10 分鐘內會收到">'+esc((S.bd||{}).bNote||'')+'</textarea>'+
+      '<div class="acts"><button class="btn primary wide" type="button" id="bSend">送出</button></div></div>';
+    var AQ={};(bossW().asks||[]).forEach(function(q){AQ[q.id]=q.q;});var rows=P.map(function(a){return {said:[a.answer,a.note].filter(Boolean).join('：'),q:AQ[a.q]||'',st:'送出了，等電腦收'};})
+      .concat(B.map(function(b){return {said:[b.answer,b.note].filter(Boolean).join('：'),q:b.qText,st:b.status==='done'?'':'收到了，處理中',h:b.handled,at:b.at};}));
+    if(rows.length)h+=rows.map(function(r){return '<div class="dcard bh">'+(r.q?'<div class="s">問：'+esc(r.q)+'</div>':'')+'<div><b>你說</b>　'+esc(r.said)+(r.at?'<small class="rch">'+esc(md(r.at.slice(0,10)))+'</small>':'')+'</div>'+
+      (r.h?'<div class="s res"><b>我怎麼處理</b>　'+esc(r.h)+'</div>':'<div class="s"><span class="pill acc">'+esc(r.st)+'</span></div>')+'</div>';}).join('');
+    return h;}
+  function bossSend(q,ans,note){if(!ans&&!note){toast('還沒寫字');return;}
+    send({type:'boss',ch:DEF,q:q||'',answer:ans||'',note:note||''}).then(function(){S.bd={};toast('送出了，10 分鐘內會收到');render();})
+      .catch(function(err){toast(sendErr(err));});}
+  document.addEventListener('click',function(e){var t=e.target;if(!t.closest)return;
+    var b=t.closest('[data-qa]');if(b){var qid=b.dataset.qa,ta=document.getElementById('bqn-'+qid);bossSend(qid,b.dataset.qo,ta?ta.value.trim():'');return;}
+    if(t.closest('#bSend')){var n=$('bNote');bossSend('','',n?n.value.trim():'');}});
+  document.addEventListener('input',function(e){var t=e.target;if(t&&t.id&&(t.id==='bNote'||t.id.indexOf('bqn-')===0)){(S.bd=S.bd||{})[t.id]=t.value;}});
   function reportView(){
     var R=S.report,h='<header class="top"><b>週報'+(R&&R.channels?'<small style="color:var(--muted)">'+esc(R.channels.join('＋'))+'</small>':'')+'</b></header>';
-    if(!R)return h+'<div class="empty">第一份週報 11/8（日）晚上出來。<br>每週日晚上更新，出來會推手機通知。</div>';
+    h+=asksView();
+    if(!R)return h+'<div class="empty">第一份週報 11/8（日）晚上出來。<br>每週日晚上更新，出來會推手機通知。</div>'+bossBox();
     var ok=R.goals.filter(function(g){return g.ok;}).length;
     h+='<div class="rhead"><b class="n">'+esc(R.label)+'</b><span>'+ok+'／'+R.goals.length+' 項照進度・第一期已過 '+Math.round(R.period.pct)+'%（到 '+esc(md(R.period.end))+'）</span></div>';
     h+=R.goals.map(function(g){var p=g.pct==null?0:Math.max(0,Math.min(100,g.pct)),w=g.target===g.start?0:Math.max(0,Math.min(100,(g.want-g.start)/(g.target-g.start)*100));
@@ -844,6 +871,7 @@ body.focus .tabs{display:none}
     var L=function(t,a){return a&&a.length?'<h2>'+t+'</h2><ul class="rl">'+a.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>':'';};
     h+=L('這週改了什麼',R.changed)+L('下週做什麼',R.next);
     if(R.note)h+='<div class="dcard tip">'+esc(R.note)+'</div>';
+    h+=bossBox();
     return h+'<p class="note">'+esc(String(R.at).slice(5,16).replace('T',' '))+' 產生・花費是估算（Gemini 預付制沒有查帳 API）</p>';}
 
   /* ── 數據 ── */
@@ -966,7 +994,7 @@ body.focus .tabs{display:none}
       h+='<div class="mh">怎麼看</div><div class="tip"><b>右邊的數字</b>＝各平台觀看合計（YouTube 取公開數與後台數大的那個）；<b>平均看完</b>看 YouTube（會賺錢的平台）。<br><b>平均看完</b>＝平均看了片長的幾成（YouTube 報表，慢 2～3 天；還沒有時用後台）。<br>'+
         '<b>前 3 秒留</b>＝YouTube 和 IG 前 3 秒沒滑走的平均（細節頁有各平台分開的；YouTube 只有報表近似值時標「約」）。<b>+N/3h</b>：最近 3 小時新增的觀看（灰色＝沒在漲）；YouTube 公開數常卡好幾小時，卡住時不顯示。還沒有的數字不顯示（YouTube 後台發布後最多 2 天才出來）。FB 的觀看是 Reels 播放次數。</div>';}
     var pr=pushRow();if(pr)h+='<div class="mh">手機提醒</div>'+pr;
-    return h+'<p class="note">版本 11-03a・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
+    return h+'<p class="note">版本 11-12a・畫面高 '+(window.__appH||'?')+'・'+(window.navigator.standalone?'主畫面':'瀏覽器')+'</p></details>';}
   /* 四平台合計：每個平台的觀看、粉絲、這次沒抓到的錯誤 */
   function totals(d){var hist=d.hist||[],h24=past(hist,24),views=0,fans=0;
     PF.forEach(function(p){var x=d.platforms[p.k];if(x&&x.ok){views+=x.totalViews||0;fans+=x.followers||0;}});
